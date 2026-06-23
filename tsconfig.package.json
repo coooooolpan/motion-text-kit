@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "declaration": true,
+    "emitDeclarationOnly": false,
+    "incremental": false,
+    "noEmit": false
+  },
+  "include": ["src/motion-text-kit/**/*.ts", "src/motion-text-kit/**/*.tsx"]
+}
