@@ -99,8 +99,8 @@
     var(--mtk-sweep-base) 60%,
     var(--mtk-sweep-base) 100%
   );
-  background-position: 150% 50%;
-  background-size: 260% 100%;
+  background-position: 100% 50%;
+  background-size: 300% 100%;
   -webkit-background-clip: text;
   background-clip: text;
   color: inherit;
@@ -116,11 +116,11 @@
 
 @keyframes mtk-gradient-sweep {
   0% {
-    background-position: 150% 50%;
+    background-position: 100% 50%;
   }
 
   100% {
-    background-position: -50% 50%;
+    background-position: 0% 50%;
   }
 }
 
