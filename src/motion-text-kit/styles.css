@@ -78,29 +78,34 @@
 }
 
 .mtk-gradient-sweep {
-  --mtk-sweep-duration: 3600ms;
+  --mtk-sweep-duration: 2800ms;
   --mtk-sweep-delay: 0ms;
   --mtk-sweep-angle: 110deg;
-  --mtk-sweep-base: currentColor;
-  --mtk-sweep-highlight: rgba(255, 255, 255, .98);
-  --mtk-sweep-accent: rgba(255, 255, 255, .72);
+  --mtk-sweep-base: color-mix(in srgb, currentColor 34%, transparent);
+  --mtk-sweep-highlight: currentColor;
+  --mtk-sweep-accent: color-mix(in srgb, currentColor 68%, transparent);
   --mtk-sweep-ease: linear;
   animation: mtk-gradient-sweep var(--mtk-sweep-duration)
     var(--mtk-sweep-ease) infinite;
   animation-delay: var(--mtk-sweep-delay);
-  background-repeat: no-repeat;
+  background-repeat: no-repeat, no-repeat;
   background-image: linear-gradient(
-    var(--mtk-sweep-angle),
-    var(--mtk-sweep-base) 0%,
-    var(--mtk-sweep-base) 40%,
-    var(--mtk-sweep-highlight) 48%,
-    var(--mtk-sweep-accent) 50%,
-    var(--mtk-sweep-highlight) 52%,
-    var(--mtk-sweep-base) 60%,
-    var(--mtk-sweep-base) 100%
-  );
-  background-position: 100% 50%;
-  background-size: 300% 100%;
+      var(--mtk-sweep-angle),
+      transparent 0%,
+      transparent 38%,
+      var(--mtk-sweep-accent) 47%,
+      var(--mtk-sweep-highlight) 50%,
+      var(--mtk-sweep-accent) 53%,
+      transparent 62%,
+      transparent 100%
+    ),
+    linear-gradient(var(--mtk-sweep-base), var(--mtk-sweep-base));
+  background-position:
+    100% 50%,
+    0 0;
+  background-size:
+    300% 100%,
+    100% 100%;
   -webkit-background-clip: text;
   background-clip: text;
   color: inherit;
@@ -115,12 +120,18 @@
 }
 
 @keyframes mtk-gradient-sweep {
-  0% {
-    background-position: 100% 50%;
+  0%,
+  12% {
+    background-position:
+      100% 50%,
+      0 0;
   }
 
+  88%,
   100% {
-    background-position: 0% 50%;
+    background-position:
+      0% 50%,
+      0 0;
   }
 }
 

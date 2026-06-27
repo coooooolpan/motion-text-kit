@@ -3,12 +3,11 @@
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import {
+  ArrowUpRightIcon,
   CopyIcon,
-  GitForkIcon,
   MoonIcon,
   SparklesIcon,
   SunIcon,
-  XIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -25,6 +24,8 @@ type MotionCard = {
   code: string;
 };
 
+const githubRepositoryUrl = "https://github.com/coooooolpan/motion-text-kit";
+
 function GithubIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -38,30 +39,41 @@ function GithubIcon({ className }: { className?: string }) {
   );
 }
 
-const countdownStartSeconds = 90;
+function CurrentTimePreview() {
+  const [currentTime, setCurrentTime] = useState<Date | null>(null);
 
-function CountdownPreview() {
-  const [remainingSeconds, setRemainingSeconds] = useState(
-    countdownStartSeconds,
-  );
-  const minutes = Math.floor(remainingSeconds / 60);
-  const seconds = remainingSeconds % 60;
+  const hours = currentTime?.getHours() ?? 0;
+  const minutes = currentTime?.getMinutes() ?? 0;
+  const seconds = currentTime?.getSeconds() ?? 0;
 
   useEffect(() => {
-    const timer = window.setInterval(() => {
-      setRemainingSeconds((current) =>
-        current === 0 ? countdownStartSeconds : current - 1,
-      );
-    }, 1000);
+    const updateTime = () => setCurrentTime(new Date());
 
-    return () => window.clearInterval(timer);
+    const initialTimer = window.setTimeout(updateTime, 0);
+    const timer = window.setInterval(updateTime, 1000);
+
+    return () => {
+      window.clearInterval(timer);
+      window.clearTimeout(initialTimer);
+    };
   }, []);
 
   return (
     <div
-      aria-label={`${minutes} minutes ${seconds} seconds remaining`}
+      aria-label={`Current time ${hours}:${minutes}:${seconds}`}
       className="inline-flex items-center justify-center font-mono text-[15px] font-semibold leading-[22px] tracking-normal"
     >
+      <RollingNumber
+        directionY={-1}
+        duration={500}
+        formatOptions={{ minimumIntegerDigits: 2, useGrouping: false }}
+        key={`h-${hours}`}
+        stagger={58}
+        value={hours}
+      />
+      <span aria-hidden="true" className="px-1">
+        :
+      </span>
       <RollingNumber
         directionY={-1}
         duration={500}
@@ -92,14 +104,10 @@ const motionCards: MotionCard[] = [
     preview: (
       <div className="grid place-items-center text-center">
         <GradientSweepText
-          accentColor="rgba(255,255,255,.7)"
-          baseColor="#8a8a8a"
-          className="font-heading text-[15px] font-semibold leading-[22px] tracking-normal"
-          duration={3600}
-          easing="linear"
-          highlightColor="#ffffff"
+          className="font-heading text-[15px] font-semibold leading-[22px] tracking-normal text-neutral-800 dark:text-neutral-100"
+          duration={2800}
         >
-          slide to unlock
+          Stay hungry, stay foolish.
         </GradientSweepText>
       </div>
     ),
@@ -126,16 +134,16 @@ const motionCards: MotionCard[] = [
   },
   {
     title: "倒计时数字滚动",
-    description: "Rolling MM:SS countdown timer",
-    preview: <CountdownPreview />,
-    code: `<RollingNumber value={1} />:<RollingNumber value={30} />`,
+    description: "Rolling current HH:mm:ss time",
+    preview: <CurrentTimePreview />,
+    code: `<RollingNumber value={new Date().getSeconds()} />`,
   },
 ];
 
 function MotionCatalogCard({ item }: { item: MotionCard }) {
   return (
-    <Card className="group overflow-hidden rounded-[1.35rem] border-neutral-200/80 bg-white shadow-[0_1px_1px_rgba(15,23,42,.02)] before:hidden dark:border-neutral-800/80 dark:bg-neutral-900">
-      <div className="m-3 flex h-[218px] items-center justify-center rounded-[1rem] border border-neutral-200/70 bg-neutral-50/80 p-5 dark:border-neutral-800 dark:bg-neutral-950/50">
+    <Card className="group overflow-hidden rounded-[1.5rem] border-neutral-200/80 bg-white shadow-[0_1px_1px_rgba(15,23,42,.02)] before:hidden dark:border-neutral-800/80 dark:bg-neutral-900">
+      <div className="m-3 flex h-[218px] items-center justify-center rounded-[0.75rem] border border-neutral-200/70 bg-neutral-50/80 p-5 dark:border-neutral-800 dark:bg-neutral-950/50">
         {item.preview}
       </div>
       <div className="grid grid-cols-[1fr_auto] gap-3 px-5 pb-5 pt-1">
@@ -177,25 +185,21 @@ export default function Home() {
           <div className="flex items-center gap-2">
             <Button
               className="!h-8 rounded-full px-3.5 !text-[13px] leading-none [&_svg]:size-3.5"
-              render={<a href="https://github.com/coooooolpan/motion-text-kit" />}
+              onClick={(event) => {
+                event.preventDefault();
+                window.open(githubRepositoryUrl, "_blank", "noopener,noreferrer");
+              }}
+              render={
+                <a
+                  href={githubRepositoryUrl}
+                  rel="noreferrer"
+                  target="_blank"
+                />
+              }
               variant="secondary"
             >
               <GithubIcon className="size-3.5" />
               GitHub
-            </Button>
-            <Button
-              className="!h-8 rounded-full px-3.5 !text-[13px] leading-none [&_svg]:size-3.5"
-              variant="secondary"
-            >
-              <GitForkIcon className="size-3.5" />
-              npm
-            </Button>
-            <Button
-              aria-label="Close"
-              className="!size-8 rounded-full [&_svg]:size-3.5"
-              variant="secondary"
-            >
-              <XIcon className="size-3.5" />
             </Button>
             <Button
               aria-label="Toggle dark mode"
@@ -233,12 +237,21 @@ export default function Home() {
         </section>
 
         <p className="mt-14 text-center text-[12px] leading-5 text-neutral-400 dark:text-neutral-500">
-          Text set in motion by{" "}
+          Designed by{" "}
           <a
-            className="font-semibold text-neutral-600 transition-colors hover:text-neutral-800 dark:text-neutral-300 dark:hover:text-neutral-100"
+            className="group inline-flex items-center font-semibold text-neutral-600 transition-colors duration-300 hover:text-neutral-800 dark:text-neutral-300 dark:hover:text-neutral-100"
             href="https://coooooolpan.vercel.app/"
+            rel="noreferrer"
+            target="_blank"
           >
             coooooolpan
+            <span className="ml-1 inline-grid size-3.5 place-items-center">
+              <ArrowUpRightIcon
+                aria-hidden="true"
+                className="size-3 translate-x-[-0.4rem] translate-y-[0.4rem] scale-75 opacity-0 [filter:blur(2px)] transition-[opacity,translate,scale,filter] duration-500 ease-[cubic-bezier(.16,1,.3,1)] group-hover:translate-x-0 group-hover:translate-y-0 group-hover:scale-100 group-hover:opacity-100 group-hover:[filter:blur(0px)]"
+                strokeWidth={2.2}
+              />
+            </span>
           </a>
         </p>
       </div>
