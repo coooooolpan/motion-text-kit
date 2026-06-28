@@ -121,13 +121,13 @@
 
 @keyframes mtk-gradient-sweep {
   0%,
-  12% {
+  6% {
     background-position:
       100% 50%,
       0 0;
   }
 
-  88%,
+  94%,
   100% {
     background-position:
       0% 50%,
@@ -179,10 +179,163 @@
   }
 }
 
+.mtk-spoiler-text {
+  --mtk-spoiler-duration: 360ms;
+  --mtk-spoiler-particle: currentColor;
+  border-radius: .32em;
+  cursor: pointer;
+  display: inline-grid;
+  line-height: 1.35;
+  outline: none;
+  position: relative;
+  user-select: none;
+}
+
+.mtk-spoiler-text__content {
+  filter: blur(7px);
+  grid-area: 1 / 1;
+  opacity: .16;
+  transition:
+    filter var(--mtk-spoiler-duration) cubic-bezier(.16, 1, .3, 1),
+    opacity var(--mtk-spoiler-duration) cubic-bezier(.16, 1, .3, 1);
+}
+
+.mtk-spoiler-text__particles {
+  animation: mtk-spoiler-particles 720ms steps(8) infinite;
+  background-image:
+    radial-gradient(circle, var(--mtk-spoiler-particle) 0 1px, transparent 1.4px),
+    radial-gradient(circle, var(--mtk-spoiler-particle) 0 1px, transparent 1.4px);
+  background-position:
+    0 0,
+    5px 6px;
+  background-size: 10px 10px;
+  border-radius: inherit;
+  grid-area: 1 / 1;
+  opacity: .72;
+  transition:
+    opacity var(--mtk-spoiler-duration) cubic-bezier(.16, 1, .3, 1),
+    scale var(--mtk-spoiler-duration) cubic-bezier(.16, 1, .3, 1),
+    filter var(--mtk-spoiler-duration) cubic-bezier(.16, 1, .3, 1);
+}
+
+.mtk-spoiler-text[data-revealed] {
+  cursor: text;
+  user-select: text;
+}
+
+.mtk-spoiler-text[data-revealed] .mtk-spoiler-text__content {
+  filter: blur(0);
+  opacity: 1;
+}
+
+.mtk-spoiler-text[data-revealed] .mtk-spoiler-text__particles {
+  filter: blur(8px);
+  opacity: 0;
+  scale: 1.08;
+}
+
+@keyframes mtk-spoiler-particles {
+  to {
+    background-position:
+      10px 10px,
+      15px 16px;
+  }
+}
+
+.mtk-decrypt-text {
+  --mtk-decrypt-duration: 1400ms;
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
+  min-width: 1ch;
+  white-space: pre;
+}
+
+.mtk-decrypt-text > span {
+  animation: mtk-decrypt-flicker var(--mtk-decrypt-duration) steps(12) infinite;
+  display: inline-block;
+}
+
+@keyframes mtk-decrypt-flicker {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  45% {
+    opacity: .78;
+  }
+
+  65% {
+    opacity: .92;
+  }
+}
+
+.mtk-weight-sweep {
+  --mtk-weight-duration: 2600ms;
+  --mtk-weight-delay: 0ms;
+  --mtk-weight-stagger: 56ms;
+  --mtk-weight-min: 300;
+  --mtk-weight-mid: 550;
+  --mtk-weight-max: 800;
+  --mtk-weight-ease: cubic-bezier(.45, 0, .15, 1);
+  display: inline-flex;
+  white-space: pre-wrap;
+}
+
+.mtk-weight-sweep__cell {
+  display: inline-grid;
+  white-space: pre;
+}
+
+.mtk-weight-sweep__cell::before {
+  content: attr(data-char);
+  font-variation-settings: "wght" var(--mtk-weight-max);
+  font-weight: var(--mtk-weight-max);
+  grid-area: 1 / 1;
+  visibility: hidden;
+  white-space: pre;
+}
+
+.mtk-weight-sweep__item {
+  animation: mtk-weight-sweep var(--mtk-weight-duration)
+    var(--mtk-weight-ease) infinite;
+  animation-delay: calc(
+    var(--mtk-weight-delay) + var(--mtk-index) * var(--mtk-weight-stagger)
+  );
+  display: inline-block;
+  font-variation-settings: "wght" var(--mtk-weight-min);
+  font-weight: var(--mtk-weight-min);
+  grid-area: 1 / 1;
+  will-change: font-variation-settings, font-weight;
+}
+
+@keyframes mtk-weight-sweep {
+  0%,
+  14%,
+  100% {
+    font-variation-settings: "wght" var(--mtk-weight-min);
+    font-weight: var(--mtk-weight-min);
+  }
+
+  34%,
+  70% {
+    font-variation-settings: "wght" var(--mtk-weight-mid);
+    font-weight: var(--mtk-weight-mid);
+  }
+
+  52% {
+    font-variation-settings: "wght" var(--mtk-weight-max);
+    font-weight: var(--mtk-weight-max);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .mtk-text-reveal__item,
   .mtk-gradient-sweep,
-  .mtk-rolling-number__digit {
+  .mtk-rolling-number__digit,
+  .mtk-spoiler-text__particles,
+  .mtk-decrypt-text > span,
+  .mtk-weight-sweep__item {
     animation: none;
   }
 
@@ -200,5 +353,19 @@
     filter: blur(0);
     opacity: 1;
     transform: none;
+  }
+
+  .mtk-spoiler-text__content {
+    filter: blur(0);
+    opacity: 1;
+  }
+
+  .mtk-spoiler-text__particles {
+    opacity: 0;
+  }
+
+  .mtk-weight-sweep__item {
+    font-variation-settings: "wght" var(--mtk-weight-max);
+    font-weight: var(--mtk-weight-max);
   }
 }

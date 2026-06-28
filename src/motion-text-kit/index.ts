@@ -1,6 +1,12 @@
 export { GradientSweepText } from "./gradient-sweep-text";
 export type { GradientSweepTextProps } from "./gradient-sweep-text";
+export { DecryptText } from "./decrypt-text";
+export type { DecryptTextProps } from "./decrypt-text";
 export { RollingNumber } from "./rolling-number";
 export type { RollingNumberProps } from "./rolling-number";
+export { SpoilerText } from "./spoiler-text";
+export type { SpoilerTextProps } from "./spoiler-text";
 export { TextReveal } from "./text-reveal";
 export type { TextRevealProps } from "./text-reveal";
+export { WeightSweepText } from "./weight-sweep-text";
+export type { WeightSweepTextProps } from "./weight-sweep-text";

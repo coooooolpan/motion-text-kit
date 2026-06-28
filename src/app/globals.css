@@ -17,6 +17,8 @@
   --animate-caret-blink: 1s ease-out infinite caret-blink;
   --font-heading: "Inter", "Inter Fallback", ui-sans-serif, system-ui,
     sans-serif;
+  --font-pixel-square: var(--font-geist-pixel-square), "Geist Mono",
+    ui-monospace, monospace;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -241,5 +243,183 @@
   }
   html {
     @apply font-sans;
+  }
+}
+
+.motion-logo {
+  --logo-cell-size: 3px;
+  --logo-cell-step: 4px;
+  --logo-cycle: 3600ms;
+  display: grid;
+  height: 34px;
+  overflow: hidden;
+  place-items: center;
+  position: relative;
+  width: 34px;
+}
+
+.motion-logo__noise,
+.motion-logo__pixel-t,
+.motion-logo__line-t {
+  grid-area: 1 / 1;
+}
+
+.motion-logo__noise {
+  display: grid;
+  font-family: var(--font-pixel-square);
+  font-size: 6px;
+  grid-template-columns: repeat(7, 1fr);
+  height: 100%;
+  line-height: 1;
+  opacity: .58;
+  width: 100%;
+}
+
+.motion-logo__noise-glyph {
+  animation: motion-logo-noise 1200ms steps(2, jump-none) infinite;
+  animation-delay: calc(var(--logo-noise-index) * -87ms);
+  color: color-mix(in srgb, currentColor 34%, transparent);
+  display: grid;
+  place-items: center;
+}
+
+.motion-logo__pixel-t,
+.motion-logo__line-t {
+  height: 28px;
+  position: relative;
+  width: 28px;
+}
+
+.motion-logo__pixel {
+  animation: motion-logo-cell var(--logo-cycle) cubic-bezier(.5, 0, .2, 1)
+    infinite;
+  animation-delay: calc(var(--logo-cell-index) * 14ms);
+  background: currentColor;
+  height: var(--logo-cell-size);
+  left: calc(var(--logo-cell-x) * var(--logo-cell-step));
+  position: absolute;
+  top: calc(var(--logo-cell-y) * var(--logo-cell-step));
+  width: var(--logo-cell-size);
+  will-change: opacity, transform, border-radius;
+}
+
+.motion-logo__pixel[data-shape="circle"] {
+  border-radius: 999px;
+}
+
+.motion-logo__pixel[data-shape="triangle"] {
+  background: transparent;
+  border-bottom: var(--logo-cell-size) solid currentColor;
+  border-left: calc(var(--logo-cell-size) * .58) solid transparent;
+  border-right: calc(var(--logo-cell-size) * .58) solid transparent;
+  height: 0;
+  width: 0;
+}
+
+.motion-logo__pixel[data-shape="dash"] {
+  height: 2px;
+  width: 5px;
+}
+
+.motion-logo__line-t {
+  animation: motion-logo-line var(--logo-cycle) cubic-bezier(.5, 0, .2, 1)
+    infinite;
+  opacity: 0;
+  will-change: opacity, filter;
+}
+
+.motion-logo__line-cell {
+  background: currentColor;
+  border-radius: 1px;
+  height: 2px;
+  left: calc(var(--logo-cell-x) * var(--logo-cell-step) - .5px);
+  position: absolute;
+  top: calc(var(--logo-cell-y) * var(--logo-cell-step) + .5px);
+  width: 4px;
+}
+
+@keyframes motion-logo-cell {
+  0%,
+  18% {
+    filter: blur(0);
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  32%,
+  42% {
+    filter: blur(.3px);
+    opacity: .78;
+    transform: translate3d(
+        var(--logo-cell-scatter-x),
+        var(--logo-cell-scatter-y),
+        0
+      )
+      scale(.72);
+  }
+
+  54%,
+  78% {
+    filter: blur(1px);
+    opacity: 0;
+    transform: translate3d(
+        calc(var(--logo-cell-scatter-x) * .45),
+        calc(var(--logo-cell-scatter-y) * .45),
+        0
+      )
+      scale(.58);
+  }
+
+  92%,
+  100% {
+    filter: blur(0);
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes motion-logo-line {
+  0%,
+  44%,
+  86%,
+  100% {
+    filter: blur(1px);
+    opacity: 0;
+  }
+
+  56%,
+  74% {
+    filter: blur(0);
+    opacity: 1;
+  }
+}
+
+@keyframes motion-logo-noise {
+  0%,
+  100% {
+    opacity: .28;
+    transform: translateY(0);
+  }
+
+  50% {
+    opacity: .75;
+    transform: translateY(-1px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motion-logo__noise-glyph,
+  .motion-logo__pixel,
+  .motion-logo__line-t {
+    animation: none;
+  }
+
+  .motion-logo__pixel {
+    opacity: 1;
+    transform: none;
+  }
+
+  .motion-logo__line-t {
+    opacity: 0;
   }
 }
