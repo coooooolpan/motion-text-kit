@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Inter } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import "@/motion-text-kit/styles.css";
 
@@ -18,6 +19,13 @@ const fontMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const fontPixelSquare = localFont({
+  src: "../../node_modules/geist/dist/fonts/geist-pixel/GeistPixel-Square.woff2",
+  variable: "--font-geist-pixel-square",
+  weight: "500",
+  fallback: ["Geist Mono", "ui-monospace", "monospace"],
+});
+
 export const metadata: Metadata = {
   title: "Motion Text Kit",
   description: "Reusable React text motion components powered by CSS.",
@@ -31,7 +39,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${fontSans.variable} ${fontHeading.variable} ${fontMono.variable} h-full antialiased`}
+      className={`${fontSans.variable} ${fontHeading.variable} ${fontMono.variable} ${fontPixelSquare.variable} h-full antialiased`}
     >
       <body className="relative min-h-full">
         <div className="isolate relative flex min-h-svh flex-col">
