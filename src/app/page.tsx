@@ -1,7 +1,7 @@
 "use client";
 
-import type { CSSProperties, ReactNode } from "react";
-import { useEffect, useState } from "react";
+import type { ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BorderBeam } from "border-beam";
 import {
   ArrowUpRightIcon,
@@ -20,10 +20,13 @@ import {
 } from "@/components/ui/menu";
 import {
   DecryptText,
+  FocusBlurText,
   GradientSweepText,
+  PixelResolveText,
   RollingNumber,
   SpoilerText,
   TextReveal,
+  TypewriterText,
   WeightSweepText,
 } from "@/motion-text-kit";
 
@@ -38,22 +41,6 @@ type MotionCard = {
 };
 
 const githubRepositoryUrl = "https://github.com/coooooolpan/motion-text-kit";
-const signatureMarkStyle: CSSProperties = {
-  backgroundColor: "currentColor",
-  display: "inline-block",
-  height: 28,
-  mask: 'url("/coooooolpan-signature.svg") center / contain no-repeat',
-  transform: "translateY(3px)",
-  WebkitMask: 'url("/coooooolpan-signature.svg") center / contain no-repeat',
-  width: 140,
-};
-const signatureSweepStyle: CSSProperties = {
-  ...signatureMarkStyle,
-  backgroundImage:
-    "linear-gradient(110deg, transparent 0%, rgba(255,255,255,.12) 34%, rgba(255,255,255,.95) 48%, rgba(255,255,255,.28) 60%, transparent 76%)",
-  inset: 0,
-  position: "absolute",
-};
 const pageCopy = {
   zh: {
     languageToggleLabel: "切换到英文",
@@ -101,6 +88,21 @@ const pageCopy = {
         title: "字重扫光变化",
         description: "字重从细到粗平滑扫过文字",
         previewText: "Weight wave passes.",
+      },
+      focus: {
+        title: "模糊聚焦",
+        description: "文字从失焦模糊聚拢到清晰",
+        previewText: "Focus sharpens softly.",
+      },
+      pixel: {
+        title: "像素化还原",
+        description: "像素块逐步还原成清晰文字",
+        previewText: "PIXELS RESTORED",
+      },
+      typewriter: {
+        title: "打字机光标输入",
+        description: "逐字输入并带闪烁光标",
+        previewText: "Typing with a cursor",
       },
     },
   },
@@ -151,6 +153,21 @@ const pageCopy = {
         description: "Text weight sweeps from thin to bold",
         previewText: "Weight wave passes.",
       },
+      focus: {
+        title: "Blur Focus",
+        description: "Text resolves from soft blur into focus",
+        previewText: "Focus sharpens softly.",
+      },
+      pixel: {
+        title: "Pixel Resolve",
+        description: "Pixelated glyphs resolve into crisp text",
+        previewText: "PIXELS RESTORED",
+      },
+      typewriter: {
+        title: "Typewriter Cursor",
+        description: "Characters type in with a blinking caret",
+        previewText: "Typing with a cursor",
+      },
     },
   },
 } as const;
@@ -193,26 +210,65 @@ function FilledSunIcon({ className }: { className?: string }) {
   );
 }
 
-function SignatureMark() {
+function FooterSignatureMark() {
   return (
-    <span
-      aria-hidden="true"
-      className="relative inline-block"
-      style={{
-        height: signatureMarkStyle.height,
-        transform: signatureMarkStyle.transform,
-        width: signatureMarkStyle.width,
-      }}
-    >
-      <span
-        aria-hidden="true"
-        style={{ ...signatureMarkStyle, transform: undefined }}
-      />
-      <span
-        aria-hidden="true"
-        className="signature-sweep"
-        style={{ ...signatureSweepStyle, transform: undefined }}
-      />
+    <span aria-hidden="true" className="footer-signature">
+      <svg
+        className="footer-signature__mark"
+        viewBox="0 0 210 48"
+      >
+        <defs>
+          <filter id="footer-signature-roughen">
+            <feTurbulence
+              baseFrequency="0.065"
+              numOctaves="2"
+              result="noise"
+              seed="18"
+              type="fractalNoise"
+            />
+            <feDisplacementMap
+              in="SourceGraphic"
+              in2="noise"
+              scale="1.15"
+              xChannelSelector="R"
+              yChannelSelector="G"
+            />
+          </filter>
+        </defs>
+        <g filter="url(#footer-signature-roughen)">
+          <text className="footer-signature__text" x="4" y="32">
+            coooooolpan
+          </text>
+        </g>
+      </svg>
+      <svg
+        className="footer-signature__mark footer-signature__sweep signature-sweep"
+        viewBox="0 0 210 48"
+      >
+        <defs>
+          <linearGradient
+            gradientUnits="userSpaceOnUse"
+            id="footer-signature-sweep"
+            x1="-60"
+            x2="120"
+            y1="0"
+            y2="0"
+          >
+            <stop offset="0%" stopColor="transparent" />
+            <stop offset="42%" stopColor="rgba(255,255,255,.1)" />
+            <stop offset="54%" stopColor="rgba(255,255,255,.96)" />
+            <stop offset="68%" stopColor="rgba(255,255,255,.22)" />
+            <stop offset="100%" stopColor="transparent" />
+          </linearGradient>
+        </defs>
+        <text
+          className="footer-signature__text footer-signature__text--sweep"
+          x="4"
+          y="32"
+        >
+          coooooolpan
+        </text>
+      </svg>
     </span>
   );
 }
@@ -267,6 +323,114 @@ function MotionLogo({ label }: { label: string }) {
         </text>
       </g>
     </svg>
+  );
+}
+
+function MotionLogoCard({
+  isDark,
+  label,
+}: {
+  isDark: boolean;
+  label: string;
+}) {
+  const wrapRef = useRef<HTMLDivElement | null>(null);
+  const cardRef = useRef<HTMLDivElement | null>(null);
+  const tiltFrameRef = useRef<number | null>(null);
+  const tiltPointRef = useRef({ x: 0, y: 0 });
+
+  useEffect(() => {
+    return () => {
+      if (tiltFrameRef.current !== null) {
+        window.cancelAnimationFrame(tiltFrameRef.current);
+      }
+    };
+  }, []);
+
+  function resetTilt() {
+    const wrap = wrapRef.current;
+    const card = cardRef.current;
+
+    if (tiltFrameRef.current !== null) {
+      window.cancelAnimationFrame(tiltFrameRef.current);
+      tiltFrameRef.current = null;
+    }
+
+    wrap?.classList.remove("is-hover");
+
+    if (!card) {
+      return;
+    }
+
+    card.classList.remove("is-tilting");
+    card.style.setProperty("--tilt-rx", "0deg");
+    card.style.setProperty("--tilt-ry", "0deg");
+    card.style.setProperty("--tilt-gx", "50%");
+    card.style.setProperty("--tilt-gy", "50%");
+  }
+
+  function applyTilt() {
+    tiltFrameRef.current = null;
+
+    const wrap = wrapRef.current;
+    const card = cardRef.current;
+
+    if (!wrap || !card) {
+      return;
+    }
+
+    const rect = wrap.getBoundingClientRect();
+    const px = Math.max(0, Math.min(1, (tiltPointRef.current.x - rect.left) / rect.width));
+    const py = Math.max(0, Math.min(1, (tiltPointRef.current.y - rect.top) / rect.height));
+    const tiltX = (0.5 - py) * 44;
+    const tiltY = (px - 0.5) * 44;
+
+    wrap.classList.add("is-hover");
+    card.classList.add("is-tilting");
+    card.style.setProperty("--tilt-rx", `${tiltX.toFixed(2)}deg`);
+    card.style.setProperty("--tilt-ry", `${tiltY.toFixed(2)}deg`);
+    card.style.setProperty("--tilt-gx", `${(px * 100).toFixed(1)}%`);
+    card.style.setProperty("--tilt-gy", `${(py * 100).toFixed(1)}%`);
+  }
+
+  function scheduleTilt(clientX: number, clientY: number) {
+    tiltPointRef.current = { x: clientX, y: clientY };
+
+    if (tiltFrameRef.current === null) {
+      tiltFrameRef.current = window.requestAnimationFrame(applyTilt);
+    }
+  }
+
+  function handlePointerMove(event: React.PointerEvent<HTMLDivElement>) {
+    scheduleTilt(event.clientX, event.clientY);
+  }
+
+  function handlePointerLeave() {
+    resetTilt();
+  }
+
+  return (
+    <div
+      className="logo-tilt t-tilt"
+      onPointerCancel={handlePointerLeave}
+      onPointerLeave={handlePointerLeave}
+      onPointerMove={handlePointerMove}
+      onPointerUp={() => cardRef.current?.classList.remove("is-tilting")}
+      ref={wrapRef}
+    >
+      <div className="t-tilt-card" ref={cardRef}>
+        <BorderBeam
+          size="pulse-outside"
+          colorVariant="mono"
+          strength={0.8}
+          theme={isDark ? "dark" : "light"}
+        >
+          <Card className="logo-card grid size-[4.75rem] place-items-center overflow-hidden rounded-[1.35rem] border-black/[0.045] bg-white p-0 shadow-[0_18px_48px_rgba(59,130,246,.16)] dark:border-white/8 dark:bg-neutral-900 dark:shadow-[0_18px_48px_rgba(59,130,246,.08)]">
+            <MotionLogo label={label} />
+          </Card>
+        </BorderBeam>
+        <div aria-hidden="true" className="t-tilt-glare" />
+      </div>
+    </div>
   );
 }
 
@@ -365,24 +529,6 @@ function SpoilerPreview({
 function createMotionCards(copy: (typeof pageCopy)[Locale]): MotionCard[] {
   return [
     {
-      id: "gradient",
-      title: copy.cards.gradient.title,
-      description: copy.cards.gradient.description,
-      preview: (
-        <div className="grid place-items-center text-center">
-          <GradientSweepText
-            accentColor="rgba(255,255,255,.72)"
-            className="font-heading text-[14px] font-semibold leading-[22px] tracking-normal text-neutral-800 dark:text-neutral-100"
-            duration={2200}
-            highlightColor="#ffffff"
-          >
-            {copy.cards.gradient.previewText}
-          </GradientSweepText>
-        </div>
-      ),
-      code: `<GradientSweepText>Highlight sweep</GradientSweepText>`,
-    },
-    {
       id: "reveal",
       title: copy.cards.reveal.title,
       description: copy.cards.reveal.description,
@@ -422,20 +568,6 @@ function createMotionCards(copy: (typeof pageCopy)[Locale]): MotionCard[] {
       code: `<SpoilerText text="Tap to reveal this." />`,
     },
     {
-      id: "decrypt",
-      title: copy.cards.decrypt.title,
-      description: copy.cards.decrypt.description,
-      preview: (
-        <div className="grid place-items-center text-center">
-          <DecryptText
-            className="font-mono text-[14px] font-semibold leading-[22px] tracking-normal"
-            text={copy.cards.decrypt.previewText}
-          />
-        </div>
-      ),
-      code: `<DecryptText text="ACCESS GRANTED" />`,
-    },
-    {
       id: "weight",
       title: copy.cards.weight.title,
       description: copy.cards.weight.description,
@@ -451,6 +583,89 @@ function createMotionCards(copy: (typeof pageCopy)[Locale]): MotionCard[] {
       ),
       code: `<WeightSweepText text="Weight wave passes." />`,
     },
+    {
+      id: "decrypt",
+      title: copy.cards.decrypt.title,
+      description: copy.cards.decrypt.description,
+      preview: (
+        <div className="grid place-items-center text-center">
+          <DecryptText
+            className="font-mono text-[14px] font-semibold leading-[22px] tracking-normal"
+            text={copy.cards.decrypt.previewText}
+          />
+        </div>
+      ),
+      code: `<DecryptText text="ACCESS GRANTED" />`,
+    },
+    {
+      id: "gradient",
+      title: copy.cards.gradient.title,
+      description: copy.cards.gradient.description,
+      preview: (
+        <div className="grid place-items-center text-center">
+          <GradientSweepText
+            accentColor="rgba(255,255,255,.72)"
+            className="font-heading text-[14px] font-semibold leading-[22px] tracking-normal text-neutral-800 dark:text-neutral-100"
+            duration={2200}
+            highlightColor="#ffffff"
+          >
+            {copy.cards.gradient.previewText}
+          </GradientSweepText>
+        </div>
+      ),
+      code: `<GradientSweepText>Highlight sweep</GradientSweepText>`,
+    },
+    {
+      id: "focus",
+      title: copy.cards.focus.title,
+      description: copy.cards.focus.description,
+      preview: (
+        <div className="grid place-items-center text-center">
+          <FocusBlurText
+            blur={9}
+            className="max-w-56 justify-center text-balance font-heading text-[14px] font-semibold leading-[22px]"
+            duration={960}
+            stagger={24}
+            text={copy.cards.focus.previewText}
+          />
+        </div>
+      ),
+      code: `<FocusBlurText text="Focus sharpens softly." />`,
+    },
+    {
+      id: "pixel",
+      title: copy.cards.pixel.title,
+      description: copy.cards.pixel.description,
+      preview: (
+        <div className="grid place-items-center text-center">
+          <PixelResolveText
+            className="font-mono text-[14px] font-semibold leading-[22px] tracking-normal"
+            duration={1150}
+            pixelSize={3}
+            stagger={28}
+            text={copy.cards.pixel.previewText}
+          />
+        </div>
+      ),
+      code: `<PixelResolveText text="PIXELS RESTORED" />`,
+    },
+    {
+      id: "typewriter",
+      title: copy.cards.typewriter.title,
+      description: copy.cards.typewriter.description,
+      preview: (
+        <div className="grid place-items-center text-center">
+          <TypewriterText
+            className="font-mono text-[14px] font-semibold leading-[22px] tracking-normal"
+            deleteSpeed={30}
+            loopDelay={980}
+            speed={56}
+            text={copy.cards.typewriter.previewText}
+          />
+        </div>
+      ),
+      code: `<TypewriterText text="Typing with a cursor" />`,
+    },
   ];
 }
 
@@ -463,7 +678,7 @@ function MotionCatalogCard({
 }) {
   return (
     <Card className="group overflow-hidden rounded-[1.5rem] border-neutral-200/45 bg-white shadow-[0_1px_1px_rgba(15,23,42,.02)] before:hidden dark:border-neutral-800/55 dark:bg-neutral-900">
-      <div className="m-3 flex h-[218px] items-center justify-center rounded-[0.75rem] border border-neutral-200/45 bg-neutral-50 p-5 dark:border-neutral-700/35 dark:bg-neutral-800/35">
+      <div className="m-3 flex h-[218px] items-center justify-center rounded-[0.75rem] border border-neutral-200/45 bg-neutral-50 p-5 dark:border-neutral-700/28 dark:bg-neutral-950/28">
         {item.preview}
       </div>
       <div className="grid grid-cols-[1fr_auto] gap-3 px-5 pb-5 pt-1">
@@ -498,6 +713,18 @@ export default function Home() {
   const motionCards = createMotionCards(copy);
 
   useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const syncTheme = (event: MediaQueryList | MediaQueryListEvent) => {
+      setIsDark(event.matches);
+    };
+
+    syncTheme(mediaQuery);
+    mediaQuery.addEventListener("change", syncTheme);
+
+    return () => mediaQuery.removeEventListener("change", syncTheme);
+  }, []);
+
+  useEffect(() => {
     document.documentElement.classList.toggle("dark", isDark);
   }, [isDark]);
 
@@ -506,7 +733,7 @@ export default function Home() {
   }, [locale]);
 
   return (
-    <main className="min-h-svh bg-[#fafafa] text-neutral-900 transition-colors dark:bg-neutral-950 dark:text-neutral-100">
+    <main className="min-h-svh bg-background text-neutral-900 transition-colors dark:text-neutral-100">
       <div className="mx-auto flex w-full max-w-[1040px] flex-col px-4 pb-16 pt-5">
         <header className="flex justify-end">
           <div className="flex items-center gap-2">
@@ -589,11 +816,7 @@ export default function Home() {
 
         <section className="mx-auto mt-4 flex max-w-[460px] flex-col items-center text-center">
           <div className="mb-7">
-            <BorderBeam size="pulse-outside" colorVariant="mono" strength={0.8}>
-              <Card className="grid size-16 place-items-center overflow-visible rounded-2xl border-black/8 bg-white p-0 shadow-[0_16px_42px_rgba(59,130,246,.16)] dark:border-white/8 dark:bg-neutral-900 dark:shadow-[0_16px_42px_rgba(59,130,246,.08)]">
-                <MotionLogo label={copy.logoLabel} />
-              </Card>
-            </BorderBeam>
+            <MotionLogoCard isDark={isDark} label={copy.logoLabel} />
           </div>
           <h1 className="font-heading text-2xl font-semibold tracking-normal">
             Motion Text Kit
@@ -622,7 +845,7 @@ export default function Home() {
             rel="noreferrer"
             target="_blank"
           >
-            <SignatureMark />
+            <FooterSignatureMark />
             <span className="inline-grid size-[18px] translate-y-[3px] place-items-center">
               <ArrowUpRightIcon
                 aria-hidden="true"

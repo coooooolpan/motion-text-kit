@@ -152,7 +152,7 @@
   --warning-foreground: var(--color-amber-700);
   --accent: --alpha(var(--color-black) / 4%);
   --accent-foreground: var(--color-neutral-800);
-  --background: var(--color-white);
+  --background: #fafafa;
   --border: --alpha(var(--color-black) / 8%);
   --card: var(--color-white);
   --card-foreground: var(--color-neutral-800);
@@ -197,7 +197,7 @@
   --warning-foreground: var(--color-amber-400);
   --accent: --alpha(var(--color-white) / 4%);
   --accent-foreground: var(--color-neutral-100);
-  --background: color-mix(in srgb, var(--color-neutral-950) 95%, var(--color-white));
+  --background: var(--color-neutral-950);
   --border: --alpha(var(--color-white) / 6%);
   --card: color-mix(in srgb, var(--background) 98%, var(--color-white));
   --card-foreground: var(--color-neutral-100);
@@ -235,8 +235,13 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html,
   body {
-    @apply bg-background text-foreground;
+    min-height: 100%;
+    background: var(--background);
+  }
+  body {
+    @apply text-foreground;
   }
   code, kbd, samp, pre {
     font-family: var(--font-mono);
@@ -255,6 +260,45 @@
   pointer-events: none;
 }
 
+.footer-signature {
+  display: inline-block;
+  height: 32px;
+  position: relative;
+  transform: translateY(4px) rotate(-1deg);
+  width: 148px;
+}
+
+.footer-signature__mark {
+  color: currentColor;
+  display: block;
+  inset: 0;
+  overflow: visible;
+  position: absolute;
+}
+
+.footer-signature__text {
+  fill: currentColor;
+  font-family: "Comic Sans MS", "Bradley Hand", "Marker Felt", cursive;
+  font-size: 25px;
+  font-weight: 700;
+  letter-spacing: -1.2px;
+  paint-order: stroke fill;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: .38px;
+  text-rendering: geometricPrecision;
+}
+
+.footer-signature__text--sweep {
+  fill: url("#footer-signature-sweep");
+  stroke: transparent;
+}
+
+.footer-signature__sweep {
+  transform: translateX(44px);
+}
+
 .group:hover .signature-sweep {
   animation: signature-sweep 900ms cubic-bezier(.45, 0, .15, 1) both;
 }
@@ -263,6 +307,7 @@
   0% {
     background-position: 140% 50%;
     opacity: 0;
+    transform: translateX(44px);
   }
 
   16% {
@@ -272,15 +317,16 @@
   100% {
     background-position: -80% 50%;
     opacity: 0;
+    transform: translateX(-72px);
   }
 }
 
 .motion-logo {
   color: currentColor;
   display: block;
-  height: 54px;
+  height: 62px;
   overflow: visible;
-  width: 54px;
+  width: 62px;
 }
 
 .motion-logo__word {
@@ -314,8 +360,95 @@
   transform-origin: 50px 78px;
 }
 
+.t-tilt {
+  --tilt-perspective: 1000px;
+  --tilt-return: 1000ms;
+  --tilt-return-ease: cubic-bezier(.22, 1, .36, 1);
+  --tilt-follow: 400ms;
+  --tilt-follow-ease: cubic-bezier(.22, 1, .36, 1);
+  --tilt-glare-opacity: .32;
+  --tilt-glare-fade: 300ms;
+  --tilt-glare-ease: cubic-bezier(.22, 1, .36, 1);
+  touch-action: none;
+}
+
+.logo-tilt {
+  overflow: visible;
+}
+
+.t-tilt-card {
+  backface-visibility: hidden;
+  border-radius: 1.35rem;
+  overflow: visible;
+  position: relative;
+  transform:
+    perspective(var(--tilt-perspective))
+    rotateX(var(--tilt-rx, 0deg))
+    rotateY(var(--tilt-ry, 0deg))
+    rotateZ(var(--tilt-rz, 0deg))
+    translateZ(0);
+  transform-style: preserve-3d;
+  transition: transform var(--tilt-return) var(--tilt-return-ease);
+  will-change: transform;
+}
+
+.t-tilt-card:has([data-beam]) {
+  isolation: isolate;
+}
+
+.t-tilt-card.is-tilting {
+  transition: transform var(--tilt-follow) var(--tilt-follow-ease);
+}
+
+.t-tilt.is-hover .t-tilt-card {
+  --tilt-rz: -12deg;
+}
+
+.logo-card {
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+.t-tilt-glare {
+  background:
+    radial-gradient(
+      circle 95px at var(--tilt-gx, 50%) var(--tilt-gy, 50%),
+      rgba(255, 255, 255, .48),
+      rgba(255, 255, 255, .06) 52%,
+      rgba(255, 255, 255, 0) 84%
+    ),
+    radial-gradient(
+      circle 200px at var(--tilt-gx, 50%) var(--tilt-gy, 50%),
+      rgba(255, 255, 255, .22),
+      rgba(255, 255, 255, .04) 58%,
+      rgba(255, 255, 255, 0) 78%
+    ),
+    radial-gradient(
+      circle 360px at var(--tilt-gx, 50%) var(--tilt-gy, 50%),
+      rgba(255, 255, 255, .1),
+      rgba(255, 255, 255, 0) 88%
+    );
+  inset: 0;
+  border-radius: inherit;
+  mix-blend-mode: screen;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  transition: opacity var(--tilt-glare-fade) var(--tilt-glare-ease);
+  z-index: 1;
+}
+
+.t-tilt.is-hover .t-tilt-glare {
+  opacity: var(--tilt-glare-opacity);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .signature-sweep {
     animation: none;
+  }
+
+  .t-tilt-card {
+    transform: none !important;
+    transition: none !important;
   }
 }

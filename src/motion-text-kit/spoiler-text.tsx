@@ -79,6 +79,7 @@ export function SpoilerText({
   const frameRef = useRef<number | null>(null);
   const tRef = useRef(2);
   const [canUsePaint, setCanUsePaint] = useState(false);
+  const [useFallback, setUseFallback] = useState(false);
   const [internalSpoiled, setInternalSpoiled] = useState(!defaultRevealed);
   const [isRevealing, setIsRevealing] = useState(false);
   const isSpoiled = revealed === undefined ? internalSpoiled : !revealed;
@@ -163,6 +164,7 @@ export function SpoilerText({
       }
 
       setCanUsePaint(enabled);
+      setUseFallback(!enabled && !reduceMotion);
 
       if (reduceMotion) {
         setInternalSpoiled(false);
@@ -312,6 +314,7 @@ export function SpoilerText({
       aria-label={text}
       aria-pressed={!isSpoiled}
       className={["mtk-spoiler-text", className].filter(Boolean).join(" ")}
+      data-fallback={useFallback ? "" : undefined}
       data-houdini={canUsePaint ? "" : undefined}
       data-revealed={!isSpoiled ? "" : undefined}
       data-revealing={!isSpoiled && isRevealing ? "" : undefined}
