@@ -2,12 +2,22 @@
 
 import type { CSSProperties, ReactNode } from "react";
 import { useEffect, useState } from "react";
+import { BorderBeam } from "border-beam";
 import {
   ArrowUpRightIcon,
   CopyIcon,
+  GlobeIcon,
+  RotateCcwIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import {
+  Menu,
+  MenuPopup,
+  MenuRadioGroup,
+  MenuRadioItem,
+  MenuTrigger,
+} from "@/components/ui/menu";
 import {
   DecryptText,
   GradientSweepText,
@@ -17,31 +27,133 @@ import {
   WeightSweepText,
 } from "@/motion-text-kit";
 
+type Locale = "zh" | "en";
+
 type MotionCard = {
+  id: string;
   title: string;
   description: string;
   preview: ReactNode;
   code: string;
 };
 
-type MotionLogoStyle = CSSProperties & Record<`--${string}`, string | number>;
-
 const githubRepositoryUrl = "https://github.com/coooooolpan/motion-text-kit";
-const motionLogoBitmap = [
-  "1111111",
-  "1111111",
-  "0011100",
-  "0011100",
-  "0011100",
-  "0011100",
-  "0011100",
-] as const;
-const motionLogoNoiseGlyphs = Array.from("1+0-*:1+0-*:1+0-*:1+0-*:1+0-*:1+0-*:1+");
-const motionLogoCellShapes = ["square", "circle", "triangle", "dash"] as const;
-const motionLogoCells = motionLogoBitmap.flatMap((row, y) =>
-  Array.from(row).flatMap((value, x) => (value === "1" ? [{ x, y }] : [])),
-);
-
+const signatureMarkStyle: CSSProperties = {
+  backgroundColor: "currentColor",
+  display: "inline-block",
+  height: 28,
+  mask: 'url("/coooooolpan-signature.svg") center / contain no-repeat',
+  transform: "translateY(3px)",
+  WebkitMask: 'url("/coooooolpan-signature.svg") center / contain no-repeat',
+  width: 140,
+};
+const signatureSweepStyle: CSSProperties = {
+  ...signatureMarkStyle,
+  backgroundImage:
+    "linear-gradient(110deg, transparent 0%, rgba(255,255,255,.12) 34%, rgba(255,255,255,.95) 48%, rgba(255,255,255,.28) 60%, transparent 76%)",
+  inset: 0,
+  position: "absolute",
+};
+const pageCopy = {
+  zh: {
+    languageToggleLabel: "切换到英文",
+    languageToggleText: "中",
+    languageMenuLabel: "语言",
+    languageOptions: {
+      zh: "中文",
+      en: "English",
+    },
+    githubLabel: "打开 GitHub 仓库",
+    themeLabel: "切换深色模式",
+    logoLabel: "Motion Text Kit 标志",
+    heroDescription:
+      "Motion Text Kit 是一组轻量的 React 文本动效组件，用 CSS 动画实现高光滑动、逐字出现和数字滚动等常用效果。",
+    copyLabel: "复制",
+    currentTimeLabel: "当前时间",
+    footerPrefix: "Crafted by",
+    resetInvisibleLabel: "复原隐形",
+    cards: {
+      gradient: {
+        title: "文本高光滑动",
+        description: "一道柔和高光从文字表面滑过",
+        previewText: "Stay hungry, stay foolish.",
+      },
+      reveal: {
+        title: "逐字出现消失",
+        description: "字符依次出现、停留，然后淡出",
+        previewText: "Letters enter and leave.",
+      },
+      rolling: {
+        title: "倒计时数字滚动",
+        description: "按 HH:mm:ss 滚动展示当前时间",
+      },
+      spoiler: {
+        title: "隐形墨水",
+        description: "像隐形墨水一样按下后显露文字",
+        previewText: "Tap to reveal this.",
+      },
+      decrypt: {
+        title: "解码文本出现",
+        description: "随机字符逐步解析为最终文本",
+        previewText: "ACCESS GRANTED",
+      },
+      weight: {
+        title: "字重扫光变化",
+        description: "字重从细到粗平滑扫过文字",
+        previewText: "Weight wave passes.",
+      },
+    },
+  },
+  en: {
+    languageToggleLabel: "Switch to Chinese",
+    languageToggleText: "EN",
+    languageMenuLabel: "Language",
+    languageOptions: {
+      zh: "中文",
+      en: "English",
+    },
+    githubLabel: "Open GitHub repository",
+    themeLabel: "Toggle dark mode",
+    logoLabel: "Motion Text Kit logo",
+    heroDescription:
+      "Motion Text Kit is a lightweight set of React text-motion primitives for highlight sweeps, character reveals, rolling numbers, and playful text effects powered by CSS animation.",
+    copyLabel: "Copy",
+    currentTimeLabel: "Current time",
+    footerPrefix: "Crafted by",
+    resetInvisibleLabel: "Hide again",
+    cards: {
+      gradient: {
+        title: "Gradient Text Sweep",
+        description: "A soft highlight glides across the text",
+        previewText: "Stay hungry, stay foolish.",
+      },
+      reveal: {
+        title: "Character Reveal",
+        description: "Characters enter, hold, then leave",
+        previewText: "Letters enter and leave.",
+      },
+      rolling: {
+        title: "Rolling Time Digits",
+        description: "Current HH:mm:ss time with rolling digits",
+      },
+      spoiler: {
+        title: "Invisible Ink Text",
+        description: "Press to reveal text through particles",
+        previewText: "Tap to reveal this.",
+      },
+      decrypt: {
+        title: "Decrypt Text",
+        description: "Random glyphs resolve into final text",
+        previewText: "ACCESS GRANTED",
+      },
+      weight: {
+        title: "Weight Sweep",
+        description: "Text weight sweeps from thin to bold",
+        previewText: "Weight wave passes.",
+      },
+    },
+  },
+} as const;
 function GithubIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -81,64 +193,84 @@ function FilledSunIcon({ className }: { className?: string }) {
   );
 }
 
-function MotionLogo() {
+function SignatureMark() {
   return (
-    <span aria-label="Motion Text Kit logo" className="motion-logo" role="img">
-      <span aria-hidden="true" className="motion-logo__noise">
-        {motionLogoNoiseGlyphs.map((glyph, index) => (
-          <span
-            className="motion-logo__noise-glyph"
-            key={`${glyph}-${index}`}
-            style={{ "--logo-noise-index": index } as MotionLogoStyle}
-          >
-            {glyph}
-          </span>
-        ))}
-      </span>
-      <span aria-hidden="true" className="motion-logo__pixel-t">
-        {motionLogoCells.map(({ x, y }, index) => {
-          const shape = motionLogoCellShapes[index % motionLogoCellShapes.length];
-          const scatterX = ((index % 7) - 3) * 3.8;
-          const scatterY = (Math.floor(index / 7) - 2) * 3.8;
-
-          return (
-            <span
-              className="motion-logo__pixel"
-              data-shape={shape}
-              key={`${x}-${y}`}
-              style={
-                {
-                  "--logo-cell-index": index,
-                  "--logo-cell-x": x,
-                  "--logo-cell-y": y,
-                  "--logo-cell-scatter-x": `${scatterX}px`,
-                  "--logo-cell-scatter-y": `${scatterY}px`,
-                } as MotionLogoStyle
-              }
-            />
-          );
-        })}
-      </span>
-      <span aria-hidden="true" className="motion-logo__line-t">
-        {motionLogoCells.map(({ x, y }, index) => (
-          <span
-            className="motion-logo__line-cell"
-            key={`line-${x}-${y}`}
-            style={
-              {
-                "--logo-cell-index": index,
-                "--logo-cell-x": x,
-                "--logo-cell-y": y,
-              } as MotionLogoStyle
-            }
-          />
-        ))}
-      </span>
+    <span
+      aria-hidden="true"
+      className="relative inline-block"
+      style={{
+        height: signatureMarkStyle.height,
+        transform: signatureMarkStyle.transform,
+        width: signatureMarkStyle.width,
+      }}
+    >
+      <span
+        aria-hidden="true"
+        style={{ ...signatureMarkStyle, transform: undefined }}
+      />
+      <span
+        aria-hidden="true"
+        className="signature-sweep"
+        style={{ ...signatureSweepStyle, transform: undefined }}
+      />
     </span>
   );
 }
 
-function CurrentTimePreview() {
+function MotionLogo({ label }: { label: string }) {
+  return (
+    <svg
+      aria-label={label}
+      className="motion-logo"
+      role="img"
+      viewBox="0 0 100 100"
+    >
+      <defs>
+        <filter id="motion-logo-roughen">
+          <feTurbulence
+            baseFrequency="0.075"
+            numOctaves="2"
+            result="noise"
+            seed="12"
+            type="fractalNoise"
+          />
+          <feDisplacementMap
+            in="SourceGraphic"
+            in2="noise"
+            scale="1.65"
+            xChannelSelector="R"
+            yChannelSelector="G"
+          />
+        </filter>
+      </defs>
+      <g aria-hidden="true" filter="url(#motion-logo-roughen)">
+        <text
+          className="motion-logo__word motion-logo__word--motion"
+          x="16"
+          y="31"
+        >
+          motion
+        </text>
+        <text
+          className="motion-logo__word motion-logo__word--text"
+          x="24"
+          y="56"
+        >
+          text
+        </text>
+        <text
+          className="motion-logo__word motion-logo__word--kit"
+          x="34"
+          y="80"
+        >
+          kit
+        </text>
+      </g>
+    </svg>
+  );
+}
+
+function CurrentTimePreview({ label }: { label: string }) {
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
 
   const hours = currentTime?.getHours() ?? 0;
@@ -159,7 +291,7 @@ function CurrentTimePreview() {
 
   return (
     <div
-      aria-label={`Current time ${hours}:${minutes}:${seconds}`}
+      aria-label={`${label} ${hours}:${minutes}:${seconds}`}
       className="inline-flex items-center justify-center font-mono text-[14px] font-semibold leading-[22px] tracking-normal"
     >
       <RollingNumber
@@ -196,94 +328,139 @@ function CurrentTimePreview() {
   );
 }
 
-const motionCards: MotionCard[] = [
-  {
-    title: "文本高光滑动",
-    description: "Masked gradient sweep across text",
-    preview: (
-      <div className="grid place-items-center text-center">
-        <GradientSweepText
-          accentColor="rgba(255,255,255,.72)"
-          className="font-heading text-[14px] font-semibold leading-[22px] tracking-normal text-neutral-800 dark:text-neutral-100"
-          duration={2200}
-          highlightColor="#ffffff"
-        >
-          Stay hungry, stay foolish.
-        </GradientSweepText>
-      </div>
-    ),
-    code: `<GradientSweepText>Highlight sweep</GradientSweepText>`,
-  },
-  {
-    title: "逐字出现消失",
-    description: "Characters reveal, hold, then disappear",
-    preview: (
-      <div className="grid place-items-center text-center">
-        <TextReveal
-          className="max-w-56 justify-center text-balance font-heading text-[14px] font-semibold leading-[22px]"
-          distance={14}
-          duration={560}
-          hold={880}
-          mode="in-out"
-          repeat
-          stagger={34}
-          text="Letters enter and leave."
-        />
-      </div>
-    ),
-    code: `<TextReveal text="Letters enter and leave." mode="in-out" repeat />`,
-  },
-  {
-    title: "倒计时数字滚动",
-    description: "Rolling current HH:mm:ss time",
-    preview: <CurrentTimePreview />,
-    code: `<RollingNumber value={new Date().getSeconds()} />`,
-  },
-  {
-    title: "隐藏文本粒子",
-    description: "Tap-to-reveal spoiler particles",
-    preview: (
-      <div className="grid place-items-center text-center">
-        <SpoilerText
-          className="font-heading text-[14px] font-semibold leading-[22px] tracking-normal text-neutral-800 dark:text-neutral-100"
-          particleColor="color-mix(in srgb, currentColor 72%, transparent)"
-          text="Tap to reveal this."
-        />
-      </div>
-    ),
-    code: `<SpoilerText text="Tap to reveal this." />`,
-  },
-  {
-    title: "解码文本出现",
-    description: "Random glyphs resolve into text",
-    preview: (
-      <div className="grid place-items-center text-center">
-        <DecryptText
-          className="font-mono text-[14px] font-semibold leading-[22px] tracking-normal"
-          text="ACCESS GRANTED"
-        />
-      </div>
-    ),
-    code: `<DecryptText text="ACCESS GRANTED" />`,
-  },
-  {
-    title: "字重扫光变化",
-    description: "Weight shifts from thin to bold",
-    preview: (
-      <div className="grid place-items-center text-center">
-        <WeightSweepText
-          className="font-heading text-[14px] leading-[22px] tracking-normal"
-          maxWeight={820}
-          minWeight={280}
-          text="Weight wave passes."
-        />
-      </div>
-    ),
-    code: `<WeightSweepText text="Weight wave passes." />`,
-  },
-];
+function SpoilerPreview({
+  resetLabel,
+  text,
+}: {
+  resetLabel: string;
+  text: string;
+}) {
+  const [revealed, setRevealed] = useState(false);
 
-function MotionCatalogCard({ item }: { item: MotionCard }) {
+  return (
+    <div className="relative grid h-full w-full place-items-center text-center">
+      <SpoilerText
+        className="font-heading text-[14px] font-semibold leading-[22px] tracking-normal text-neutral-800 dark:text-neutral-100"
+        onRevealedChange={setRevealed}
+        particleColor="color-mix(in srgb, currentColor 82%, transparent)"
+        revealed={revealed}
+        text={text}
+      />
+      {revealed ? (
+        <Button
+          aria-label={resetLabel}
+          className="absolute bottom-0 right-0 size-8 rounded-full bg-white text-neutral-500 shadow-sm hover:bg-neutral-100 hover:text-neutral-900 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700 dark:hover:text-neutral-50 [&_svg]:size-3.5"
+          onClick={() => setRevealed(false)}
+          size="icon"
+          type="button"
+          variant="secondary"
+        >
+          <RotateCcwIcon strokeWidth={2.1} />
+        </Button>
+      ) : null}
+    </div>
+  );
+}
+
+function createMotionCards(copy: (typeof pageCopy)[Locale]): MotionCard[] {
+  return [
+    {
+      id: "gradient",
+      title: copy.cards.gradient.title,
+      description: copy.cards.gradient.description,
+      preview: (
+        <div className="grid place-items-center text-center">
+          <GradientSweepText
+            accentColor="rgba(255,255,255,.72)"
+            className="font-heading text-[14px] font-semibold leading-[22px] tracking-normal text-neutral-800 dark:text-neutral-100"
+            duration={2200}
+            highlightColor="#ffffff"
+          >
+            {copy.cards.gradient.previewText}
+          </GradientSweepText>
+        </div>
+      ),
+      code: `<GradientSweepText>Highlight sweep</GradientSweepText>`,
+    },
+    {
+      id: "reveal",
+      title: copy.cards.reveal.title,
+      description: copy.cards.reveal.description,
+      preview: (
+        <div className="grid place-items-center text-center">
+          <TextReveal
+            className="max-w-56 justify-center text-balance font-heading text-[14px] font-semibold leading-[22px]"
+            distance={14}
+            duration={560}
+            hold={880}
+            mode="in-out"
+            repeat
+            stagger={34}
+            text={copy.cards.reveal.previewText}
+          />
+        </div>
+      ),
+      code: `<TextReveal text="Letters enter and leave." mode="in-out" repeat />`,
+    },
+    {
+      id: "rolling",
+      title: copy.cards.rolling.title,
+      description: copy.cards.rolling.description,
+      preview: <CurrentTimePreview label={copy.currentTimeLabel} />,
+      code: `<RollingNumber value={new Date().getSeconds()} />`,
+    },
+    {
+      id: "spoiler",
+      title: copy.cards.spoiler.title,
+      description: copy.cards.spoiler.description,
+      preview: (
+        <SpoilerPreview
+          resetLabel={copy.resetInvisibleLabel}
+          text={copy.cards.spoiler.previewText}
+        />
+      ),
+      code: `<SpoilerText text="Tap to reveal this." />`,
+    },
+    {
+      id: "decrypt",
+      title: copy.cards.decrypt.title,
+      description: copy.cards.decrypt.description,
+      preview: (
+        <div className="grid place-items-center text-center">
+          <DecryptText
+            className="font-mono text-[14px] font-semibold leading-[22px] tracking-normal"
+            text={copy.cards.decrypt.previewText}
+          />
+        </div>
+      ),
+      code: `<DecryptText text="ACCESS GRANTED" />`,
+    },
+    {
+      id: "weight",
+      title: copy.cards.weight.title,
+      description: copy.cards.weight.description,
+      preview: (
+        <div className="grid place-items-center text-center">
+          <WeightSweepText
+            className="font-heading text-[14px] leading-[22px] tracking-normal"
+            maxWeight={820}
+            minWeight={280}
+            text={copy.cards.weight.previewText}
+          />
+        </div>
+      ),
+      code: `<WeightSweepText text="Weight wave passes." />`,
+    },
+  ];
+}
+
+function MotionCatalogCard({
+  copyLabel,
+  item,
+}: {
+  copyLabel: string;
+  item: MotionCard;
+}) {
   return (
     <Card className="group overflow-hidden rounded-[1.5rem] border-neutral-200/45 bg-white shadow-[0_1px_1px_rgba(15,23,42,.02)] before:hidden dark:border-neutral-800/55 dark:bg-neutral-900">
       <div className="m-3 flex h-[218px] items-center justify-center rounded-[0.75rem] border border-neutral-200/45 bg-neutral-50 p-5 dark:border-neutral-700/35 dark:bg-neutral-800/35">
@@ -302,7 +479,7 @@ function MotionCatalogCard({ item }: { item: MotionCard }) {
           </code>
         </div>
         <Button
-          aria-label={`Copy ${item.title}`}
+          aria-label={`${copyLabel} ${item.title}`}
           className="self-end rounded-full bg-neutral-100 text-neutral-500 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-700"
           size="icon-xs"
           variant="ghost"
@@ -316,17 +493,67 @@ function MotionCatalogCard({ item }: { item: MotionCard }) {
 
 export default function Home() {
   const [isDark, setIsDark] = useState(false);
+  const [locale, setLocale] = useState<Locale>("zh");
+  const copy = pageCopy[locale];
+  const motionCards = createMotionCards(copy);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", isDark);
   }, [isDark]);
+
+  useEffect(() => {
+    document.documentElement.lang = locale === "zh" ? "zh-CN" : "en";
+  }, [locale]);
 
   return (
     <main className="min-h-svh bg-[#fafafa] text-neutral-900 transition-colors dark:bg-neutral-950 dark:text-neutral-100">
       <div className="mx-auto flex w-full max-w-[1040px] flex-col px-4 pb-16 pt-5">
         <header className="flex justify-end">
           <div className="flex items-center gap-2">
+            <Menu>
+              <MenuTrigger
+                render={
+                  <Button
+                    aria-label={copy.languageMenuLabel}
+                    className="!size-8 rounded-full shadow-none transition-[background-color,color] duration-200 hover:bg-neutral-200 hover:text-neutral-950 active:shadow-none data-popup-open:bg-neutral-200 dark:hover:bg-neutral-800 dark:hover:text-neutral-50 dark:data-popup-open:bg-neutral-800 [&_svg]:size-3.5"
+                    size="icon"
+                    variant="secondary"
+                  />
+                }
+              >
+                <GlobeIcon className="size-3.5" strokeWidth={2.1} />
+              </MenuTrigger>
+              <MenuPopup
+                align="start"
+                alignOffset={-11}
+                className="min-w-32"
+                sideOffset={8}
+              >
+                <MenuRadioGroup
+                  onValueChange={(value) => setLocale(value as Locale)}
+                  value={locale}
+                >
+                  <MenuRadioItem
+                    className="grid-cols-[1.75rem_1fr] ps-4"
+                    closeOnClick
+                    label="中文"
+                    value="zh"
+                  >
+                    {copy.languageOptions.zh}
+                  </MenuRadioItem>
+                  <MenuRadioItem
+                    className="grid-cols-[1.75rem_1fr] ps-4"
+                    closeOnClick
+                    label="English"
+                    value="en"
+                  >
+                    {copy.languageOptions.en}
+                  </MenuRadioItem>
+                </MenuRadioGroup>
+              </MenuPopup>
+            </Menu>
             <Button
+              aria-label={copy.githubLabel}
               className="!h-8 rounded-full px-3.5 !text-[13px] leading-none shadow-none transition-[background-color,color] duration-200 hover:bg-neutral-200 hover:text-neutral-950 active:shadow-none dark:hover:bg-neutral-800 dark:hover:text-neutral-50 [&_svg]:size-3.5"
               onClick={(event) => {
                 event.preventDefault();
@@ -345,7 +572,7 @@ export default function Home() {
               GitHub
             </Button>
             <Button
-              aria-label="Toggle dark mode"
+              aria-label={copy.themeLabel}
               aria-pressed={isDark}
               className="!size-8 rounded-full shadow-none transition-[background-color,color] duration-200 hover:bg-neutral-200 hover:text-neutral-950 active:shadow-none dark:hover:bg-neutral-800 dark:hover:text-neutral-50 [&_svg]:size-3.5"
               onClick={() => setIsDark((current) => !current)}
@@ -361,37 +588,45 @@ export default function Home() {
         </header>
 
         <section className="mx-auto mt-4 flex max-w-[460px] flex-col items-center text-center">
-          <div className="mb-7 grid size-10 place-items-center rounded-xl bg-white shadow-[0_16px_42px_rgba(59,130,246,.16)] dark:bg-neutral-900 dark:shadow-[0_16px_42px_rgba(59,130,246,.08)]">
-            <MotionLogo />
+          <div className="mb-7">
+            <BorderBeam size="pulse-outside" colorVariant="mono" strength={0.8}>
+              <Card className="grid size-16 place-items-center overflow-visible rounded-2xl border-black/8 bg-white p-0 shadow-[0_16px_42px_rgba(59,130,246,.16)] dark:border-white/8 dark:bg-neutral-900 dark:shadow-[0_16px_42px_rgba(59,130,246,.08)]">
+                <MotionLogo label={copy.logoLabel} />
+              </Card>
+            </BorderBeam>
           </div>
           <h1 className="font-heading text-2xl font-semibold tracking-normal">
             Motion Text Kit
           </h1>
           <p className="mt-3 text-balance text-[14px] leading-6 text-neutral-500 dark:text-neutral-400">
-            Motion Text Kit 是一组轻量的 React 文本动效组件，用 CSS
-            动画实现高光滑动、逐字出现和数字滚动等常用效果。
+            {copy.heroDescription}
           </p>
         </section>
 
         <section className="mt-11 grid gap-5 lg:grid-cols-3">
           {motionCards.map((item) => (
-            <MotionCatalogCard item={item} key={item.title} />
+            <MotionCatalogCard
+              copyLabel={copy.copyLabel}
+              item={item}
+              key={item.id}
+            />
           ))}
         </section>
 
-        <p className="mt-14 text-center text-[12px] leading-5 text-neutral-400 dark:text-neutral-500">
-          Designed by{" "}
+        <p className="mt-14 inline-flex w-full items-center justify-center gap-3.5 text-center text-[14px] leading-7 text-neutral-400 dark:text-neutral-500">
+          <span className="translate-y-[3px]">{copy.footerPrefix}</span>
           <a
-            className="group inline-flex items-center font-semibold text-neutral-600 transition-colors duration-300 hover:text-neutral-800 dark:text-neutral-300 dark:hover:text-neutral-100"
+            aria-label="coooooolpan"
+            className="group inline-flex items-center gap-2 font-semibold text-neutral-600 transition-colors duration-300 hover:text-neutral-800 dark:text-neutral-300 dark:hover:text-neutral-100"
             href="https://coooooolpan.vercel.app/"
             rel="noreferrer"
             target="_blank"
           >
-            coooooolpan
-            <span className="ml-0.5 inline-grid size-3.5 place-items-center">
+            <SignatureMark />
+            <span className="inline-grid size-[18px] translate-y-[3px] place-items-center">
               <ArrowUpRightIcon
                 aria-hidden="true"
-                className="size-3 translate-x-[-0.4rem] translate-y-[0.4rem] scale-75 opacity-0 [filter:blur(2px)] transition-[opacity,translate,scale,filter] duration-500 ease-[cubic-bezier(.16,1,.3,1)] group-hover:translate-x-0 group-hover:translate-y-0 group-hover:scale-100 group-hover:opacity-100 group-hover:[filter:blur(0px)]"
+                className="size-[15px] translate-x-[-0.45rem] translate-y-[0.45rem] scale-75 opacity-0 [filter:blur(2px)] transition-[opacity,translate,scale,filter] duration-500 ease-[cubic-bezier(.16,1,.3,1)] group-hover:translate-x-0 group-hover:translate-y-0 group-hover:scale-100 group-hover:opacity-100 group-hover:[filter:blur(0px)]"
                 strokeWidth={2.2}
               />
             </span>
