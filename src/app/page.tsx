@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { BorderBeam } from "border-beam";
 import {
   ArrowUpRightIcon,
+  CheckIcon,
   CopyIcon,
   GlobeIcon,
   RotateCcwIcon,
@@ -18,19 +19,21 @@ import {
   MenuRadioItem,
   MenuTrigger,
 } from "@/components/ui/menu";
+import { Tabs, TabsList, TabsTab } from "@/components/ui/tabs";
 import {
   DecryptText,
   FocusBlurText,
   GradientSweepText,
-  PixelResolveText,
   RollingNumber,
   SpoilerText,
   TextReveal,
+  TickerText,
   TypewriterText,
   WeightSweepText,
 } from "@/motion-text-kit";
 
 type Locale = "zh" | "en";
+type ActivePage = "motion" | "npm";
 
 type MotionCard = {
   id: string;
@@ -38,6 +41,12 @@ type MotionCard = {
   description: string;
   preview: ReactNode;
   code: string;
+};
+
+type ExpandedMotionCard = {
+  item: MotionCard;
+  origin: DOMRect;
+  state: "opening" | "open" | "closing";
 };
 
 const githubRepositoryUrl = "https://github.com/coooooolpan/motion-text-kit";
@@ -94,10 +103,10 @@ const pageCopy = {
         description: "文字从失焦模糊聚拢到清晰",
         previewText: "Focus sharpens softly.",
       },
-      pixel: {
-        title: "像素化还原",
-        description: "像素块逐步还原成清晰文字",
-        previewText: "PIXELS RESTORED",
+      ticker: {
+        title: "横向滚动公告",
+        description: "文本在两端带光感模糊后滚入滚出",
+        previewText: "Motion text kit is now available.",
       },
       typewriter: {
         title: "打字机光标输入",
@@ -158,10 +167,10 @@ const pageCopy = {
         description: "Text resolves from soft blur into focus",
         previewText: "Focus sharpens softly.",
       },
-      pixel: {
-        title: "Pixel Resolve",
-        description: "Pixelated glyphs resolve into crisp text",
-        previewText: "PIXELS RESTORED",
+      ticker: {
+        title: "Ticker Text",
+        description: "Horizontal notice text fades through soft glowing edges",
+        previewText: "Motion text kit is now available.",
       },
       typewriter: {
         title: "Typewriter Cursor",
@@ -211,65 +220,30 @@ function FilledSunIcon({ className }: { className?: string }) {
 }
 
 function FooterSignatureMark() {
+  return <span aria-hidden="true" className="footer-signature" />;
+}
+
+function FooterCredit({ prefix }: { prefix: string }) {
   return (
-    <span aria-hidden="true" className="footer-signature">
-      <svg
-        className="footer-signature__mark"
-        viewBox="0 0 210 48"
+    <p className="mt-14 inline-flex w-full items-center justify-center gap-3.5 text-center text-[14px] leading-7 text-neutral-400 dark:text-neutral-500">
+      <span className="translate-y-[3px]">{prefix}</span>
+      <a
+        aria-label="coooooolpan"
+        className="group inline-flex items-center gap-2 font-semibold text-neutral-600 transition-colors duration-300 hover:text-neutral-800 dark:text-neutral-300 dark:hover:text-neutral-100"
+        href="https://coooooolpan.vercel.app/"
+        rel="noreferrer"
+        target="_blank"
       >
-        <defs>
-          <filter id="footer-signature-roughen">
-            <feTurbulence
-              baseFrequency="0.065"
-              numOctaves="2"
-              result="noise"
-              seed="18"
-              type="fractalNoise"
-            />
-            <feDisplacementMap
-              in="SourceGraphic"
-              in2="noise"
-              scale="1.15"
-              xChannelSelector="R"
-              yChannelSelector="G"
-            />
-          </filter>
-        </defs>
-        <g filter="url(#footer-signature-roughen)">
-          <text className="footer-signature__text" x="4" y="32">
-            coooooolpan
-          </text>
-        </g>
-      </svg>
-      <svg
-        className="footer-signature__mark footer-signature__sweep signature-sweep"
-        viewBox="0 0 210 48"
-      >
-        <defs>
-          <linearGradient
-            gradientUnits="userSpaceOnUse"
-            id="footer-signature-sweep"
-            x1="-60"
-            x2="120"
-            y1="0"
-            y2="0"
-          >
-            <stop offset="0%" stopColor="transparent" />
-            <stop offset="42%" stopColor="rgba(255,255,255,.1)" />
-            <stop offset="54%" stopColor="rgba(255,255,255,.96)" />
-            <stop offset="68%" stopColor="rgba(255,255,255,.22)" />
-            <stop offset="100%" stopColor="transparent" />
-          </linearGradient>
-        </defs>
-        <text
-          className="footer-signature__text footer-signature__text--sweep"
-          x="4"
-          y="32"
-        >
-          coooooolpan
-        </text>
-      </svg>
-    </span>
+        <FooterSignatureMark />
+        <span className="inline-grid size-[18px] translate-y-[3px] place-items-center">
+          <ArrowUpRightIcon
+            aria-hidden="true"
+            className="size-[15px] translate-x-[-0.45rem] translate-y-[0.45rem] scale-75 opacity-0 [filter:blur(2px)] transition-[opacity,translate,scale,filter] duration-500 ease-[cubic-bezier(.16,1,.3,1)] group-hover:translate-x-0 group-hover:translate-y-0 group-hover:scale-100 group-hover:opacity-100 group-hover:[filter:blur(0px)]"
+            strokeWidth={2.2}
+          />
+        </span>
+      </a>
+    </p>
   );
 }
 
@@ -424,11 +398,10 @@ function MotionLogoCard({
           strength={0.8}
           theme={isDark ? "dark" : "light"}
         >
-          <Card className="logo-card grid size-[4.75rem] place-items-center overflow-hidden rounded-[1.35rem] border-black/[0.045] bg-white p-0 shadow-[0_18px_48px_rgba(59,130,246,.16)] dark:border-white/8 dark:bg-neutral-900 dark:shadow-[0_18px_48px_rgba(59,130,246,.08)]">
+          <Card className="logo-card grid size-[3.875rem] place-items-center overflow-hidden rounded-[1.1rem] border-black/[0.045] bg-white p-0 shadow-[0_14px_36px_rgba(59,130,246,.13)] dark:border-white/8 dark:bg-neutral-900 dark:shadow-[0_14px_36px_rgba(59,130,246,.08)]">
             <MotionLogo label={label} />
           </Card>
         </BorderBeam>
-        <div aria-hidden="true" className="t-tilt-glare" />
       </div>
     </div>
   );
@@ -625,7 +598,6 @@ function createMotionCards(copy: (typeof pageCopy)[Locale]): MotionCard[] {
             blur={9}
             className="max-w-56 justify-center text-balance font-heading text-[14px] font-semibold leading-[22px]"
             duration={960}
-            stagger={24}
             text={copy.cards.focus.previewText}
           />
         </div>
@@ -633,21 +605,21 @@ function createMotionCards(copy: (typeof pageCopy)[Locale]): MotionCard[] {
       code: `<FocusBlurText text="Focus sharpens softly." />`,
     },
     {
-      id: "pixel",
-      title: copy.cards.pixel.title,
-      description: copy.cards.pixel.description,
+      id: "ticker",
+      title: copy.cards.ticker.title,
+      description: copy.cards.ticker.description,
       preview: (
         <div className="grid place-items-center text-center">
-          <PixelResolveText
-            className="font-mono text-[14px] font-semibold leading-[22px] tracking-normal"
-            duration={1150}
-            pixelSize={3}
-            stagger={28}
-            text={copy.cards.pixel.previewText}
+          <TickerText
+            blur={6}
+            className="w-56 font-heading text-[14px] font-semibold leading-[22px] tracking-normal"
+            duration={3900}
+            stagger={34}
+            text={copy.cards.ticker.previewText}
           />
         </div>
       ),
-      code: `<PixelResolveText text="PIXELS RESTORED" />`,
+      code: `<TickerText text="Motion text kit is now available." />`,
     },
     {
       id: "typewriter",
@@ -672,12 +644,33 @@ function createMotionCards(copy: (typeof pageCopy)[Locale]): MotionCard[] {
 function MotionCatalogCard({
   copyLabel,
   item,
+  onOpen,
 }: {
   copyLabel: string;
   item: MotionCard;
+  onOpen: (item: MotionCard, origin: DOMRect) => void;
 }) {
+  function openCard(event: React.MouseEvent<HTMLDivElement>) {
+    onOpen(item, event.currentTarget.getBoundingClientRect());
+  }
+
+  function handleKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+    if (event.key !== "Enter" && event.key !== " ") {
+      return;
+    }
+
+    event.preventDefault();
+    onOpen(item, event.currentTarget.getBoundingClientRect());
+  }
+
   return (
-    <Card className="group overflow-hidden rounded-[1.5rem] border-neutral-200/45 bg-white shadow-[0_1px_1px_rgba(15,23,42,.02)] before:hidden dark:border-neutral-800/55 dark:bg-neutral-900">
+    <Card
+      className="group cursor-pointer overflow-hidden rounded-[1.5rem] border-neutral-200/45 bg-white shadow-[0_1px_1px_rgba(15,23,42,.02)] outline-none transition-[border-color,box-shadow] duration-300 hover:border-neutral-300/70 hover:shadow-[0_14px_36px_rgba(15,23,42,.06)] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 before:hidden dark:border-neutral-800/55 dark:bg-neutral-900 dark:hover:border-neutral-700/45"
+      onClick={openCard}
+      onKeyDown={handleKeyDown}
+      role="button"
+      tabIndex={0}
+    >
       <div className="m-3 flex h-[218px] items-center justify-center rounded-[0.75rem] border border-neutral-200/45 bg-neutral-50 p-5 dark:border-neutral-700/28 dark:bg-neutral-950/28">
         {item.preview}
       </div>
@@ -693,22 +686,243 @@ function MotionCatalogCard({
             {item.code}
           </code>
         </div>
-        <Button
-          aria-label={`${copyLabel} ${item.title}`}
+        <CopyCodeButton
           className="self-end rounded-full bg-neutral-100 text-neutral-500 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-700"
+          code={item.code}
+          iconClassName="size-3.5"
+          label={`${copyLabel} ${item.title}`}
           size="icon-xs"
-          variant="ghost"
-        >
-          <CopyIcon className="size-3.5" />
-        </Button>
+        />
       </div>
     </Card>
+  );
+}
+
+function CopyCodeButton({
+  className,
+  code,
+  iconClassName,
+  label,
+  size = "icon",
+}: {
+  className?: string;
+  code: string;
+  iconClassName: string;
+  label: string;
+  size?: "icon" | "icon-xs";
+}) {
+  const [copied, setCopied] = useState(false);
+  const resetTimerRef = useRef<number | null>(null);
+  const Icon = copied ? CheckIcon : CopyIcon;
+
+  useEffect(() => {
+    return () => {
+      if (resetTimerRef.current !== null) {
+        window.clearTimeout(resetTimerRef.current);
+      }
+    };
+  }, []);
+
+  function handleCopy(event: React.MouseEvent<HTMLButtonElement>) {
+    event.stopPropagation();
+    void navigator.clipboard?.writeText(code);
+    setCopied(true);
+
+    if (resetTimerRef.current !== null) {
+      window.clearTimeout(resetTimerRef.current);
+    }
+
+    resetTimerRef.current = window.setTimeout(() => {
+      setCopied(false);
+      resetTimerRef.current = null;
+    }, 1400);
+  }
+
+  return (
+    <Button
+      aria-label={label}
+      className={className}
+      onClick={handleCopy}
+      size={size}
+      variant="ghost"
+    >
+      <Icon className={iconClassName} />
+    </Button>
+  );
+}
+
+function ExpandedMotionCardOverlay({
+  copyLabel,
+  expanded,
+  onClose,
+}: {
+  copyLabel: string;
+  expanded: ExpandedMotionCard;
+  onClose: () => void;
+}) {
+  const overlayStyle = {
+    "--motion-card-origin-x": `${expanded.origin.left}px`,
+    "--motion-card-origin-y": `${expanded.origin.top}px`,
+    "--motion-card-origin-w": `${expanded.origin.width}px`,
+    "--motion-card-origin-h": `${expanded.origin.height}px`,
+    "--motion-card-target-w": `${Math.min(window.innerWidth * 0.92, 760)}px`,
+    "--motion-card-target-h": `${Math.min(window.innerHeight * 0.72, 620)}px`,
+    "--motion-card-start-x": `${
+      expanded.origin.left + expanded.origin.width / 2 - window.innerWidth / 2
+    }px`,
+    "--motion-card-start-y": `${
+      expanded.origin.top + expanded.origin.height / 2 - window.innerHeight / 2
+    }px`,
+    "--motion-card-start-scale-x": `${(
+      expanded.origin.width / Math.min(window.innerWidth * 0.92, 760)
+    ).toFixed(4)}`,
+    "--motion-card-start-scale-y": `${(
+      expanded.origin.height / Math.min(window.innerHeight * 0.72, 620)
+    ).toFixed(4)}`,
+  } as React.CSSProperties & Record<`--${string}`, string>;
+  const glassFilter =
+    expanded.state === "open"
+      ? "blur(34px) saturate(1.22)"
+      : "blur(0px) saturate(1)";
+  const glassStyle = {
+    backdropFilter: glassFilter,
+    WebkitBackdropFilter: glassFilter,
+  } as React.CSSProperties;
+
+  return (
+    <div
+      className="motion-card-overlay"
+      data-state={expanded.state}
+      role="presentation"
+      style={overlayStyle}
+    >
+      <span
+        aria-hidden="true"
+        className="motion-card-glass"
+        style={glassStyle}
+      />
+      <button
+        aria-label="Close expanded card"
+        className="motion-card-backdrop"
+        onClick={onClose}
+        type="button"
+      />
+      <div
+        aria-label={expanded.item.title}
+        aria-modal="true"
+        className="motion-card-expanded"
+        onClick={(event) => event.stopPropagation()}
+        role="dialog"
+      >
+        <div className="motion-card-expanded__preview">
+          {expanded.item.preview}
+        </div>
+        <div className="motion-card-expanded__body">
+          <div className="min-w-0">
+            <h2 className="font-semibold text-[16px] leading-6 text-neutral-900 dark:text-neutral-100">
+              {expanded.item.title}
+            </h2>
+            <p className="mt-1 text-[13px] leading-6 text-neutral-500 dark:text-neutral-400">
+              {expanded.item.description}
+            </p>
+            <code className="mt-4 block overflow-x-auto whitespace-nowrap font-mono text-[12px] text-neutral-400 dark:text-neutral-500">
+              {expanded.item.code}
+            </code>
+          </div>
+          <CopyCodeButton
+            className="self-end rounded-full bg-neutral-100 text-neutral-500 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-700"
+            code={expanded.item.code}
+            iconClassName="size-3.5"
+            label={`${copyLabel} ${expanded.item.title}`}
+            size="icon-xs"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DocsCodeBlock({
+  code,
+  label,
+}: {
+  code: string;
+  label: string;
+}) {
+  return (
+    <div className="relative rounded-2xl border border-neutral-200/70 bg-neutral-100 p-4 text-neutral-800 shadow-[0_1px_1px_rgba(15,23,42,.04)] dark:border-white/8 dark:bg-neutral-950 dark:text-neutral-100">
+      <pre className="overflow-x-auto pr-10 font-mono text-[12px] leading-6 tracking-normal">
+        <code>{code}</code>
+      </pre>
+      <CopyCodeButton
+        className="absolute right-3 top-3 !size-7 rounded-full bg-transparent text-neutral-500 shadow-none hover:bg-neutral-200 hover:text-neutral-900 active:shadow-none dark:text-neutral-400 dark:hover:bg-white/8 dark:hover:text-neutral-50 [&_svg]:size-3.5"
+        code={code}
+        iconClassName="size-3.5"
+        label={label}
+        size="icon"
+      />
+    </div>
+  );
+}
+
+function NpmPage({
+  copyLabel,
+  footerPrefix,
+}: {
+  copyLabel: string;
+  footerPrefix: string;
+}) {
+  return (
+    <>
+      <section className="mx-auto mt-14 w-full max-w-[760px]">
+        <div className="space-y-12">
+          <div>
+            <h1 className="text-[18px] font-medium leading-7 tracking-normal text-neutral-900 dark:text-neutral-100">
+              Installation
+            </h1>
+            <div className="mt-4">
+              <DocsCodeBlock
+                code="npm install motion-text-kit"
+                label={`${copyLabel} npm install`}
+              />
+            </div>
+          </div>
+
+          <div>
+            <h2 className="text-[18px] font-medium leading-7 tracking-normal text-neutral-900 dark:text-neutral-100">
+              Usage
+            </h2>
+            <div className="mt-4">
+              <DocsCodeBlock
+                code={`import { GradientSweepText } from "motion-text-kit";
+import "motion-text-kit/styles.css";
+
+export function Example() {
+  return (
+    <GradientSweepText>
+      Stay hungry, stay foolish.
+    </GradientSweepText>
+  );
+}`}
+                label={`${copyLabel} usage`}
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+      <FooterCredit prefix={footerPrefix} />
+    </>
   );
 }
 
 export default function Home() {
   const [isDark, setIsDark] = useState(false);
   const [locale, setLocale] = useState<Locale>("zh");
+  const [activePage, setActivePage] = useState<ActivePage>("motion");
+  const [expandedCard, setExpandedCard] = useState<ExpandedMotionCard | null>(
+    null,
+  );
+  const closeTimerRef = useRef<number | null>(null);
   const copy = pageCopy[locale];
   const motionCards = createMotionCards(copy);
 
@@ -732,17 +946,99 @@ export default function Home() {
     document.documentElement.lang = locale === "zh" ? "zh-CN" : "en";
   }, [locale]);
 
+  useEffect(() => {
+    if (!expandedCard) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        closeExpandedCard();
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [expandedCard]);
+
+  useEffect(() => {
+    return () => {
+      if (closeTimerRef.current !== null) {
+        window.clearTimeout(closeTimerRef.current);
+      }
+    };
+  }, []);
+
+  function openExpandedCard(item: MotionCard, origin: DOMRect) {
+    if (closeTimerRef.current !== null) {
+      window.clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+
+    setExpandedCard({ item, origin, state: "opening" });
+    window.requestAnimationFrame(() => {
+      setExpandedCard((current) =>
+        current?.item.id === item.id ? { ...current, state: "open" } : current,
+      );
+    });
+  }
+
+  function closeExpandedCard() {
+    setExpandedCard((current) =>
+      current ? { ...current, state: "closing" } : current,
+    );
+
+    if (closeTimerRef.current !== null) {
+      window.clearTimeout(closeTimerRef.current);
+    }
+
+    closeTimerRef.current = window.setTimeout(() => {
+      setExpandedCard(null);
+      closeTimerRef.current = null;
+    }, 500);
+  }
+
   return (
     <main className="min-h-svh bg-background text-neutral-900 transition-colors dark:text-neutral-100">
-      <div className="mx-auto flex w-full max-w-[1040px] flex-col px-4 pb-16 pt-5">
-        <header className="flex justify-end">
+      <div
+        className="app-shell mx-auto flex w-full max-w-[1040px] flex-col px-4 pb-16 pt-5"
+        data-overlay-state={expandedCard?.state ?? "closed"}
+      >
+        <header className="flex items-center justify-between gap-3">
+          <Tabs
+            className="gap-0"
+            onValueChange={(value) => setActivePage(value as ActivePage)}
+            value={activePage}
+          >
+            <TabsList className="h-8 rounded-full bg-secondary p-0.5 dark:bg-white/[0.08] [&_[data-slot=tab-indicator]]:rounded-full [&_[data-slot=tab-indicator]]:shadow-sm/5 dark:[&_[data-slot=tab-indicator]]:bg-white/[0.13]">
+              <TabsTab
+                className="!h-7 rounded-full px-3 text-[11px] leading-none data-active:bg-transparent data-active:shadow-none"
+                value="motion"
+              >
+                Motion
+              </TabsTab>
+              <TabsTab
+                className="!h-7 rounded-full px-3 text-[11px] leading-none data-active:bg-transparent data-active:shadow-none"
+                value="npm"
+              >
+                npm
+              </TabsTab>
+            </TabsList>
+          </Tabs>
           <div className="flex items-center gap-2">
             <Menu>
               <MenuTrigger
                 render={
                   <Button
                     aria-label={copy.languageMenuLabel}
-                    className="!size-8 rounded-full shadow-none transition-[background-color,color] duration-200 hover:bg-neutral-200 hover:text-neutral-950 active:shadow-none data-popup-open:bg-neutral-200 dark:hover:bg-neutral-800 dark:hover:text-neutral-50 dark:data-popup-open:bg-neutral-800 [&_svg]:size-3.5"
+                    className="!size-8 rounded-full shadow-none transition-[background-color,color] duration-200 hover:bg-neutral-200 hover:text-neutral-950 active:shadow-none data-popup-open:bg-neutral-200 dark:bg-white/[0.08] dark:hover:bg-white/[0.13] dark:hover:text-neutral-50 dark:data-popup-open:bg-white/[0.13] [&_svg]:size-3.5"
                     size="icon"
                     variant="secondary"
                   />
@@ -781,7 +1077,7 @@ export default function Home() {
             </Menu>
             <Button
               aria-label={copy.githubLabel}
-              className="!h-8 rounded-full px-3.5 !text-[13px] leading-none shadow-none transition-[background-color,color] duration-200 hover:bg-neutral-200 hover:text-neutral-950 active:shadow-none dark:hover:bg-neutral-800 dark:hover:text-neutral-50 [&_svg]:size-3.5"
+              className="!h-8 rounded-full px-3.5 !text-[13px] leading-none shadow-none transition-[background-color,color] duration-200 hover:bg-neutral-200 hover:text-neutral-950 active:shadow-none dark:bg-white/[0.08] dark:hover:bg-white/[0.13] dark:hover:text-neutral-50 [&_svg]:size-3.5"
               onClick={(event) => {
                 event.preventDefault();
                 window.open(githubRepositoryUrl, "_blank", "noopener,noreferrer");
@@ -801,7 +1097,7 @@ export default function Home() {
             <Button
               aria-label={copy.themeLabel}
               aria-pressed={isDark}
-              className="!size-8 rounded-full shadow-none transition-[background-color,color] duration-200 hover:bg-neutral-200 hover:text-neutral-950 active:shadow-none dark:hover:bg-neutral-800 dark:hover:text-neutral-50 [&_svg]:size-3.5"
+              className="!size-8 rounded-full shadow-none transition-[background-color,color] duration-200 hover:bg-neutral-200 hover:text-neutral-950 active:shadow-none dark:bg-white/[0.08] dark:hover:bg-white/[0.13] dark:hover:text-neutral-50 [&_svg]:size-3.5"
               onClick={() => setIsDark((current) => !current)}
               variant="secondary"
             >
@@ -814,48 +1110,47 @@ export default function Home() {
           </div>
         </header>
 
-        <section className="mx-auto mt-4 flex max-w-[460px] flex-col items-center text-center">
-          <div className="mb-7">
-            <MotionLogoCard isDark={isDark} label={copy.logoLabel} />
-          </div>
-          <h1 className="font-heading text-2xl font-semibold tracking-normal">
-            Motion Text Kit
-          </h1>
-          <p className="mt-3 text-balance text-[14px] leading-6 text-neutral-500 dark:text-neutral-400">
-            {copy.heroDescription}
-          </p>
-        </section>
+        {activePage === "motion" ? (
+          <>
+            <section className="mx-auto mt-4 flex max-w-[460px] flex-col items-center text-center">
+              <div className="mb-7">
+                <MotionLogoCard isDark={isDark} label={copy.logoLabel} />
+              </div>
+              <h1 className="font-heading text-2xl font-semibold tracking-normal">
+                Motion Text Kit
+              </h1>
+              <p className="mt-3 text-balance text-[14px] leading-6 text-neutral-500 dark:text-neutral-400">
+                {copy.heroDescription}
+              </p>
+            </section>
 
-        <section className="mt-11 grid gap-5 lg:grid-cols-3">
-          {motionCards.map((item) => (
-            <MotionCatalogCard
-              copyLabel={copy.copyLabel}
-              item={item}
-              key={item.id}
-            />
-          ))}
-        </section>
+            <section className="mt-11 grid gap-5 lg:grid-cols-3">
+              {motionCards.map((item) => (
+                <MotionCatalogCard
+                  copyLabel={copy.copyLabel}
+                  item={item}
+                  key={item.id}
+                  onOpen={openExpandedCard}
+                />
+              ))}
+            </section>
 
-        <p className="mt-14 inline-flex w-full items-center justify-center gap-3.5 text-center text-[14px] leading-7 text-neutral-400 dark:text-neutral-500">
-          <span className="translate-y-[3px]">{copy.footerPrefix}</span>
-          <a
-            aria-label="coooooolpan"
-            className="group inline-flex items-center gap-2 font-semibold text-neutral-600 transition-colors duration-300 hover:text-neutral-800 dark:text-neutral-300 dark:hover:text-neutral-100"
-            href="https://coooooolpan.vercel.app/"
-            rel="noreferrer"
-            target="_blank"
-          >
-            <FooterSignatureMark />
-            <span className="inline-grid size-[18px] translate-y-[3px] place-items-center">
-              <ArrowUpRightIcon
-                aria-hidden="true"
-                className="size-[15px] translate-x-[-0.45rem] translate-y-[0.45rem] scale-75 opacity-0 [filter:blur(2px)] transition-[opacity,translate,scale,filter] duration-500 ease-[cubic-bezier(.16,1,.3,1)] group-hover:translate-x-0 group-hover:translate-y-0 group-hover:scale-100 group-hover:opacity-100 group-hover:[filter:blur(0px)]"
-                strokeWidth={2.2}
-              />
-            </span>
-          </a>
-        </p>
+            <FooterCredit prefix={copy.footerPrefix} />
+          </>
+        ) : (
+          <NpmPage
+            copyLabel={copy.copyLabel}
+            footerPrefix={copy.footerPrefix}
+          />
+        )}
       </div>
+      {expandedCard ? (
+        <ExpandedMotionCardOverlay
+          copyLabel={copy.copyLabel}
+          expanded={expandedCard}
+          onClose={closeExpandedCard}
+        />
+      ) : null}
     </main>
   );
 }

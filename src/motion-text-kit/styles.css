@@ -139,21 +139,17 @@
   --mtk-focus-delay: 0ms;
   --mtk-focus-duration: 900ms;
   --mtk-focus-cycle: 2400ms;
-  --mtk-focus-stagger: 28ms;
   --mtk-focus-blur: 10px;
   --mtk-focus-scale: 1.08;
   --mtk-focus-iteration-count: infinite;
-  display: inline-flex;
-  flex-wrap: wrap;
+  display: inline-block;
   white-space: pre-wrap;
 }
 
 .mtk-focus-blur-text__item {
   animation: mtk-focus-blur-text var(--mtk-focus-cycle)
     cubic-bezier(.16, 1, .3, 1) both;
-  animation-delay: calc(
-    var(--mtk-focus-delay) + var(--mtk-index) * var(--mtk-focus-stagger)
-  );
+  animation-delay: var(--mtk-focus-delay);
   animation-iteration-count: var(--mtk-focus-iteration-count);
   display: inline-block;
   filter: blur(var(--mtk-focus-blur));
@@ -183,12 +179,141 @@
   }
 }
 
+.mtk-liquid-text {
+  --mtk-liquid-delay: 0ms;
+  --mtk-liquid-duration: 1800ms;
+  --mtk-liquid-cycle: 3300ms;
+  --mtk-liquid-stagger: 34ms;
+  --mtk-liquid-distance: 18px;
+  --mtk-liquid-blur: 7px;
+  --mtk-liquid-filter: none;
+  --mtk-liquid-iteration-count: infinite;
+  display: inline-flex;
+  filter: var(--mtk-liquid-filter);
+  isolation: isolate;
+  position: relative;
+  white-space: pre-wrap;
+}
+
+.mtk-liquid-text__filter {
+  block-size: 0;
+  inline-size: 0;
+  overflow: hidden;
+  pointer-events: none;
+  position: absolute;
+}
+
+.mtk-liquid-text__item {
+  animation: mtk-liquid-text var(--mtk-liquid-cycle)
+    cubic-bezier(.16, 1, .3, 1) both;
+  animation-delay: calc(
+    var(--mtk-liquid-delay) + var(--mtk-index) * var(--mtk-liquid-stagger)
+  );
+  animation-iteration-count: var(--mtk-liquid-iteration-count);
+  display: inline-block;
+  line-height: 1;
+  opacity: 0;
+  transform: translate3d(var(--mtk-liquid-x), var(--mtk-liquid-y), 0)
+    scale(.84);
+  will-change: opacity, transform, filter;
+}
+
+@keyframes mtk-liquid-text {
+  0% {
+    filter: blur(var(--mtk-liquid-blur));
+    opacity: 0;
+    transform: translate3d(var(--mtk-liquid-x), var(--mtk-liquid-y), 0)
+      scale(.84);
+  }
+
+  24% {
+    filter: blur(calc(var(--mtk-liquid-blur) * .52));
+    opacity: .92;
+    transform: translate3d(
+        calc(var(--mtk-liquid-x) * .22),
+        calc(var(--mtk-liquid-y) * .22),
+        0
+      )
+      scale(1.08);
+  }
+
+  42%,
+  70% {
+    filter: blur(0);
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  100% {
+    filter: blur(calc(var(--mtk-liquid-blur) * .72));
+    opacity: 0;
+    transform: translate3d(
+        calc(var(--mtk-liquid-x) * -0.65),
+        calc(var(--mtk-liquid-y) * -0.65),
+        0
+      )
+      scale(.9);
+  }
+}
+
+.mtk-ticker-text {
+  --mtk-ticker-delay: 0ms;
+  --mtk-ticker-duration: 3600ms;
+  --mtk-ticker-blur: 6px;
+  --mtk-ticker-stagger: 42ms;
+  --mtk-ticker-iteration-count: infinite;
+  display: inline-block;
+  inline-size: min(100%, 18rem);
+  isolation: isolate;
+  overflow: hidden;
+  position: relative;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.mtk-ticker-text__track {
+  animation: mtk-ticker-track var(--mtk-ticker-duration)
+    cubic-bezier(.45, 0, .15, 1) both;
+  animation-delay: var(--mtk-ticker-delay);
+  animation-iteration-count: var(--mtk-ticker-iteration-count);
+  display: inline-block;
+  line-height: 1;
+  min-inline-size: max-content;
+  transform: translate3d(72%, 0, 0);
+  will-change: transform;
+}
+
+.mtk-ticker-text__item {
+  display: inline-block;
+  filter: blur(var(--mtk-ticker-edge-blur, 0px));
+  line-height: 1;
+  opacity: var(--mtk-ticker-edge-opacity, 1);
+  transform: translate3d(var(--mtk-ticker-edge-x, 0px), 0, 0);
+  transform-origin: 50% 50%;
+  transition:
+    filter 80ms linear,
+    opacity 80ms linear,
+    transform 80ms linear;
+  will-change: opacity, transform, filter;
+}
+
+@keyframes mtk-ticker-track {
+  0% {
+    transform: translate3d(72%, 0, 0);
+  }
+
+  100% {
+    transform: translate3d(-120%, 0, 0);
+  }
+}
+
 .mtk-pixel-resolve-text {
   --mtk-pixel-delay: 0ms;
   --mtk-pixel-duration: 1100ms;
   --mtk-pixel-cycle: 2700ms;
   --mtk-pixel-stagger: 32ms;
   --mtk-pixel-size: 4px;
+  --mtk-pixel-block: calc(var(--mtk-pixel-size) * 4);
   --mtk-pixel-iteration-count: infinite;
   display: inline-flex;
   flex-wrap: wrap;
@@ -207,42 +332,34 @@
   -webkit-text-fill-color: transparent;
 }
 
-.mtk-pixel-resolve-text__item::before,
+.mtk-pixel-resolve-text__item::before {
+  content: "";
+  grid-area: 1 / 1;
+}
+
 .mtk-pixel-resolve-text__item::after {
   content: attr(data-char);
   grid-area: 1 / 1;
 }
 
 .mtk-pixel-resolve-text__item::before {
-  animation: mtk-pixel-resolve-noise var(--mtk-pixel-cycle)
-    steps(7, jump-none) both;
+  animation: mtk-pixel-resolve-blocks var(--mtk-pixel-cycle)
+    steps(5, jump-none) both;
   animation-delay: inherit;
   animation-iteration-count: inherit;
-  background-image:
-    repeating-linear-gradient(
-      90deg,
-      currentColor 0 var(--mtk-pixel-size),
-      transparent var(--mtk-pixel-size) calc(var(--mtk-pixel-size) * 2)
-    ),
-    repeating-linear-gradient(
-      0deg,
-      currentColor 0 var(--mtk-pixel-size),
-      transparent var(--mtk-pixel-size) calc(var(--mtk-pixel-size) * 2)
-    );
-  background-size:
-    calc(var(--mtk-pixel-size) * 2) calc(var(--mtk-pixel-size) * 2),
-    calc(var(--mtk-pixel-size) * 2) calc(var(--mtk-pixel-size) * 2);
-  color: color-mix(in srgb, currentColor 60%, transparent);
-  filter: blur(.5px) contrast(2.2);
-  opacity: .95;
-  -webkit-background-clip: text;
-  background-clip: text;
-  text-shadow:
-    calc(var(--mtk-pixel-size) * -1) 0 0 currentColor,
-    var(--mtk-pixel-size) 0 0 currentColor,
-    0 var(--mtk-pixel-size) 0 currentColor;
-  transform: scale(1.16);
-  -webkit-text-fill-color: transparent;
+  align-self: center;
+  background: currentColor;
+  block-size: .86em;
+  box-shadow:
+    calc(var(--mtk-pixel-block) * -0.72) 0 0 currentColor,
+    calc(var(--mtk-pixel-block) * .72) 0 0 currentColor,
+    0 calc(var(--mtk-pixel-block) * -0.55) 0 currentColor,
+    0 calc(var(--mtk-pixel-block) * .55) 0 currentColor;
+  filter: contrast(1.2);
+  inline-size: .68em;
+  justify-self: center;
+  opacity: 1;
+  transform: scale(1.28) translate3d(-1px, 1px, 0);
   will-change: opacity, filter, transform;
 }
 
@@ -257,28 +374,29 @@
   -webkit-text-fill-color: currentColor;
 }
 
-@keyframes mtk-pixel-resolve-noise {
+@keyframes mtk-pixel-resolve-blocks {
   0% {
-    filter: blur(1px) contrast(2.6);
-    opacity: .95;
-    transform: scale(1.16) translate3d(-1px, 1px, 0);
+    filter: contrast(1.25);
+    opacity: 1;
+    transform: scale(1.28) translate3d(-1px, 1px, 0);
   }
 
-  30% {
-    opacity: .85;
-    transform: scale(1.08) translate3d(1px, -1px, 0);
+  24% {
+    opacity: .92;
+    transform: scale(1.02) translate3d(1px, -1px, 0);
   }
 
-  54% {
-    opacity: .28;
-    transform: scale(1.02) translate3d(0, 0, 0);
+  48% {
+    filter: contrast(1.05);
+    opacity: .52;
+    transform: scale(.68) translate3d(0, 0, 0);
   }
 
   68%,
   100% {
-    filter: blur(0) contrast(1);
+    filter: contrast(1);
     opacity: 0;
-    transform: scale(1) translate3d(0, 0, 0);
+    transform: scale(.34) translate3d(0, 0, 0);
   }
 }
 
@@ -310,10 +428,113 @@
   white-space: pre;
 }
 
+.mtk-typewriter-text__letters {
+  align-items: baseline;
+  display: inline-flex;
+}
+
+.mtk-typewriter-text__letter {
+  --mtk-typewriter-letter-blur: 0px;
+  --mtk-typewriter-letter-opacity: 1;
+  --mtk-typewriter-letter-scale: 1;
+  --mtk-typewriter-letter-x: 0em;
+  display: inline-block;
+  backface-visibility: hidden;
+  filter: blur(var(--mtk-typewriter-letter-blur));
+  max-inline-size: 1em;
+  opacity: var(--mtk-typewriter-letter-opacity);
+  overflow: visible;
+  transform: translate3d(var(--mtk-typewriter-letter-x), 0, 0)
+    scale(var(--mtk-typewriter-letter-scale));
+  transform-origin: 50% 50%;
+  transition:
+    filter 180ms cubic-bezier(.2, .9, .2, 1),
+    opacity 170ms cubic-bezier(.2, .9, .2, 1),
+    transform 210ms cubic-bezier(.2, .9, .2, 1);
+  will-change: filter, opacity, transform;
+}
+
+.mtk-typewriter-text__letter[data-state="settled"][data-near="0"] {
+  --mtk-typewriter-letter-blur: .04px;
+  --mtk-typewriter-letter-scale: 1.012;
+}
+
+.mtk-typewriter-text__letter[data-state="settled"][data-near="1"] {
+  --mtk-typewriter-letter-scale: 1.007;
+}
+
+.mtk-typewriter-text__letter[data-state="settled"][data-near="2"] {
+  --mtk-typewriter-letter-scale: 1.003;
+}
+
+.mtk-typewriter-text__letter[data-state="leaving"][data-near="0"] {
+  animation-duration: 220ms;
+}
+
+.mtk-typewriter-text__letter[data-state="entering"] {
+  animation: mtk-typewriter-letter-in 220ms cubic-bezier(.2, .9, .2, 1) both;
+}
+
+.mtk-typewriter-text__letter[data-state="leaving"] {
+  animation: mtk-typewriter-letter-out 220ms cubic-bezier(.2, .9, .2, 1) both;
+}
+
 .mtk-typewriter-text__cursor {
   animation: mtk-typewriter-cursor 900ms steps(2, jump-none) infinite;
   display: inline-block;
   margin-left: .08em;
+}
+
+.mtk-typewriter-text[data-phase="typing"] .mtk-typewriter-text__cursor,
+.mtk-typewriter-text[data-phase="deleting"] .mtk-typewriter-text__cursor {
+  animation: none;
+  opacity: 1;
+}
+
+@keyframes mtk-typewriter-letter-in {
+  0% {
+    filter: blur(1.2px);
+    max-inline-size: 0;
+    opacity: 0;
+    transform: translate3d(-.12em, 0, 0) scale(.88);
+  }
+
+  55% {
+    filter: blur(.2px);
+    max-inline-size: 1em;
+    opacity: .92;
+    transform: translate3d(-.025em, 0, 0) scale(1.008);
+  }
+
+  100% {
+    filter: blur(0);
+    max-inline-size: 1em;
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes mtk-typewriter-letter-out {
+  0% {
+    filter: blur(0);
+    max-inline-size: 1em;
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  52% {
+    filter: blur(.25px);
+    max-inline-size: .48em;
+    opacity: .7;
+    transform: translate3d(.035em, 0, 0) scale(.94);
+  }
+
+  100% {
+    filter: blur(1.25px);
+    max-inline-size: 0;
+    opacity: 0;
+    transform: translate3d(.12em, 0, 0) scale(.82);
+  }
 }
 
 @keyframes mtk-typewriter-cursor {
@@ -325,6 +546,15 @@
   49%,
   100% {
     opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mtk-typewriter-text__letter {
+    animation: none !important;
+    filter: none !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
 }
 
@@ -717,6 +947,22 @@
 
   .mtk-gradient-sweep {
     -webkit-text-fill-color: currentColor;
+  }
+
+  .mtk-ticker-text {
+    overflow: visible;
+  }
+
+  .mtk-ticker-text__track {
+    animation: none;
+    transform: none;
+  }
+
+  .mtk-ticker-text__item {
+    filter: blur(0);
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 
   .mtk-rolling-number__digit {
