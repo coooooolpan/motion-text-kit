@@ -8,6 +8,9 @@
 
 组件本身不依赖 Next.js，也不依赖运行时动画库。你可以在 Next.js、Vite、Remix、Storybook 或任意 React 项目中使用。
 
+![Uploading image.png…]()
+
+
 ### 核心组件
 
 - `TextReveal`：逐字或逐词出现、消失、循环出现消失动效。
