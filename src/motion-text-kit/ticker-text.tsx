@@ -49,6 +49,7 @@ export function TickerText({
 }: TickerTextProps): React.ReactElement {
   const trackRef = useRef<HTMLSpanElement | null>(null);
   const characters = splitGraphemes(text);
+  const copies = [0, 1, 2, 3];
   const motionStyle: MotionStyle = {
     "--mtk-ticker-delay": `${delay}ms`,
     "--mtk-ticker-duration": `${duration}ms`,
@@ -75,7 +76,13 @@ export function TickerText({
       }
 
       const rootRect = root.getBoundingClientRect();
-      const fadeWidth = Math.min(rootRect.width * 0.28, 72);
+      const rootStyles = window.getComputedStyle(root);
+      const configuredFadeWidth = Number.parseFloat(
+        rootStyles.getPropertyValue("--mtk-ticker-edge-fade"),
+      );
+      const fadeWidth = Number.isFinite(configuredFadeWidth)
+        ? configuredFadeWidth
+        : Math.min(rootRect.width * 0.28, 72);
       const items = track.querySelectorAll<HTMLElement>(
         ".mtk-ticker-text__item",
       );
@@ -99,7 +106,7 @@ export function TickerText({
         const easedProgress = 1 - (1 - progress) ** 2;
         const edgeBlur = blur * (1 - easedProgress);
         const edgeOpacity = easedProgress;
-        const edgeDirection = itemCenter < rootCenter ? -1 : 1;
+        const edgeDirection = itemCenter < rootCenter ? 1 : -1;
         const edgeX = edgeDirection * 12 * (1 - easedProgress);
 
         item.style.setProperty(
@@ -138,15 +145,22 @@ export function TickerText({
         className="mtk-ticker-text__track"
         ref={trackRef}
       >
-        {characters.map((char, index) => (
-          <span
-            className={["mtk-ticker-text__item", itemClassName]
-              .filter(Boolean)
-              .join(" ")}
-            key={`${char}-${index}`}
-            style={{ "--mtk-index": index } as MotionStyle}
-          >
-            {char}
+        {copies.map((copyIndex) => (
+          <span className="mtk-ticker-text__segment" key={copyIndex}>
+            {characters.map((char, index) => (
+              <span
+                className={["mtk-ticker-text__item", itemClassName]
+                  .filter(Boolean)
+                  .join(" ")}
+                key={`${copyIndex}-${char}-${index}`}
+                style={{ "--mtk-index": index } as MotionStyle}
+              >
+                {char}
+              </span>
+            ))}
+            <span aria-hidden="true" className="mtk-ticker-text__gap">
+              {" "}
+            </span>
           </span>
         ))}
       </span>

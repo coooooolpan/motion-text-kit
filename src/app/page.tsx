@@ -60,27 +60,29 @@ const pageCopy = {
       en: "English",
     },
     githubLabel: "打开 GitHub 仓库",
+    startLabel: "开始",
     themeLabel: "切换深色模式",
     logoLabel: "Motion Text Kit 标志",
+    heroSlogan: "让文字自然流动",
     heroDescription:
-      "Motion Text Kit 是一组轻量的 React 文本动效组件，用 CSS 动画实现高光滑动、逐字出现和数字滚动等常用效果。",
+      "Motion Text Kit 是一组轻量、开箱即用的 React 文本动效组件，为界面注入恰到好处的动态表达。",
     copyLabel: "复制",
     currentTimeLabel: "当前时间",
     footerPrefix: "Crafted by",
     resetInvisibleLabel: "复原隐形",
     cards: {
       gradient: {
-        title: "文本高光滑动",
+        title: "文本高光",
         description: "一道柔和高光从文字表面滑过",
         previewText: "Stay hungry, stay foolish.",
       },
       reveal: {
-        title: "逐字出现消失",
+        title: "逐字显隐",
         description: "字符依次出现、停留，然后淡出",
         previewText: "Letters enter and leave.",
       },
       rolling: {
-        title: "倒计时数字滚动",
+        title: "数字计时",
         description: "按 HH:mm:ss 滚动展示当前时间",
       },
       spoiler: {
@@ -89,12 +91,12 @@ const pageCopy = {
         previewText: "Tap to reveal this.",
       },
       decrypt: {
-        title: "解码文本出现",
+        title: "文本解码",
         description: "随机字符逐步解析为最终文本",
         previewText: "ACCESS GRANTED",
       },
       weight: {
-        title: "字重扫光变化",
+        title: "字重扫光",
         description: "字重从细到粗平滑扫过文字",
         previewText: "Weight wave passes.",
       },
@@ -104,12 +106,13 @@ const pageCopy = {
         previewText: "Focus sharpens softly.",
       },
       ticker: {
-        title: "横向滚动公告",
-        description: "文本在两端带光感模糊后滚入滚出",
-        previewText: "Motion text kit is now available.",
+        title: "流动字幕",
+        description: "文本在两端带光感模糊并持续循环",
+        previewText:
+          "Stay hungry, stay foolish. Steve Jobs believed that design is not just what it looks like and feels like, design is how it works. The people who are crazy enough to think they can change the world are the ones who do.",
       },
       typewriter: {
-        title: "打字机光标输入",
+        title: "打字光标",
         description: "逐字输入并带闪烁光标",
         previewText: "Typing with a cursor",
       },
@@ -124,10 +127,12 @@ const pageCopy = {
       en: "English",
     },
     githubLabel: "Open GitHub repository",
+    startLabel: "Start",
     themeLabel: "Toggle dark mode",
     logoLabel: "Motion Text Kit logo",
+    heroSlogan: "Text, in motion.",
     heroDescription:
-      "Motion Text Kit is a lightweight set of React text-motion primitives for highlight sweeps, character reveals, rolling numbers, and playful text effects powered by CSS animation.",
+      "Motion Text Kit is a lightweight, ready-to-use set of React text motion components that brings just-right dynamic expression to interfaces.",
     copyLabel: "Copy",
     currentTimeLabel: "Current time",
     footerPrefix: "Crafted by",
@@ -168,9 +173,10 @@ const pageCopy = {
         previewText: "Focus sharpens softly.",
       },
       ticker: {
-        title: "Ticker Text",
-        description: "Horizontal notice text fades through soft glowing edges",
-        previewText: "Motion text kit is now available.",
+        title: "Flowing Ticker",
+        description: "Horizontal notice text loops through soft glowing edges",
+        previewText:
+          "Stay hungry, stay foolish. Steve Jobs believed that design is not just what it looks like and feels like, design is how it works. The people who are crazy enough to think they can change the world are the ones who do.",
       },
       typewriter: {
         title: "Typewriter Cursor",
@@ -256,7 +262,13 @@ function MotionLogo({ label }: { label: string }) {
       viewBox="0 0 100 100"
     >
       <defs>
-        <filter id="motion-logo-roughen">
+        <filter
+          height="150%"
+          id="motion-logo-roughen"
+          width="150%"
+          x="-25%"
+          y="-25%"
+        >
           <feTurbulence
             baseFrequency="0.075"
             numOctaves="2"
@@ -398,12 +410,26 @@ function MotionLogoCard({
           strength={0.8}
           theme={isDark ? "dark" : "light"}
         >
-          <Card className="logo-card grid size-[3.875rem] place-items-center overflow-hidden rounded-[1.1rem] border-black/[0.045] bg-white p-0 shadow-[0_14px_36px_rgba(59,130,246,.13)] dark:border-white/8 dark:bg-neutral-900 dark:shadow-[0_14px_36px_rgba(59,130,246,.08)]">
+          <Card className="logo-card grid size-[3.625rem] place-items-center overflow-visible rounded-[1.05rem] border-black/[0.045] bg-white p-0 shadow-[0_14px_36px_rgba(59,130,246,.13)] dark:border-white/8 dark:bg-neutral-900 dark:shadow-[0_14px_36px_rgba(59,130,246,.08)]">
             <MotionLogo label={label} />
           </Card>
         </BorderBeam>
       </div>
     </div>
+  );
+}
+
+function BrandMark({ label }: { label: string }) {
+  return (
+    <a
+      aria-label={label}
+      className="inline-flex items-center rounded-full text-neutral-900 transition-colors duration-200 hover:text-neutral-700 dark:text-neutral-100 dark:hover:text-neutral-300"
+      href="#"
+    >
+      <span className="text-[15px] font-semibold leading-none tracking-normal [font-family:var(--font-saans)]">
+        Motion Text Kit
+      </span>
+    </a>
   );
 }
 
@@ -613,13 +639,13 @@ function createMotionCards(copy: (typeof pageCopy)[Locale]): MotionCard[] {
           <TickerText
             blur={6}
             className="w-56 font-heading text-[14px] font-semibold leading-[22px] tracking-normal"
-            duration={3900}
+            duration={18000}
             stagger={34}
             text={copy.cards.ticker.previewText}
           />
         </div>
       ),
-      code: `<TickerText text="Motion text kit is now available." />`,
+      code: `<TickerText text="Stay hungry, stay foolish. Steve Jobs believed..." />`,
     },
     {
       id: "typewriter",
@@ -1012,26 +1038,29 @@ export default function Home() {
         data-overlay-state={expandedCard?.state ?? "closed"}
       >
         <header className="flex items-center justify-between gap-3">
-          <Tabs
-            className="gap-0"
-            onValueChange={(value) => setActivePage(value as ActivePage)}
-            value={activePage}
-          >
-            <TabsList className="h-8 rounded-full bg-secondary p-0.5 dark:bg-white/[0.08] [&_[data-slot=tab-indicator]]:rounded-full [&_[data-slot=tab-indicator]]:shadow-sm/5 dark:[&_[data-slot=tab-indicator]]:bg-white/[0.13]">
-              <TabsTab
-                className="!h-7 rounded-full px-3 text-[11px] leading-none data-active:bg-transparent data-active:shadow-none"
-                value="motion"
-              >
-                Motion
-              </TabsTab>
-              <TabsTab
-                className="!h-7 rounded-full px-3 text-[11px] leading-none data-active:bg-transparent data-active:shadow-none"
-                value="npm"
-              >
-                npm
-              </TabsTab>
-            </TabsList>
-          </Tabs>
+          <div className="flex min-w-0 items-center gap-4">
+            <BrandMark label={copy.logoLabel} />
+            <Tabs
+              className="gap-0"
+              onValueChange={(value) => setActivePage(value as ActivePage)}
+              value={activePage}
+            >
+              <TabsList className="h-8 rounded-full bg-secondary p-0.5 dark:bg-white/[0.08] [&_[data-slot=tab-indicator]]:rounded-full [&_[data-slot=tab-indicator]]:shadow-sm/5 dark:[&_[data-slot=tab-indicator]]:bg-white/[0.13]">
+                <TabsTab
+                  className="!h-7 rounded-full px-3 !text-[11px] leading-none data-active:bg-transparent data-active:shadow-none"
+                  value="motion"
+                >
+                  Motion
+                </TabsTab>
+                <TabsTab
+                  className="!h-7 rounded-full px-3 !text-[11px] leading-none data-active:bg-transparent data-active:shadow-none"
+                  value="npm"
+                >
+                  npm
+                </TabsTab>
+              </TabsList>
+            </Tabs>
+          </div>
           <div className="flex items-center gap-2">
             <Menu>
               <MenuTrigger
@@ -1049,15 +1078,16 @@ export default function Home() {
               <MenuPopup
                 align="start"
                 alignOffset={-11}
-                className="min-w-32"
-                sideOffset={8}
+                className="min-w-[9rem] rounded-2xl border-black/[0.08] bg-white/95 shadow-[0_18px_44px_rgba(15,23,42,.14)] backdrop-blur-xl before:rounded-[calc(var(--radius-2xl)-1px)] dark:border-white/[0.08] dark:bg-neutral-900/95 dark:shadow-[0_18px_44px_rgba(0,0,0,.38)] [&>div]:p-1.5"
+                sideOffset={10}
               >
                 <MenuRadioGroup
+                  className="grid gap-1"
                   onValueChange={(value) => setLocale(value as Locale)}
                   value={locale}
                 >
                   <MenuRadioItem
-                    className="grid-cols-[1.75rem_1fr] ps-4"
+                    className="min-h-9 grid-cols-[1.1rem_1fr] gap-1.5 rounded-xl ps-2.5 pe-4 text-[14px] font-medium text-neutral-700 transition-colors duration-150 data-checked:bg-neutral-100 data-highlighted:bg-neutral-100 data-highlighted:text-neutral-950 dark:text-neutral-200 dark:data-checked:bg-white/[0.08] dark:data-highlighted:bg-white/[0.08] dark:data-highlighted:text-neutral-50 [&_svg]:size-4 [&_svg]:text-neutral-950 dark:[&_svg]:text-neutral-50"
                     closeOnClick
                     label="中文"
                     value="zh"
@@ -1065,7 +1095,7 @@ export default function Home() {
                     {copy.languageOptions.zh}
                   </MenuRadioItem>
                   <MenuRadioItem
-                    className="grid-cols-[1.75rem_1fr] ps-4"
+                    className="min-h-9 grid-cols-[1.1rem_1fr] gap-1.5 rounded-xl ps-2.5 pe-4 text-[14px] font-medium text-neutral-700 transition-colors duration-150 data-checked:bg-neutral-100 data-highlighted:bg-neutral-100 data-highlighted:text-neutral-950 dark:text-neutral-200 dark:data-checked:bg-white/[0.08] dark:data-highlighted:bg-white/[0.08] dark:data-highlighted:text-neutral-50 [&_svg]:size-4 [&_svg]:text-neutral-950 dark:[&_svg]:text-neutral-50"
                     closeOnClick
                     label="English"
                     value="en"
@@ -1116,15 +1146,38 @@ export default function Home() {
               <div className="mb-7">
                 <MotionLogoCard isDark={isDark} label={copy.logoLabel} />
               </div>
-              <h1 className="font-heading text-2xl font-semibold tracking-normal">
-                Motion Text Kit
+              <h1 className="text-balance font-heading text-[28px] font-semibold leading-tight tracking-normal">
+                {copy.heroSlogan}
               </h1>
-              <p className="mt-3 text-balance text-[14px] leading-6 text-neutral-500 dark:text-neutral-400">
+              <p className="mt-3 text-balance text-[16px] leading-7 text-neutral-500 dark:text-neutral-400">
                 {copy.heroDescription}
               </p>
+              <div className="mt-7 flex items-center justify-center gap-3">
+                <Button
+                  className="!h-[40px] rounded-full border-transparent bg-neutral-950 px-5 text-[13px] font-semibold text-white shadow-none transition-[background-color,color] duration-200 hover:bg-neutral-800 active:shadow-none data-pressed:shadow-none dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200"
+                  onClick={() => setActivePage("npm")}
+                  variant="secondary"
+                >
+                  {copy.startLabel}
+                </Button>
+                <Button
+                  className="!h-[40px] rounded-full border-transparent bg-neutral-100 px-5 text-[13px] font-semibold text-neutral-900 shadow-none transition-[background-color,color] duration-200 hover:bg-neutral-200 hover:text-neutral-950 active:shadow-none data-pressed:shadow-none dark:bg-white/[0.08] dark:text-neutral-100 dark:hover:bg-white/[0.13] [&_svg]:size-5"
+                  render={
+                    <a
+                      href={githubRepositoryUrl}
+                      rel="noreferrer"
+                      target="_blank"
+                    />
+                  }
+                  variant="secondary"
+                >
+                  <GithubIcon className="size-5" />
+                  GitHub
+                </Button>
+              </div>
             </section>
 
-            <section className="mt-11 grid gap-5 lg:grid-cols-3">
+            <section className="mt-11 grid gap-5 lg:grid-cols-3" id="effects">
               {motionCards.map((item) => (
                 <MotionCatalogCard
                   copyLabel={copy.copyLabel}

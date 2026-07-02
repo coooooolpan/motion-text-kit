@@ -17,6 +17,8 @@
   --animate-caret-blink: 1s ease-out infinite caret-blink;
   --font-heading: "Inter", "Inter Fallback", ui-sans-serif, system-ui,
     sans-serif;
+  --font-saans: "Saans", "Inter", "Inter Fallback", ui-sans-serif, system-ui,
+    sans-serif;
   --font-pixel-square: var(--font-geist-pixel-square), "Geist Mono",
     ui-monospace, monospace;
   --color-sidebar-ring: var(--sidebar-ring);
@@ -249,6 +251,10 @@
   html {
     @apply font-sans;
   }
+  html:lang(en) {
+    --font-sans: var(--font-saans);
+    --font-heading: var(--font-saans);
+  }
 }
 
 .footer-signature {
@@ -311,10 +317,11 @@
 }
 
 .logo-tilt {
+  --logo-hover-hitbox: 80px;
   display: grid;
-  margin: -80px;
+  margin: calc(var(--logo-hover-hitbox) * -1);
   overflow: visible;
-  padding: 80px;
+  padding: var(--logo-hover-hitbox);
   place-items: center;
 }
 
@@ -349,6 +356,12 @@
 .logo-card {
   backface-visibility: hidden;
   transform: translateZ(0);
+  transition: transform 420ms cubic-bezier(.22, 1, .36, 1);
+  will-change: transform;
+}
+
+.t-tilt.is-hover .logo-card {
+  transform: translateZ(10px) scale(1.055);
 }
 
 .app-shell {
