@@ -22,30 +22,12 @@ type FocusBlurTextOwnProps<TElement extends MotionElement = "span"> =
 export type FocusBlurTextProps<TElement extends MotionElement = "span"> =
   FocusBlurTextOwnProps<TElement> & NativeProps<TElement>;
 
-function splitGraphemes(text: string): string[] {
-  const segmenter =
-    typeof Intl !== "undefined" && "Segmenter" in Intl
-      ? new (Intl as typeof Intl & {
-          Segmenter: new (
-            locale?: string,
-            options?: { granularity: "grapheme" },
-          ) => { segment: (input: string) => Iterable<{ segment: string }> };
-        }).Segmenter(undefined, { granularity: "grapheme" })
-      : null;
-
-  if (!segmenter) {
-    return Array.from(text);
-  }
-
-  return Array.from(segmenter.segment(text), ({ segment }) => segment);
-}
-
 export function FocusBlurText<TElement extends MotionElement = "span">({
   as,
   text,
   duration = 900,
   delay = 0,
-  stagger = 28,
+  stagger: _stagger = 28,
   blur = 10,
   scale = 1.08,
   repeat = true,
@@ -56,12 +38,11 @@ export function FocusBlurText<TElement extends MotionElement = "span">({
   ...props
 }: FocusBlurTextProps<TElement>): React.ReactElement {
   const Component = as ?? "span";
-  const parts = splitGraphemes(text);
+  void _stagger;
   const motionStyle: MotionStyle = {
     "--mtk-focus-delay": `${delay}ms`,
     "--mtk-focus-duration": `${duration}ms`,
-    "--mtk-focus-cycle": `${duration + parts.length * stagger + 1100}ms`,
-    "--mtk-focus-stagger": `${stagger}ms`,
+    "--mtk-focus-cycle": `${duration + 1300}ms`,
     "--mtk-focus-blur": `${blur}px`,
     "--mtk-focus-scale": scale,
     "--mtk-focus-iteration-count": repeat ? "infinite" : (iterationCount ?? 1),
@@ -75,18 +56,14 @@ export function FocusBlurText<TElement extends MotionElement = "span">({
       style={motionStyle}
       {...props}
     >
-      {parts.map((part, index) => (
-        <span
-          aria-hidden="true"
-          className={["mtk-focus-blur-text__item", itemClassName]
-            .filter(Boolean)
-            .join(" ")}
-          key={`${part}-${index}`}
-          style={{ "--mtk-index": index } as MotionStyle}
-        >
-          {part}
-        </span>
-      ))}
+      <span
+        aria-hidden="true"
+        className={["mtk-focus-blur-text__item", itemClassName]
+          .filter(Boolean)
+          .join(" ")}
+      >
+        {text}
+      </span>
     </Component>
   );
 }
