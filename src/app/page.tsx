@@ -21,9 +21,12 @@ import {
 } from "@/components/ui/menu";
 import { Tabs, TabsList, TabsTab } from "@/components/ui/tabs";
 import {
+  BreathingText,
   DecryptText,
+  ElasticLettersText,
   FocusBlurText,
   GradientSweepText,
+  NumberDeltaText,
   RollingNumber,
   SpoilerText,
   TextReveal,
@@ -39,6 +42,7 @@ type MotionCard = {
   id: string;
   title: string;
   description: string;
+  scenario: string;
   preview: ReactNode;
   code: string;
 };
@@ -70,51 +74,78 @@ const pageCopy = {
     currentTimeLabel: "当前时间",
     footerPrefix: "Crafted by",
     resetInvisibleLabel: "复原隐形",
+    scenarioLabel: "适用场景",
     cards: {
       gradient: {
         title: "文本高光",
         description: "一道柔和高光从文字表面滑过",
+        scenario: "适合强调关键词、品牌标语、AI 思考状态或需要柔和吸引注意力的短文本。",
         previewText: "Stay hungry, stay foolish.",
       },
       reveal: {
         title: "逐字显隐",
         description: "字符依次出现、停留，然后淡出",
+        scenario: "适合首屏标题、引导文案、空状态提示和需要节奏感出现的短句。",
         previewText: "Letters enter and leave.",
       },
       rolling: {
         title: "数字计时",
         description: "按 HH:mm:ss 滚动展示当前时间",
+        scenario: "适合时间、倒计时、统计面板和需要数字更新反馈的实时信息。",
       },
       spoiler: {
         title: "隐形墨水",
         description: "像隐形墨水一样按下后显露文字",
+        scenario: "适合敏感信息、谜底揭示、互动提示和需要用户主动查看的内容。",
         previewText: "Tap to reveal this.",
       },
       decrypt: {
         title: "文本解码",
         description: "随机字符逐步解析为最终文本",
+        scenario: "适合权限状态、终端反馈、加载完成提示和带技术感的结果揭示。",
         previewText: "ACCESS GRANTED",
       },
       weight: {
         title: "字重扫光",
         description: "字重从细到粗平滑扫过文字",
+        scenario: "适合导航激活态、强调词、品牌标题和需要低调动态质感的文本。",
         previewText: "Weight wave passes.",
       },
       focus: {
         title: "模糊聚焦",
         description: "文字从失焦模糊聚拢到清晰",
+        scenario: "适合加载态、内容进入视野、AI 生成完成和从不确定到确定的状态表达。",
         previewText: "Focus sharpens softly.",
       },
       ticker: {
         title: "流动字幕",
         description: "文本在两端带光感模糊并持续循环",
+        scenario: "适合公告栏、新闻摘要、状态播报和空间有限但需要展示长文本的区域。",
         previewText:
           "Stay hungry, stay foolish. Steve Jobs believed that design is not just what it looks like and feels like, design is how it works. The people who are crazy enough to think they can change the world are the ones who do.",
       },
       typewriter: {
         title: "打字光标",
         description: "逐字输入并带闪烁光标",
+        scenario: "适合搜索建议、命令输入、AI 回复预览和需要模拟输入过程的短文本。",
         previewText: "Typing with a cursor",
+      },
+      breathing: {
+        title: "呼吸文本",
+        description: "整体文本以轻微透明度、模糊和缩放呼吸",
+        scenario: "适合等待态、AI thinking、空状态和需要安静持续反馈的提示文案。",
+        previewText: "Almost there...",
+      },
+      delta: {
+        title: "数字涨跌",
+        description: "数字变化时带正负方向和弹性入场",
+        scenario: "适合价格涨跌、指标变化、交易数据和需要表达正负方向的统计数字。",
+      },
+      elastic: {
+        title: "弹性字母",
+        description: "字符水平轻微拉伸后回弹出现",
+        scenario: "适合按钮反馈、短标题出现、品牌字动效和需要 SwiftUI 弹性感的轻量文本。",
+        previewText: "Swift-like motion",
       },
     },
   },
@@ -137,51 +168,78 @@ const pageCopy = {
     currentTimeLabel: "Current time",
     footerPrefix: "Crafted by",
     resetInvisibleLabel: "Hide again",
+    scenarioLabel: "Use cases",
     cards: {
       gradient: {
         title: "Gradient Text Sweep",
         description: "A soft highlight glides across the text",
+        scenario: "Best for keywords, brand lines, AI thinking states, or short text that needs soft attention.",
         previewText: "Stay hungry, stay foolish.",
       },
       reveal: {
         title: "Character Reveal",
         description: "Characters enter, hold, then leave",
+        scenario: "Best for hero headlines, onboarding copy, empty states, and rhythmic short-form text.",
         previewText: "Letters enter and leave.",
       },
       rolling: {
         title: "Rolling Time Digits",
         description: "Current HH:mm:ss time with rolling digits",
+        scenario: "Best for time, countdowns, dashboards, and live numeric feedback.",
       },
       spoiler: {
         title: "Invisible Ink Text",
         description: "Press to reveal text through particles",
+        scenario: "Best for sensitive values, hidden answers, interactive hints, and user-triggered reveals.",
         previewText: "Tap to reveal this.",
       },
       decrypt: {
         title: "Decrypt Text",
         description: "Random glyphs resolve into final text",
+        scenario: "Best for permission states, terminal feedback, completion messages, and technical reveals.",
         previewText: "ACCESS GRANTED",
       },
       weight: {
         title: "Weight Sweep",
         description: "Text weight sweeps from thin to bold",
+        scenario: "Best for active navigation, emphasized words, brand headings, and subtle typographic motion.",
         previewText: "Weight wave passes.",
       },
       focus: {
         title: "Blur Focus",
         description: "Text resolves from soft blur into focus",
+        scenario: "Best for loading states, content entrances, AI completion, and uncertainty resolving into clarity.",
         previewText: "Focus sharpens softly.",
       },
       ticker: {
         title: "Flowing Ticker",
         description: "Horizontal notice text loops through soft glowing edges",
+        scenario: "Best for announcements, news snippets, status broadcasts, and long text in compact spaces.",
         previewText:
           "Stay hungry, stay foolish. Steve Jobs believed that design is not just what it looks like and feels like, design is how it works. The people who are crazy enough to think they can change the world are the ones who do.",
       },
       typewriter: {
         title: "Typewriter Cursor",
         description: "Characters type in with a blinking caret",
+        scenario: "Best for search suggestions, command input, AI response previews, and simulated typing.",
         previewText: "Typing with a cursor",
+      },
+      breathing: {
+        title: "Breathing Text",
+        description: "Whole text breathes with subtle opacity, blur, and scale",
+        scenario: "Best for waiting states, AI thinking, empty states, and quiet continuous feedback.",
+        previewText: "Almost there...",
+      },
+      delta: {
+        title: "Number Delta",
+        description: "Signed number changes with directional spring motion",
+        scenario: "Best for price moves, metric changes, trading data, and signed numeric feedback.",
+      },
+      elastic: {
+        title: "Elastic Letters",
+        description: "Letters stretch horizontally then settle softly",
+        scenario: "Best for button feedback, short title entrances, brand text, and SwiftUI-like elastic motion.",
+        previewText: "Swift-like motion",
       },
     },
   },
@@ -491,6 +549,43 @@ function CurrentTimePreview({ label }: { label: string }) {
   );
 }
 
+function NumberDeltaPreview() {
+  const gains = [24, 38, 16, 42] as const;
+  const losses = [-18, -31, -12, -27] as const;
+  const [index, setIndex] = useState(0);
+  const gain = gains[index % gains.length];
+  const loss = losses[index % losses.length];
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setIndex((current) => current + 1);
+    }, 2600);
+
+    return () => window.clearInterval(timer);
+  }, []);
+
+  return (
+    <div className="inline-flex items-center justify-center gap-4 text-center">
+      <NumberDeltaText
+        className="font-mono text-[15px] font-semibold leading-[24px] tracking-normal text-neutral-800 dark:text-neutral-100"
+        duration={1080}
+        stagger={64}
+        value={gain}
+      />
+      <span
+        aria-hidden="true"
+        className="h-5 w-px bg-neutral-200 dark:bg-neutral-700/60"
+      />
+      <NumberDeltaText
+        className="font-mono text-[15px] font-semibold leading-[24px] tracking-normal text-neutral-500 dark:text-neutral-400"
+        duration={1080}
+        stagger={64}
+        value={loss}
+      />
+    </div>
+  );
+}
+
 function SpoilerPreview({
   resetLabel,
   text,
@@ -531,6 +626,7 @@ function createMotionCards(copy: (typeof pageCopy)[Locale]): MotionCard[] {
       id: "reveal",
       title: copy.cards.reveal.title,
       description: copy.cards.reveal.description,
+      scenario: copy.cards.reveal.scenario,
       preview: (
         <div className="grid place-items-center text-center">
           <TextReveal
@@ -551,6 +647,7 @@ function createMotionCards(copy: (typeof pageCopy)[Locale]): MotionCard[] {
       id: "rolling",
       title: copy.cards.rolling.title,
       description: copy.cards.rolling.description,
+      scenario: copy.cards.rolling.scenario,
       preview: <CurrentTimePreview label={copy.currentTimeLabel} />,
       code: `<RollingNumber value={new Date().getSeconds()} />`,
     },
@@ -558,6 +655,7 @@ function createMotionCards(copy: (typeof pageCopy)[Locale]): MotionCard[] {
       id: "spoiler",
       title: copy.cards.spoiler.title,
       description: copy.cards.spoiler.description,
+      scenario: copy.cards.spoiler.scenario,
       preview: (
         <SpoilerPreview
           resetLabel={copy.resetInvisibleLabel}
@@ -570,6 +668,7 @@ function createMotionCards(copy: (typeof pageCopy)[Locale]): MotionCard[] {
       id: "weight",
       title: copy.cards.weight.title,
       description: copy.cards.weight.description,
+      scenario: copy.cards.weight.scenario,
       preview: (
         <div className="grid place-items-center text-center">
           <WeightSweepText
@@ -586,6 +685,7 @@ function createMotionCards(copy: (typeof pageCopy)[Locale]): MotionCard[] {
       id: "decrypt",
       title: copy.cards.decrypt.title,
       description: copy.cards.decrypt.description,
+      scenario: copy.cards.decrypt.scenario,
       preview: (
         <div className="grid place-items-center text-center">
           <DecryptText
@@ -600,6 +700,7 @@ function createMotionCards(copy: (typeof pageCopy)[Locale]): MotionCard[] {
       id: "gradient",
       title: copy.cards.gradient.title,
       description: copy.cards.gradient.description,
+      scenario: copy.cards.gradient.scenario,
       preview: (
         <div className="grid place-items-center text-center">
           <GradientSweepText
@@ -618,6 +719,7 @@ function createMotionCards(copy: (typeof pageCopy)[Locale]): MotionCard[] {
       id: "focus",
       title: copy.cards.focus.title,
       description: copy.cards.focus.description,
+      scenario: copy.cards.focus.scenario,
       preview: (
         <div className="grid place-items-center text-center">
           <FocusBlurText
@@ -634,6 +736,7 @@ function createMotionCards(copy: (typeof pageCopy)[Locale]): MotionCard[] {
       id: "ticker",
       title: copy.cards.ticker.title,
       description: copy.cards.ticker.description,
+      scenario: copy.cards.ticker.scenario,
       preview: (
         <div className="grid place-items-center text-center">
           <TickerText
@@ -651,6 +754,7 @@ function createMotionCards(copy: (typeof pageCopy)[Locale]): MotionCard[] {
       id: "typewriter",
       title: copy.cards.typewriter.title,
       description: copy.cards.typewriter.description,
+      scenario: copy.cards.typewriter.scenario,
       preview: (
         <div className="grid place-items-center text-center">
           <TypewriterText
@@ -664,15 +768,55 @@ function createMotionCards(copy: (typeof pageCopy)[Locale]): MotionCard[] {
       ),
       code: `<TypewriterText text="Typing with a cursor" />`,
     },
+    {
+      id: "breathing",
+      title: copy.cards.breathing.title,
+      description: copy.cards.breathing.description,
+      scenario: copy.cards.breathing.scenario,
+      preview: (
+        <div className="grid place-items-center text-center">
+          <BreathingText
+            blur={1.8}
+            className="font-heading text-[14px] font-semibold leading-[22px] tracking-normal"
+            duration={3200}
+            text={copy.cards.breathing.previewText}
+          />
+        </div>
+      ),
+      code: `<BreathingText text="Almost there..." />`,
+    },
+    {
+      id: "delta",
+      title: copy.cards.delta.title,
+      description: copy.cards.delta.description,
+      scenario: copy.cards.delta.scenario,
+      preview: <NumberDeltaPreview />,
+      code: `<NumberDeltaText value={24} /> <NumberDeltaText value={-18} />`,
+    },
+    {
+      id: "elastic",
+      title: copy.cards.elastic.title,
+      description: copy.cards.elastic.description,
+      scenario: copy.cards.elastic.scenario,
+      preview: (
+        <div className="grid place-items-center text-center">
+          <ElasticLettersText
+            className="max-w-56 justify-center text-balance font-heading text-[14px] font-semibold leading-[22px] tracking-normal"
+            duration={700}
+            stagger={30}
+            text={copy.cards.elastic.previewText}
+          />
+        </div>
+      ),
+      code: `<ElasticLettersText text="Swift-like motion" />`,
+    },
   ];
 }
 
 function MotionCatalogCard({
-  copyLabel,
   item,
   onOpen,
 }: {
-  copyLabel: string;
   item: MotionCard;
   onOpen: (item: MotionCard, origin: DOMRect) => void;
 }) {
@@ -700,7 +844,7 @@ function MotionCatalogCard({
       <div className="m-3 flex h-[218px] items-center justify-center rounded-[0.75rem] border border-neutral-200/45 bg-neutral-50 p-5 dark:border-neutral-700/28 dark:bg-neutral-950/28">
         {item.preview}
       </div>
-      <div className="grid grid-cols-[1fr_auto] gap-3 px-5 pb-5 pt-1">
+      <div className="px-5 pb-5 pt-1">
         <div className="min-w-0">
           <h2 className="font-semibold text-[13px] leading-5 text-neutral-900 dark:text-neutral-100">
             {item.title}
@@ -708,17 +852,7 @@ function MotionCatalogCard({
           <p className="mt-0.5 text-[12px] leading-5 text-neutral-500 dark:text-neutral-400">
             {item.description}
           </p>
-          <code className="mt-3 block truncate font-mono text-[11px] text-neutral-400 dark:text-neutral-500">
-            {item.code}
-          </code>
         </div>
-        <CopyCodeButton
-          className="self-end rounded-full bg-neutral-100 text-neutral-500 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-700"
-          code={item.code}
-          iconClassName="size-3.5"
-          label={`${copyLabel} ${item.title}`}
-          size="icon-xs"
-        />
       </div>
     </Card>
   );
@@ -781,10 +915,12 @@ function ExpandedMotionCardOverlay({
   copyLabel,
   expanded,
   onClose,
+  scenarioLabel,
 }: {
   copyLabel: string;
   expanded: ExpandedMotionCard;
   onClose: () => void;
+  scenarioLabel: string;
 }) {
   const overlayStyle = {
     "--motion-card-origin-x": `${expanded.origin.left}px`,
@@ -851,6 +987,14 @@ function ExpandedMotionCardOverlay({
             <p className="mt-1 text-[13px] leading-6 text-neutral-500 dark:text-neutral-400">
               {expanded.item.description}
             </p>
+            <div className="mt-4 border-t border-neutral-200/60 pt-3 dark:border-neutral-800">
+              <p className="text-[11px] font-semibold leading-4 text-neutral-400 dark:text-neutral-500">
+                {scenarioLabel}
+              </p>
+              <p className="mt-1 text-[13px] leading-6 text-neutral-500 dark:text-neutral-400">
+                {expanded.item.scenario}
+              </p>
+            </div>
             <code className="mt-4 block overflow-x-auto whitespace-nowrap font-mono text-[12px] text-neutral-400 dark:text-neutral-500">
               {expanded.item.code}
             </code>
@@ -891,6 +1035,219 @@ function DocsCodeBlock({
   );
 }
 
+type DocsApiItem = {
+  name: string;
+  description: string;
+  usage: string;
+  props: string[];
+};
+
+const docsApiItems: DocsApiItem[] = [
+  {
+    name: "TextReveal",
+    description: "逐字或逐词进入、消失，也可以循环播放。",
+    usage: '<TextReveal text="Letters enter and leave." mode="in-out" repeat />',
+    props: [
+      "text",
+      "splitBy",
+      "mode",
+      "duration",
+      "hold",
+      "stagger",
+      "distance",
+      "blur",
+      "repeat",
+    ],
+  },
+  {
+    name: "GradientSweepText",
+    description: "柔和高光从文字表面滑过，适合强调短句。",
+    usage: "<GradientSweepText>Stay hungry, stay foolish.</GradientSweepText>",
+    props: [
+      "children",
+      "duration",
+      "delay",
+      "angle",
+      "baseColor",
+      "highlightColor",
+      "accentColor",
+      "pauseOnHover",
+    ],
+  },
+  {
+    name: "RollingNumber",
+    description: "数字字符弹入，适合时间、倒计时和统计数字。",
+    usage: '<RollingNumber value={128000} prefix="$" locale="en-US" />',
+    props: [
+      "value",
+      "locale",
+      "formatOptions",
+      "prefix",
+      "suffix",
+      "duration",
+      "stagger",
+      "distance",
+      "blur",
+    ],
+  },
+  {
+    name: "NumberDeltaText",
+    description: "数字涨跌按轮盘路径滚动，支持正负方向感。",
+    usage: "<NumberDeltaText value={24} />",
+    props: [
+      "value",
+      "locale",
+      "formatOptions",
+      "prefix",
+      "suffix",
+      "showSign",
+      "duration",
+      "blur",
+      "stagger",
+    ],
+  },
+  {
+    name: "SpoilerText",
+    description: "隐形墨水式文本揭示，用于敏感内容或谜底。",
+    usage: '<SpoilerText text="Tap to reveal this." />',
+    props: [
+      "text",
+      "revealed",
+      "defaultRevealed",
+      "onRevealedChange",
+      "particleColor",
+    ],
+  },
+  {
+    name: "DecryptText",
+    description: "随机字符逐步解析为最终文本。",
+    usage: '<DecryptText text="ACCESS GRANTED" />',
+    props: ["text", "alphabet", "duration", "tick", "loop", "loopDelay"],
+  },
+  {
+    name: "WeightSweepText",
+    description: "字重从细到粗扫过文字，形成轻量强调。",
+    usage: '<WeightSweepText text="Weight wave passes." />',
+    props: ["text", "minWeight", "maxWeight", "duration", "stagger"],
+  },
+  {
+    name: "FocusBlurText",
+    description: "整体文字从模糊聚焦到清晰，再柔和消失。",
+    usage: '<FocusBlurText text="Focus sharpens softly." />',
+    props: [
+      "text",
+      "duration",
+      "delay",
+      "blur",
+      "scale",
+      "repeat",
+      "iterationCount",
+    ],
+  },
+  {
+    name: "TickerText",
+    description: "横向滚动公告，两端字符渐隐、缩小并模糊。",
+    usage: '<TickerText text="Motion text kit is now available." />',
+    props: [
+      "text",
+      "duration",
+      "delay",
+      "blur",
+      "stagger",
+      "repeat",
+      "itemClassName",
+    ],
+  },
+  {
+    name: "TypewriterText",
+    description: "逐字输入和删除，带跟随文本的光标。",
+    usage: '<TypewriterText text="Typing with a cursor" />',
+    props: [
+      "text",
+      "speed",
+      "startDelay",
+      "loop",
+      "loopDelay",
+      "deleteSpeed",
+      "cursor",
+    ],
+  },
+  {
+    name: "BreathingText",
+    description: "整体文字做轻微 opacity、blur、scale 呼吸。",
+    usage: '<BreathingText text="Almost there..." />',
+    props: [
+      "text",
+      "duration",
+      "delay",
+      "blur",
+      "scale",
+      "minOpacity",
+      "repeat",
+    ],
+  },
+  {
+    name: "ElasticLettersText",
+    description: "字符水平轻微拉伸后回弹，形成 SwiftUI 式弹性。",
+    usage: '<ElasticLettersText text="Swift-like motion" />',
+    props: [
+      "text",
+      "duration",
+      "delay",
+      "stagger",
+      "stretch",
+      "blur",
+      "repeat",
+    ],
+  },
+  {
+    name: "LiquidText",
+    description: "实验性的液体融合/分离文字动效。",
+    usage: '<LiquidText text="Liquid motion" />',
+    props: [
+      "text",
+      "duration",
+      "delay",
+      "stagger",
+      "distance",
+      "blur",
+      "repeat",
+    ],
+  },
+  {
+    name: "PixelResolveText",
+    description: "实验性的像素块还原文字动效。",
+    usage: '<PixelResolveText text="Pixels resolve." />',
+    props: ["text", "duration", "delay", "stagger", "pixelSize", "repeat"],
+  },
+];
+
+function DocsApiCard({ item }: { item: DocsApiItem }) {
+  return (
+    <article className="rounded-2xl border border-neutral-200/70 bg-white p-4 shadow-[0_1px_1px_rgba(15,23,42,.03)] dark:border-white/8 dark:bg-neutral-950/50">
+      <h3 className="font-mono text-[13px] font-semibold leading-5 text-neutral-900 dark:text-neutral-100">
+        {item.name}
+      </h3>
+      <p className="mt-1 text-[13px] leading-6 text-neutral-500 dark:text-neutral-400">
+        {item.description}
+      </p>
+      <code className="mt-3 block overflow-x-auto whitespace-nowrap font-mono text-[11px] leading-5 text-neutral-400 dark:text-neutral-500">
+        {item.usage}
+      </code>
+      <div className="mt-3 flex flex-wrap gap-1.5">
+        {item.props.map((prop) => (
+          <span
+            className="rounded-full bg-neutral-100 px-2 py-1 font-mono text-[11px] leading-4 text-neutral-500 dark:bg-white/8 dark:text-neutral-400"
+            key={prop}
+          >
+            {prop}
+          </span>
+        ))}
+      </div>
+    </article>
+  );
+}
+
 function NpmPage({
   copyLabel,
   footerPrefix,
@@ -908,8 +1265,23 @@ function NpmPage({
             </h1>
             <div className="mt-4">
               <DocsCodeBlock
-                code="npm install motion-text-kit"
+                code={`npm install motion-text-kit
+
+# or
+pnpm add motion-text-kit
+yarn add motion-text-kit`}
                 label={`${copyLabel} npm install`}
+              />
+            </div>
+            <p className="mt-3 text-[13px] leading-6 text-neutral-500 dark:text-neutral-400">
+              Import the stylesheet once near your app root. The components are
+              React-only and do not depend on Next.js or a runtime animation
+              library.
+            </p>
+            <div className="mt-4">
+              <DocsCodeBlock
+                code={`import "motion-text-kit/styles.css";`}
+                label={`${copyLabel} import styles`}
               />
             </div>
           </div>
@@ -920,18 +1292,45 @@ function NpmPage({
             </h2>
             <div className="mt-4">
               <DocsCodeBlock
-                code={`import { GradientSweepText } from "motion-text-kit";
+                code={`import {
+  BreathingText,
+  GradientSweepText,
+  NumberDeltaText,
+  TextReveal,
+} from "motion-text-kit";
 import "motion-text-kit/styles.css";
 
 export function Example() {
   return (
-    <GradientSweepText>
-      Stay hungry, stay foolish.
-    </GradientSweepText>
+    <section>
+      <TextReveal text="Letters enter and leave." mode="in-out" repeat />
+
+      <GradientSweepText>Stay hungry, stay foolish.</GradientSweepText>
+
+      <NumberDeltaText value={24} />
+      <NumberDeltaText value={-18} />
+
+      <BreathingText text="Almost there..." />
+    </section>
   );
 }`}
                 label={`${copyLabel} usage`}
               />
+            </div>
+          </div>
+
+          <div>
+            <h2 className="text-[18px] font-medium leading-7 tracking-normal text-neutral-900 dark:text-neutral-100">
+              Component API
+            </h2>
+            <p className="mt-2 text-[13px] leading-6 text-neutral-500 dark:text-neutral-400">
+              All components accept `className`, `style`, and native span props.
+              Most components also support `as` to render a different element.
+            </p>
+            <div className="mt-4 grid gap-3 md:grid-cols-2">
+              {docsApiItems.map((item) => (
+                <DocsApiCard item={item} key={item.name} />
+              ))}
             </div>
           </div>
         </div>
@@ -1161,7 +1560,7 @@ export default function Home() {
                   {copy.startLabel}
                 </Button>
                 <Button
-                  className="!h-[40px] rounded-full border-transparent bg-neutral-100 px-5 text-[13px] font-semibold text-neutral-900 shadow-none transition-[background-color,color] duration-200 hover:bg-neutral-200 hover:text-neutral-950 active:shadow-none data-pressed:shadow-none dark:bg-white/[0.08] dark:text-neutral-100 dark:hover:bg-white/[0.13] [&_svg]:size-5"
+                  className="!h-[40px] rounded-full px-5 text-[13px] font-semibold shadow-none transition-[background-color,color] duration-200 hover:bg-neutral-200 hover:text-neutral-950 active:shadow-none data-pressed:shadow-none dark:bg-white/[0.08] dark:text-neutral-100 dark:hover:bg-white/[0.13] dark:hover:text-neutral-50 [&_svg]:size-5"
                   render={
                     <a
                       href={githubRepositoryUrl}
@@ -1180,7 +1579,6 @@ export default function Home() {
             <section className="mt-11 grid gap-5 lg:grid-cols-3" id="effects">
               {motionCards.map((item) => (
                 <MotionCatalogCard
-                  copyLabel={copy.copyLabel}
                   item={item}
                   key={item.id}
                   onOpen={openExpandedCard}
@@ -1202,6 +1600,7 @@ export default function Home() {
           copyLabel={copy.copyLabel}
           expanded={expandedCard}
           onClose={closeExpandedCard}
+          scenarioLabel={copy.scenarioLabel}
         />
       ) : null}
     </main>
