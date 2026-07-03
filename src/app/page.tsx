@@ -54,6 +54,21 @@ type ExpandedMotionCard = {
 };
 
 const githubRepositoryUrl = "https://github.com/coooooolpan/motion-text-kit";
+
+function getInitialLocale(): Locale {
+  const browserLanguages =
+    typeof navigator === "undefined"
+      ? []
+      : [navigator.language, ...navigator.languages].filter(Boolean);
+  const normalizedLanguages = browserLanguages.map((language) =>
+    language.toLowerCase(),
+  );
+
+  return normalizedLanguages.some((language) => language.startsWith("zh"))
+    ? "zh"
+    : "en";
+}
+
 const pageCopy = {
   zh: {
     languageToggleLabel: "切换到英文",
@@ -1248,18 +1263,91 @@ function DocsApiCard({ item }: { item: DocsApiItem }) {
   );
 }
 
+function LandingHero({
+  description,
+  isDark,
+  logoLabel,
+  onStart,
+  startLabel,
+  title,
+}: {
+  description: string;
+  isDark: boolean;
+  logoLabel: string;
+  onStart: () => void;
+  startLabel: string;
+  title: string;
+}) {
+  return (
+    <section className="mx-auto mt-4 flex max-w-[460px] flex-col items-center text-center">
+      <div className="mb-7">
+        <MotionLogoCard isDark={isDark} label={logoLabel} />
+      </div>
+      <h1 className="text-balance font-heading text-[28px] font-semibold leading-tight tracking-normal">
+        {title}
+      </h1>
+      <p className="mt-3 text-balance text-[16px] leading-7 text-neutral-500 dark:text-neutral-400">
+        {description}
+      </p>
+      <div className="mt-7 flex items-center justify-center gap-3">
+        <Button
+          className="!h-[40px] rounded-full border-transparent bg-neutral-950 px-5 text-[13px] font-semibold text-white shadow-none transition-[background-color,color] duration-200 hover:bg-neutral-800 active:shadow-none data-pressed:shadow-none dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200"
+          onClick={onStart}
+          variant="secondary"
+        >
+          {startLabel}
+        </Button>
+        <Button
+          className="!h-[40px] rounded-full px-5 text-[13px] font-semibold shadow-none transition-[background-color,color] duration-200 hover:bg-neutral-200 hover:text-neutral-950 active:shadow-none data-pressed:shadow-none dark:bg-white/[0.08] dark:text-neutral-100 dark:hover:bg-white/[0.13] dark:hover:text-neutral-50 [&_svg]:size-5"
+          render={
+            <a href={githubRepositoryUrl} rel="noreferrer" target="_blank" />
+          }
+          variant="secondary"
+        >
+          <GithubIcon className="size-5" />
+          GitHub
+        </Button>
+      </div>
+    </section>
+  );
+}
+
+function scrollToInstallation() {
+  document
+    .getElementById("installation")
+    ?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 function NpmPage({
   copyLabel,
   footerPrefix,
+  heroDescription,
+  heroSlogan,
+  isDark,
+  logoLabel,
+  startLabel,
 }: {
   copyLabel: string;
   footerPrefix: string;
+  heroDescription: string;
+  heroSlogan: string;
+  isDark: boolean;
+  logoLabel: string;
+  startLabel: string;
 }) {
   return (
     <>
+      <LandingHero
+        description={heroDescription}
+        isDark={isDark}
+        logoLabel={logoLabel}
+        onStart={scrollToInstallation}
+        startLabel={startLabel}
+        title={heroSlogan}
+      />
       <section className="mx-auto mt-14 w-full max-w-[760px]">
         <div className="space-y-12">
-          <div>
+          <div className="scroll-mt-8" id="installation">
             <h1 className="text-[18px] font-medium leading-7 tracking-normal text-neutral-900 dark:text-neutral-100">
               Installation
             </h1>
@@ -1342,7 +1430,7 @@ export function Example() {
 
 export default function Home() {
   const [isDark, setIsDark] = useState(false);
-  const [locale, setLocale] = useState<Locale>("zh");
+  const [locale, setLocale] = useState<Locale>(getInitialLocale);
   const [activePage, setActivePage] = useState<ActivePage>("motion");
   const [expandedCard, setExpandedCard] = useState<ExpandedMotionCard | null>(
     null,
@@ -1430,6 +1518,13 @@ export default function Home() {
     }, 500);
   }
 
+  function openNpmAndScrollToInstallation() {
+    setActivePage("npm");
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(scrollToInstallation);
+    });
+  }
+
   return (
     <main className="min-h-svh bg-background text-neutral-900 transition-colors dark:text-neutral-100">
       <div
@@ -1506,7 +1601,7 @@ export default function Home() {
             </Menu>
             <Button
               aria-label={copy.githubLabel}
-              className="!h-8 rounded-full px-3.5 !text-[13px] leading-none shadow-none transition-[background-color,color] duration-200 hover:bg-neutral-200 hover:text-neutral-950 active:shadow-none dark:bg-white/[0.08] dark:hover:bg-white/[0.13] dark:hover:text-neutral-50 [&_svg]:size-3.5"
+              className="!size-8 rounded-full shadow-none transition-[background-color,color] duration-200 hover:bg-neutral-200 hover:text-neutral-950 active:shadow-none dark:bg-white/[0.08] dark:hover:bg-white/[0.13] dark:hover:text-neutral-50 [&_svg]:size-3.5"
               onClick={(event) => {
                 event.preventDefault();
                 window.open(githubRepositoryUrl, "_blank", "noopener,noreferrer");
@@ -1521,7 +1616,6 @@ export default function Home() {
               variant="secondary"
             >
               <GithubIcon className="size-3.5" />
-              GitHub
             </Button>
             <Button
               aria-label={copy.themeLabel}
@@ -1541,40 +1635,14 @@ export default function Home() {
 
         {activePage === "motion" ? (
           <>
-            <section className="mx-auto mt-4 flex max-w-[460px] flex-col items-center text-center">
-              <div className="mb-7">
-                <MotionLogoCard isDark={isDark} label={copy.logoLabel} />
-              </div>
-              <h1 className="text-balance font-heading text-[28px] font-semibold leading-tight tracking-normal">
-                {copy.heroSlogan}
-              </h1>
-              <p className="mt-3 text-balance text-[16px] leading-7 text-neutral-500 dark:text-neutral-400">
-                {copy.heroDescription}
-              </p>
-              <div className="mt-7 flex items-center justify-center gap-3">
-                <Button
-                  className="!h-[40px] rounded-full border-transparent bg-neutral-950 px-5 text-[13px] font-semibold text-white shadow-none transition-[background-color,color] duration-200 hover:bg-neutral-800 active:shadow-none data-pressed:shadow-none dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200"
-                  onClick={() => setActivePage("npm")}
-                  variant="secondary"
-                >
-                  {copy.startLabel}
-                </Button>
-                <Button
-                  className="!h-[40px] rounded-full px-5 text-[13px] font-semibold shadow-none transition-[background-color,color] duration-200 hover:bg-neutral-200 hover:text-neutral-950 active:shadow-none data-pressed:shadow-none dark:bg-white/[0.08] dark:text-neutral-100 dark:hover:bg-white/[0.13] dark:hover:text-neutral-50 [&_svg]:size-5"
-                  render={
-                    <a
-                      href={githubRepositoryUrl}
-                      rel="noreferrer"
-                      target="_blank"
-                    />
-                  }
-                  variant="secondary"
-                >
-                  <GithubIcon className="size-5" />
-                  GitHub
-                </Button>
-              </div>
-            </section>
+            <LandingHero
+              description={copy.heroDescription}
+              isDark={isDark}
+              logoLabel={copy.logoLabel}
+              onStart={openNpmAndScrollToInstallation}
+              startLabel={copy.startLabel}
+              title={copy.heroSlogan}
+            />
 
             <section className="mt-11 grid gap-5 lg:grid-cols-3" id="effects">
               {motionCards.map((item) => (
@@ -1592,6 +1660,11 @@ export default function Home() {
           <NpmPage
             copyLabel={copy.copyLabel}
             footerPrefix={copy.footerPrefix}
+            heroDescription={copy.heroDescription}
+            heroSlogan={copy.heroSlogan}
+            isDark={isDark}
+            logoLabel={copy.logoLabel}
+            startLabel={copy.startLabel}
           />
         )}
       </div>
