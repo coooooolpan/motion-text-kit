@@ -34,6 +34,10 @@ function splitGraphemes(text: string): string[] {
   return Array.from(segmenter.segment(text), ({ segment }) => segment);
 }
 
+function renderTickerCharacter(character: string): string {
+  return character === " " ? "\u00a0" : character;
+}
+
 export function TickerText({
   text,
   duration = 3600,
@@ -155,11 +159,11 @@ export function TickerText({
                 key={`${copyIndex}-${char}-${index}`}
                 style={{ "--mtk-index": index } as MotionStyle}
               >
-                {char}
+                {renderTickerCharacter(char)}
               </span>
             ))}
             <span aria-hidden="true" className="mtk-ticker-text__gap">
-              {" "}
+              {"\u00a0"}
             </span>
           </span>
         ))}

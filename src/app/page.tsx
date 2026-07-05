@@ -1,10 +1,9 @@
 "use client";
 
-import type { ReactNode } from "react";
-import { useEffect, useRef, useState } from "react";
+import type { CSSProperties, ReactNode } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { BorderBeam } from "border-beam";
 import {
-  ArrowUpRightIcon,
   CheckIcon,
   CopyIcon,
   GlobeIcon,
@@ -19,13 +18,15 @@ import {
   MenuRadioItem,
   MenuTrigger,
 } from "@/components/ui/menu";
-import { Tabs, TabsList, TabsTab } from "@/components/ui/tabs";
 import {
   BreathingText,
   DecryptText,
   ElasticLettersText,
   FocusBlurText,
   GradientSweepText,
+  HeartbeatText,
+  IridescentText,
+  MorphWordsText,
   NumberDeltaText,
   RollingNumber,
   SpoilerText,
@@ -68,6 +69,9 @@ function getInitialLocale(): Locale {
     ? "zh"
     : "en";
 }
+
+const subscribeToLocaleStore: (onStoreChange: () => void) => () => void =
+  () => () => {};
 
 const pageCopy = {
   zh: {
@@ -161,6 +165,25 @@ const pageCopy = {
         description: "字符水平轻微拉伸后回弹出现",
         scenario: "适合按钮反馈、短标题出现、品牌字动效和需要 SwiftUI 弹性感的轻量文本。",
         previewText: "Swift-like motion",
+      },
+      laser: {
+        title: "虹彩文字",
+        description: "文字短暂浮现虹彩后回到本色",
+        scenario: "适合 hero slogan、品牌关键词、发布页标题和需要材质感但不突兀的短文本。",
+        previewText: "Matter of care",
+      },
+      morph: {
+        title: "词语变形",
+        description: "一句 slogan 中的关键词柔和切换",
+        scenario: "适合品牌 slogan、价值主张、加载文案和需要轮播关键词的标题。",
+        previewBefore: "Build",
+        previewWords: ["fast", "smooth", "reusable"],
+      },
+      cursor: {
+        title: "心跳文本",
+        description: "文字以真实双峰心跳节奏轻微起伏",
+        scenario: "适合生命体征、等待状态、情绪反馈、健康数据和需要有温度的短文本。",
+        previewText: "Still alive",
       },
     },
   },
@@ -256,6 +279,25 @@ const pageCopy = {
         scenario: "Best for button feedback, short title entrances, brand text, and SwiftUI-like elastic motion.",
         previewText: "Swift-like motion",
       },
+      laser: {
+        title: "Iridescent Text",
+        description: "A brief iridescent sheen appears, then returns to plain text",
+        scenario: "Best for hero slogans, brand keywords, launch headlines, and quiet premium emphasis.",
+        previewText: "Matter of care",
+      },
+      morph: {
+        title: "Morph Words",
+        description: "One keyword inside a slogan morphs softly",
+        scenario: "Best for brand slogans, value props, loading copy, and rotating headline keywords.",
+        previewBefore: "Build",
+        previewWords: ["fast", "smooth", "reusable"],
+      },
+      cursor: {
+        title: "Heartbeat Text",
+        description: "Text pulses with a restrained double-beat rhythm",
+        scenario: "Best for vitals, waiting states, emotional feedback, health data, and warm short copy.",
+        previewText: "Still alive",
+      },
     },
   },
 } as const;
@@ -302,6 +344,31 @@ function FooterSignatureMark() {
   return <span aria-hidden="true" className="footer-signature" />;
 }
 
+function FooterArrowMark() {
+  const strokes = [
+    "M15.7549 222.508C2.15494 171.019 163.405 86.9586 203.415 110.987C267.705 149.591 143.425 211.862 152.875 151.395C163.525 83.1927 389.545 14.9927 340.345 63.4157",
+    "M209.535 31.7736C306.275 6.21158 424.315 -3.66243 316.495 102.466",
+  ];
+
+  return (
+    <svg
+      aria-hidden="true"
+      className="footer-arrow"
+      viewBox="0 0 375 238"
+    >
+      {strokes.map((stroke, index) => (
+        <path
+          className="footer-arrow__stroke"
+          d={stroke}
+          key={stroke}
+          pathLength={1}
+          style={{ "--footer-arrow-stroke-index": index } as CSSProperties}
+        />
+      ))}
+    </svg>
+  );
+}
+
 function FooterCredit({ prefix }: { prefix: string }) {
   return (
     <p className="mt-14 inline-flex w-full items-center justify-center gap-3.5 text-center text-[14px] leading-7 text-neutral-400 dark:text-neutral-500">
@@ -315,11 +382,7 @@ function FooterCredit({ prefix }: { prefix: string }) {
       >
         <FooterSignatureMark />
         <span className="inline-grid size-[18px] translate-y-[3px] place-items-center">
-          <ArrowUpRightIcon
-            aria-hidden="true"
-            className="size-[15px] translate-x-[-0.45rem] translate-y-[0.45rem] scale-75 opacity-0 [filter:blur(2px)] transition-[opacity,translate,scale,filter] duration-500 ease-[cubic-bezier(.16,1,.3,1)] group-hover:translate-x-0 group-hover:translate-y-0 group-hover:scale-100 group-hover:opacity-100 group-hover:[filter:blur(0px)]"
-            strokeWidth={2.2}
-          />
+          <FooterArrowMark />
         </span>
       </a>
     </p>
@@ -327,59 +390,34 @@ function FooterCredit({ prefix }: { prefix: string }) {
 }
 
 function MotionLogo({ label }: { label: string }) {
+  const strokes = [
+    "M18.0007 41.3292C43.5447 39.6822 150.408 28.3462 143.604 32.4412",
+    "M80.3577 40.2061C82.5117 59.3671 74.3868 204.896 84.2688 203.009",
+    "M202.191 140.352C280.45 129.862 286.9 57.495 218.601 88.455C177.2 107.221 197.964 239.085 275.607 167.755",
+    "M346.141 105.52C335.975 107.461 410.979 167.677 424.497 176.858",
+    "M407.535 81.2781C413.159 39.2431 334.134 229.711 365.76 201.455",
+    "M486.002 101.244C497.532 94.7859 599.272 83.1499 572.722 89.8579",
+    "M530.952 18.0039C510.162 60.5229 514.392 175.565 571.522 189.77",
+    "M675.242 192.829C671.702 192.355 672.472 193.359 672.942 189.816",
+  ];
+
   return (
     <svg
       aria-label={label}
       className="motion-logo"
       role="img"
-      viewBox="0 0 100 100"
+      viewBox="0 0 694 223"
     >
-      <defs>
-        <filter
-          height="150%"
-          id="motion-logo-roughen"
-          width="150%"
-          x="-25%"
-          y="-25%"
-        >
-          <feTurbulence
-            baseFrequency="0.075"
-            numOctaves="2"
-            result="noise"
-            seed="12"
-            type="fractalNoise"
+      <g aria-hidden="true" className="motion-logo__strokes">
+        {strokes.map((stroke, index) => (
+          <path
+            className="motion-logo__stroke"
+            d={stroke}
+            key={stroke}
+            pathLength={1}
+            style={{ "--motion-logo-stroke-index": index } as CSSProperties}
           />
-          <feDisplacementMap
-            in="SourceGraphic"
-            in2="noise"
-            scale="1.65"
-            xChannelSelector="R"
-            yChannelSelector="G"
-          />
-        </filter>
-      </defs>
-      <g aria-hidden="true" filter="url(#motion-logo-roughen)">
-        <text
-          className="motion-logo__word motion-logo__word--motion"
-          x="16"
-          y="31"
-        >
-          motion
-        </text>
-        <text
-          className="motion-logo__word motion-logo__word--text"
-          x="24"
-          y="56"
-        >
-          text
-        </text>
-        <text
-          className="motion-logo__word motion-logo__word--kit"
-          x="34"
-          y="80"
-        >
-          kit
-        </text>
+        ))}
       </g>
     </svg>
   );
@@ -503,6 +541,34 @@ function BrandMark({ label }: { label: string }) {
         Motion Text Kit
       </span>
     </a>
+  );
+}
+
+function TabUnderline({ type }: { type: ActivePage }) {
+  const underline =
+    type === "motion"
+      ? {
+          viewBox: "0 0 546 83",
+          path: "M27.6121 55.3016C-13.0489 50.4336 56.6541 57.3815 60.7091 57.0435C77.4091 55.6505 94.0451 53.1445 110.439 49.6745C132.068 45.0965 153.257 38.6455 174.614 32.9325C191.488 28.4195 208.228 23.4065 225.13 18.9965C229.628 17.8235 235.916 12.5375 238.788 16.1915C241.437 19.5595 230.995 19.7566 227.057 21.4476C216.169 26.1236 205.197 30.6015 194.315 35.2915C172.782 44.5715 144.727 46.5985 130.757 65.4285C128.13 68.9695 139.526 67.6225 143.891 67.0015C162.296 64.3795 180.464 60.1905 198.523 55.7785C230.209 48.0365 261.218 37.7376 292.727 29.3096C298.793 27.6866 307.145 19.9025 311.025 24.8385C314.144 28.8055 290.888 34.7216 279.948 43.3226C277.364 45.3536 271.476 50.3185 274.522 51.5535C308.488 65.3335 357.304 39.2125 390.091 32.0835C396.712 30.6445 404.45 26.6736 410.317 30.0636C415.548 33.0876 383.852 54.2625 403.056 53.6185C431.094 52.6795 461.141 38.1046 489.645 35.1196C527.905 31.1136 488.373 53.6826 530.974 42.2876",
+        }
+      : {
+          viewBox: "0 0 359 75",
+          path: "M31.7679 40.4521C20.3489 39.0851 7.12593 58.531 20.6539 59.104C43.6779 60.081 59.0299 52.5241 82.1149 46.4791C94.2629 43.2981 106.484 40.3961 118.712 37.5381C123.237 36.4801 136.024 31.8591 132.37 34.7321C119.921 44.5191 95.4149 45.7391 101.292 53.2151C108.474 62.3501 124.384 49.7821 135.438 46.2011C146.38 42.6561 157.091 38.431 167.918 34.547C175.651 31.772 183.302 28.7541 191.118 26.2221C193.329 25.5061 198.775 22.6481 197.947 24.8191C195.33 31.6861 180.235 33.8421 182.717 40.7591C186.337 50.8481 259.007 19.0891 270.708 29.0891C272.074 30.2571 256.007 45.7021 257.405 47.4801C263.529 55.2701 326.626 24.069 336.286 19.177C338.649 17.979 344.507 13.1881 343.377 15.5851C340.241 22.2311 332.921 25.9381 328.146 31.5241",
+        };
+
+  return (
+    <svg
+      aria-hidden="true"
+      className="page-switcher-underline"
+      key={type}
+      viewBox={underline.viewBox}
+    >
+      <path
+        className="page-switcher-underline__stroke"
+        d={underline.path}
+        pathLength={1}
+      />
+    </svg>
   );
 }
 
@@ -825,13 +891,63 @@ function createMotionCards(copy: (typeof pageCopy)[Locale]): MotionCard[] {
       ),
       code: `<ElasticLettersText text="Swift-like motion" />`,
     },
+    {
+      id: "laser",
+      title: copy.cards.laser.title,
+      description: copy.cards.laser.description,
+      scenario: copy.cards.laser.scenario,
+      preview: (
+        <div className="grid place-items-center text-center">
+          <IridescentText
+            className="max-w-56 text-balance font-heading text-[14px] font-semibold leading-[22px] tracking-normal"
+            text={copy.cards.laser.previewText}
+          />
+        </div>
+      ),
+      code: `<IridescentText text="Matter of care" />`,
+    },
+    {
+      id: "morph",
+      title: copy.cards.morph.title,
+      description: copy.cards.morph.description,
+      scenario: copy.cards.morph.scenario,
+      preview: (
+        <div className="grid place-items-center text-center">
+          <p className="inline-flex max-w-56 items-baseline justify-center font-heading text-[14px] font-semibold leading-[24px] tracking-normal">
+            <span>{copy.cards.morph.previewBefore}&nbsp;</span>
+            <MorphWordsText
+              className="align-baseline text-neutral-950 dark:text-neutral-50"
+              words={[...copy.cards.morph.previewWords]}
+            />
+          </p>
+        </div>
+      ),
+      code: `Build <MorphWordsText words={["fast", "smooth", "reusable"]} />`,
+    },
+    {
+      id: "cursor",
+      title: copy.cards.cursor.title,
+      description: copy.cards.cursor.description,
+      scenario: copy.cards.cursor.scenario,
+      preview: (
+        <div className="grid place-items-center text-center">
+          <HeartbeatText
+            className="max-w-56 text-balance font-heading text-[14px] font-semibold leading-[22px] tracking-normal"
+            text={copy.cards.cursor.previewText}
+          />
+        </div>
+      ),
+      code: `<HeartbeatText text="Still alive" />`,
+    },
   ];
 }
 
 function MotionCatalogCard({
+  index,
   item,
   onOpen,
 }: {
+  index: number;
   item: MotionCard;
   onOpen: (item: MotionCard, origin: DOMRect) => void;
 }) {
@@ -850,10 +966,11 @@ function MotionCatalogCard({
 
   return (
     <Card
-      className="group cursor-pointer overflow-hidden rounded-[1.5rem] border-neutral-200/45 bg-white shadow-[0_1px_1px_rgba(15,23,42,.02)] outline-none transition-[border-color,box-shadow] duration-300 hover:border-neutral-300/70 hover:shadow-[0_14px_36px_rgba(15,23,42,.06)] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 before:hidden dark:border-neutral-800/55 dark:bg-neutral-900 dark:hover:border-neutral-700/45"
+      className="motion-catalog-card group cursor-pointer overflow-hidden rounded-[1.5rem] border-neutral-200/45 bg-white shadow-[0_1px_1px_rgba(15,23,42,.02)] outline-none transition-[border-color,box-shadow] duration-300 hover:border-neutral-300/70 hover:shadow-[0_14px_36px_rgba(15,23,42,.06)] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 before:hidden dark:border-neutral-800/55 dark:bg-neutral-900 dark:hover:border-neutral-700/45"
       onClick={openCard}
       onKeyDown={handleKeyDown}
       role="button"
+      style={{ "--motion-card-index": index } as CSSProperties}
       tabIndex={0}
     >
       <div className="m-3 flex h-[218px] items-center justify-center rounded-[0.75rem] border border-neutral-200/45 bg-neutral-50 p-5 dark:border-neutral-700/28 dark:bg-neutral-950/28">
@@ -1216,6 +1333,51 @@ const docsApiItems: DocsApiItem[] = [
     ],
   },
   {
+    name: "IridescentText",
+    description: "文字表面呈现轻微虹彩变化，偏材质感而不是明确扫光。",
+    usage: '<IridescentText text="Matter of care" />',
+    props: [
+      "text",
+      "duration",
+      "delay",
+      "colorA",
+      "colorB",
+      "colorC",
+      "glowColor",
+      "intensity",
+      "repeat",
+    ],
+  },
+  {
+    name: "MorphWordsText",
+    description: "几个短词之间以模糊和缩放柔和切换。",
+    usage: 'Build <MorphWordsText words={["fast", "smooth", "reusable"]} />',
+    props: [
+      "words",
+      "duration",
+      "delay",
+      "blur",
+      "scale",
+      "repeat",
+      "itemClassName",
+    ],
+  },
+  {
+    name: "HeartbeatText",
+    description: "文字以真实双峰心跳节奏轻微起伏。",
+    usage: '<HeartbeatText text="Still alive" />',
+    props: [
+      "text",
+      "duration",
+      "delay",
+      "scale",
+      "settleScale",
+      "blur",
+      "glowColor",
+      "repeat",
+    ],
+  },
+  {
     name: "LiquidText",
     description: "实验性的液体融合/分离文字动效。",
     usage: '<LiquidText text="Liquid motion" />',
@@ -1318,6 +1480,75 @@ function scrollToInstallation() {
     ?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
+function EffectPreviewMarquee({ items }: { items: MotionCard[] }) {
+  const marqueeItems = [...items, ...items];
+  const trackRef = useRef<HTMLDivElement | null>(null);
+  const offsetRef = useRef(0);
+  const previousTimeRef = useRef<number | null>(null);
+  const targetSpeedRef = useRef(32);
+  const speedRef = useRef(32);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
+
+    let frame = 0;
+
+    function tick(time: number) {
+      const track = trackRef.current;
+      const previous = previousTimeRef.current ?? time;
+      const delta = Math.min(time - previous, 48) / 1000;
+      previousTimeRef.current = time;
+
+      speedRef.current += (targetSpeedRef.current - speedRef.current) * 0.08;
+
+      if (track) {
+        const loopWidth = track.scrollWidth / 2;
+
+        if (loopWidth > 0) {
+          offsetRef.current = (offsetRef.current + speedRef.current * delta) % loopWidth;
+          track.style.transform = `translate3d(${-offsetRef.current}px, 0, 0)`;
+        }
+      }
+
+      frame = window.requestAnimationFrame(tick);
+    }
+
+    frame = window.requestAnimationFrame(tick);
+
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
+
+  return (
+    <section
+      aria-label="Effect previews"
+      className="effect-marquee"
+      onPointerEnter={() => {
+        targetSpeedRef.current = 13;
+      }}
+      onPointerLeave={() => {
+        targetSpeedRef.current = 32;
+      }}
+    >
+      <div className="effect-marquee__track" ref={trackRef}>
+        {marqueeItems.map((item, index) => (
+          <article
+            className="effect-marquee__card"
+            key={`${item.id}-${index}`}
+            style={
+              { "--effect-card-index": index % items.length } as CSSProperties
+            }
+          >
+            <div className="effect-marquee__preview">{item.preview}</div>
+            <p className="effect-marquee__title">{item.title}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function NpmPage({
   copyLabel,
   footerPrefix,
@@ -1325,6 +1556,7 @@ function NpmPage({
   heroSlogan,
   isDark,
   logoLabel,
+  motionCards,
   startLabel,
 }: {
   copyLabel: string;
@@ -1333,6 +1565,7 @@ function NpmPage({
   heroSlogan: string;
   isDark: boolean;
   logoLabel: string;
+  motionCards: MotionCard[];
   startLabel: string;
 }) {
   return (
@@ -1345,6 +1578,7 @@ function NpmPage({
         startLabel={startLabel}
         title={heroSlogan}
       />
+      <EffectPreviewMarquee items={motionCards} />
       <section className="mx-auto mt-14 w-full max-w-[760px]">
         <div className="space-y-12">
           <div className="scroll-mt-8" id="installation">
@@ -1430,7 +1664,13 @@ export function Example() {
 
 export default function Home() {
   const [isDark, setIsDark] = useState(false);
-  const [locale, setLocale] = useState<Locale>(getInitialLocale);
+  const systemLocale: Locale = useSyncExternalStore(
+    subscribeToLocaleStore,
+    getInitialLocale,
+    () => "zh",
+  );
+  const [selectedLocale, setSelectedLocale] = useState<Locale | null>(null);
+  const locale = selectedLocale ?? systemLocale;
   const [activePage, setActivePage] = useState<ActivePage>("motion");
   const [expandedCard, setExpandedCard] = useState<ExpandedMotionCard | null>(
     null,
@@ -1532,28 +1772,36 @@ export default function Home() {
         data-overlay-state={expandedCard?.state ?? "closed"}
       >
         <header className="flex items-center justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-4">
+          <div className="flex min-w-0 items-center gap-7">
             <BrandMark label={copy.logoLabel} />
-            <Tabs
-              className="gap-0"
-              onValueChange={(value) => setActivePage(value as ActivePage)}
-              value={activePage}
-            >
-              <TabsList className="h-8 rounded-full bg-secondary p-0.5 dark:bg-white/[0.08] [&_[data-slot=tab-indicator]]:rounded-full [&_[data-slot=tab-indicator]]:shadow-sm/5 dark:[&_[data-slot=tab-indicator]]:bg-white/[0.13]">
-                <TabsTab
-                  className="!h-7 rounded-full px-3 !text-[11px] leading-none data-active:bg-transparent data-active:shadow-none"
-                  value="motion"
-                >
-                  Motion
-                </TabsTab>
-                <TabsTab
-                  className="!h-7 rounded-full px-3 !text-[11px] leading-none data-active:bg-transparent data-active:shadow-none"
-                  value="npm"
-                >
-                  npm
-                </TabsTab>
-              </TabsList>
-            </Tabs>
+            <nav aria-label="Page switcher" className="flex items-center gap-5">
+              <button
+                className={[
+                  "relative inline-flex h-5 items-center text-[14px] font-medium leading-none transition-colors duration-200",
+                  activePage === "motion"
+                    ? "text-neutral-950 dark:text-neutral-50"
+                    : "text-neutral-400 hover:text-neutral-700 dark:text-neutral-500 dark:hover:text-neutral-300",
+                ].join(" ")}
+                onClick={() => setActivePage("motion")}
+                type="button"
+              >
+                Motion
+                {activePage === "motion" ? <TabUnderline type="motion" /> : null}
+              </button>
+              <button
+                className={[
+                  "relative inline-flex h-5 items-center text-[14px] font-medium leading-none transition-colors duration-200",
+                  activePage === "npm"
+                    ? "text-neutral-950 dark:text-neutral-50"
+                    : "text-neutral-400 hover:text-neutral-700 dark:text-neutral-500 dark:hover:text-neutral-300",
+                ].join(" ")}
+                onClick={() => setActivePage("npm")}
+                type="button"
+              >
+                npm
+                {activePage === "npm" ? <TabUnderline type="npm" /> : null}
+              </button>
+            </nav>
           </div>
           <div className="flex items-center gap-2">
             <Menu>
@@ -1577,7 +1825,7 @@ export default function Home() {
               >
                 <MenuRadioGroup
                   className="grid gap-1"
-                  onValueChange={(value) => setLocale(value as Locale)}
+                  onValueChange={(value) => setSelectedLocale(value as Locale)}
                   value={locale}
                 >
                   <MenuRadioItem
@@ -1645,8 +1893,9 @@ export default function Home() {
             />
 
             <section className="mt-11 grid gap-5 lg:grid-cols-3" id="effects">
-              {motionCards.map((item) => (
+              {motionCards.map((item, index) => (
                 <MotionCatalogCard
+                  index={index}
                   item={item}
                   key={item.id}
                   onOpen={openExpandedCard}
@@ -1664,6 +1913,7 @@ export default function Home() {
             heroSlogan={copy.heroSlogan}
             isDark={isDark}
             logoLabel={copy.logoLabel}
+            motionCards={motionCards}
             startLabel={copy.startLabel}
           />
         )}

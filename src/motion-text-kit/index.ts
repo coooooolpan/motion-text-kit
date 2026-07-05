@@ -1,5 +1,7 @@
 export { GradientSweepText } from "./gradient-sweep-text";
 export type { GradientSweepTextProps } from "./gradient-sweep-text";
+export { HeartbeatText } from "./heartbeat-text";
+export type { HeartbeatTextProps } from "./heartbeat-text";
 export { BreathingText } from "./breathing-text";
 export type { BreathingTextProps } from "./breathing-text";
 export { DecryptText } from "./decrypt-text";
@@ -10,6 +12,10 @@ export { FocusBlurText } from "./focus-blur-text";
 export type { FocusBlurTextProps } from "./focus-blur-text";
 export { LiquidText } from "./liquid-text";
 export type { LiquidTextProps } from "./liquid-text";
+export { IridescentText } from "./iridescent-text";
+export type { IridescentTextProps } from "./iridescent-text";
+export { MorphWordsText } from "./morph-words-text";
+export type { MorphWordsTextProps } from "./morph-words-text";
 export { PixelResolveText } from "./pixel-resolve-text";
 export type { PixelResolveTextProps } from "./pixel-resolve-text";
 export { NumberDeltaText } from "./number-delta-text";

@@ -1,13 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
-  <rect width="128" height="128" rx="28" fill="#fafafa"/>
-  <rect x="10" y="10" width="108" height="108" rx="24" fill="#ffffff" stroke="rgba(0,0,0,.12)" stroke-width="2"/>
-  <filter id="roughen">
-    <feTurbulence baseFrequency=".075" numOctaves="2" result="noise" seed="12" type="fractalNoise"/>
-    <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.6" xChannelSelector="R" yChannelSelector="G"/>
-  </filter>
-  <g filter="url(#roughen)" fill="#202020" stroke="#202020" stroke-linecap="round" stroke-linejoin="round" stroke-width=".7" paint-order="stroke fill">
-    <text x="22" y="42" rotate="-3" font-family="Comic Sans MS, Bradley Hand, Marker Felt, cursive" font-size="27" font-weight="700" letter-spacing="-1.2">motion</text>
-    <text x="34" y="72" rotate="2" font-family="Comic Sans MS, Bradley Hand, Marker Felt, cursive" font-size="27" font-weight="700" letter-spacing="-.8">text</text>
-    <text x="47" y="101" rotate="-2" font-family="Comic Sans MS, Bradley Hand, Marker Felt, cursive" font-size="27" font-weight="700" letter-spacing="-.3">kit</text>
+  <rect width="128" height="128" rx="30" fill="#fafafa"/>
+  <rect x="10" y="10" width="108" height="108" rx="26" fill="#fff" stroke="rgba(0,0,0,.12)" stroke-width="2"/>
+  <g transform="translate(18 49) scale(.1326)" fill="none" stroke="#202020" stroke-width="36" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M18.0007 41.3292C43.5447 39.6822 150.408 28.3462 143.604 32.4412"/>
+    <path d="M80.3577 40.2061C82.5117 59.3671 74.3868 204.896 84.2688 203.009"/>
+    <path d="M202.191 140.352C280.45 129.862 286.9 57.495 218.601 88.455C177.2 107.221 197.964 239.085 275.607 167.755"/>
+    <path d="M346.141 105.52C335.975 107.461 410.979 167.677 424.497 176.858"/>
+    <path d="M407.535 81.2781C413.159 39.2431 334.134 229.711 365.76 201.455"/>
+    <path d="M486.002 101.244C497.532 94.7859 599.272 83.1499 572.722 89.8579"/>
+    <path d="M530.952 18.0039C510.162 60.5229 514.392 175.565 571.522 189.77"/>
+    <path d="M675.242 192.829C671.702 192.355 672.472 193.359 672.942 189.816"/>
   </g>
 </svg>

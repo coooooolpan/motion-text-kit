@@ -63,6 +63,9 @@ export function Example() {
 | `TypewriterText` | 逐字输入、删除和光标 | 搜索建议、命令输入、AI 回复预览 |
 | `BreathingText` | 整体文字轻微 opacity / blur / scale 呼吸 | 等待态、AI thinking、空状态 |
 | `ElasticLettersText` | 字符水平轻微拉伸后回弹出现 | 按钮反馈、短标题、品牌字动效 |
+| `IridescentText` | 文字短暂浮现虹彩后回到本色 | Hero slogan、品牌关键词、发布页标题 |
+| `MorphWordsText` | 短词之间柔和变形切换 | Slogan、价值主张、轮播关键词 |
+| `HeartbeatText` | 文字以真实双峰心跳节奏轻微起伏 | 生命体征、等待状态、情绪反馈 |
 | `LiquidText` | 字符液体式融合/分离 | 实验性品牌动效、情绪化标题 |
 | `PixelResolveText` | 像素块还原文字 | 复古/像素化主题动效 |
 
@@ -202,6 +205,26 @@ export function CounterDemo() {
 <ElasticLettersText text="Swift-like motion" duration={700} stagger={30} />
 ```
 
+#### `IridescentText`
+
+```tsx
+<IridescentText text="Matter of care" />
+```
+
+#### `MorphWordsText`
+
+```tsx
+<h1>
+  Build <MorphWordsText words={["fast", "smooth", "reusable"]} />
+</h1>
+```
+
+#### `HeartbeatText`
+
+```tsx
+<HeartbeatText text="Still alive" />
+```
+
 ### 样式和可访问性
 
 - 所有核心动效都由 CSS 驱动。
@@ -294,6 +317,9 @@ export function Example() {
 | `TypewriterText` | Typing, deleting, and caret motion | Search suggestions, command input, AI response previews |
 | `BreathingText` | Whole text breathes with opacity, blur, and scale | Waiting states, AI thinking, empty states |
 | `ElasticLettersText` | Letters stretch horizontally and settle softly | Button feedback, short titles, brand text |
+| `IridescentText` | A brief iridescent sheen appears, then returns to plain text | Hero slogans, brand keywords, launch headlines |
+| `MorphWordsText` | Short words morph through soft transitions | Slogans, value props, rotating keywords |
+| `HeartbeatText` | Text pulses with a restrained double-beat rhythm | Vitals, waiting states, emotional feedback |
 | `LiquidText` | Liquid-like character merge and separation | Experimental brand motion, expressive headings |
 | `PixelResolveText` | Pixel block text resolve | Retro or pixel-themed motion |
 
@@ -431,6 +457,26 @@ export function CounterDemo() {
 
 ```tsx
 <ElasticLettersText text="Swift-like motion" duration={700} stagger={30} />
+```
+
+#### `IridescentText`
+
+```tsx
+<IridescentText text="Matter of care" />
+```
+
+#### `MorphWordsText`
+
+```tsx
+<h1>
+  Build <MorphWordsText words={["fast", "smooth", "reusable"]} />
+</h1>
+```
+
+#### `HeartbeatText`
+
+```tsx
+<HeartbeatText text="Still alive" />
 ```
 
 ### Styling and Accessibility
