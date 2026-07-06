@@ -1,5 +1,16 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "MotionNoteHand";
+  font-display: swap;
+  font-style: normal;
+  font-weight: 400;
+  src:
+    local("FZZJ-HLYBTJ--GB1-0"),
+    local("FZZJ-HLYBTJ"),
+    local("方正字迹-欢乐圆笔体 简");
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -268,6 +279,18 @@
   -webkit-mask: url("/name.svg") center / contain no-repeat;
 }
 
+.page-switcher-button {
+  transition: color 260ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.page-switcher-button[data-state="inactive"] .page-switcher-label {
+  opacity: 1;
+}
+
+.page-switcher-label {
+  display: inline-block;
+}
+
 .page-switcher-underline {
   color: currentColor;
   display: block;
@@ -308,6 +331,137 @@
     opacity: 1;
     stroke-dashoffset: 0;
   }
+}
+
+.inspiration-board {
+  scrollbar-width: none;
+}
+
+.inspiration-board::-webkit-scrollbar {
+  display: none;
+}
+
+.inspiration-board__surface {
+  background-image:
+    radial-gradient(circle, rgba(23, 23, 23, .16) 1px, transparent 1px);
+  background-position: 0 0;
+  background-size: 18px 18px;
+  border-radius: 1.25rem;
+  min-height: 520px;
+  min-width: 720px;
+  overflow: hidden;
+  position: relative;
+}
+
+.dark .inspiration-board__surface {
+  background-image:
+    radial-gradient(circle, rgba(255, 255, 255, .13) 1px, transparent 1px);
+}
+
+.inspiration-note {
+  aspect-ratio: 1;
+  background: #fff3bf;
+  border: 0;
+  border-radius: .28rem;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, .08);
+  cursor: grab;
+  font-family: "MotionNoteHand", "FZZJ-HLYBTJ", "方正字迹-欢乐圆笔体 简",
+    "Bradley Hand", "Marker Felt", cursive;
+  font-synthesis: none;
+  height: 158px;
+  left: 0;
+  padding: .8rem;
+  position: absolute;
+  top: 0;
+  touch-action: none;
+  transform:
+    translate3d(var(--note-x), var(--note-y), 0)
+    perspective(900px)
+    rotateX(var(--note-rx, 0deg))
+    rotateY(var(--note-ry, 0deg))
+    rotate(calc(var(--note-rotate) + var(--note-hover-rotate, 0deg)))
+    scale(var(--note-scale, 1));
+  transform-style: preserve-3d;
+  transition:
+    box-shadow 520ms cubic-bezier(.16, 1, .3, 1),
+    filter 520ms cubic-bezier(.16, 1, .3, 1),
+    transform 560ms cubic-bezier(.16, 1, .3, 1);
+  user-select: none;
+  width: 158px;
+  will-change: transform;
+  z-index: var(--note-z, 1);
+}
+
+.inspiration-note::before {
+  background:
+    radial-gradient(
+      circle at 22% 16%,
+      rgba(255, 255, 255, .52),
+      rgba(255, 255, 255, .18) 34%,
+      transparent 64%
+    );
+  border-radius: inherit;
+  content: "";
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  transition: opacity 520ms cubic-bezier(.16, 1, .3, 1);
+}
+
+.inspiration-note > * {
+  position: relative;
+  transform: translateZ(12px);
+}
+
+.inspiration-note:nth-child(2) {
+  background: #dff3c4;
+}
+
+.inspiration-note:nth-child(3) {
+  background: #dbeafe;
+}
+
+.inspiration-note:nth-child(4) {
+  background: #ffe4ee;
+}
+
+.inspiration-note:nth-child(5) {
+  background: #d7f3ed;
+}
+
+.inspiration-note:nth-child(6) {
+  background: #eee7ff;
+}
+
+.inspiration-note:hover {
+  --note-hover-rotate: 1.6deg;
+  --note-rx: 4deg;
+  --note-ry: -5deg;
+  --note-scale: 1.025;
+  box-shadow: 0 14px 30px rgba(15, 23, 42, .11);
+}
+
+.inspiration-note:hover::before {
+  opacity: .75;
+}
+
+.inspiration-note:active {
+  --note-hover-rotate: -2.2deg;
+  --note-rx: 7deg;
+  --note-ry: -8deg;
+  --note-scale: 1.055;
+  cursor: grabbing;
+  filter: saturate(1.04);
+  box-shadow: 0 18px 36px rgba(15, 23, 42, .14);
+}
+
+.inspiration-note:active::before {
+  opacity: .88;
+}
+
+.dark .inspiration-note {
+  box-shadow: 0 10px 24px rgba(0, 0, 0, .28);
 }
 
 .footer-arrow {
@@ -369,12 +523,16 @@
   color: currentColor;
   display: block;
   height: 13px;
+  image-rendering: auto;
   overflow: visible;
+  shape-rendering: geometricPrecision;
+  text-rendering: geometricPrecision;
   width: 41px;
 }
 
 .motion-logo__strokes {
-  transform: translateZ(0);
+  filter: blur(.08px);
+  transform: translate3d(0, 0, 0);
 }
 
 .motion-logo__stroke {
@@ -388,7 +546,7 @@
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-miterlimit: 10;
-  stroke-width: 36;
+  stroke-width: 34.5;
   transform-box: fill-box;
   transform-origin: center;
   transition:
@@ -400,7 +558,7 @@
 .t-tilt.is-hover .motion-logo__stroke {
   animation: motion-logo-handwrite-hover 720ms cubic-bezier(.5, 0, .12, 1) both;
   animation-delay: calc(var(--motion-logo-stroke-index) * 82ms);
-  stroke-width: 37.5;
+  stroke-width: 36;
 }
 
 .t-tilt.is-hover .motion-logo__stroke:nth-child(3),
@@ -757,6 +915,11 @@
   margin: .75rem;
   min-height: 0;
   padding: 1.25rem;
+}
+
+.dark .motion-card-expanded__preview {
+  background: rgba(10, 10, 10, .28);
+  border-color: rgba(64, 64, 64, .28);
 }
 
 .motion-card-expanded__preview > * {

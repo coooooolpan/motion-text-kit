@@ -215,7 +215,7 @@ export function CounterDemo() {
 
 ```tsx
 <h1>
-  Build <MorphWordsText words={["fast", "smooth", "reusable"]} />
+  Build <MorphWordsText words={["steady", "smooth", "reusable"]} />
 </h1>
 ```
 
@@ -469,7 +469,7 @@ export function CounterDemo() {
 
 ```tsx
 <h1>
-  Build <MorphWordsText words={["fast", "smooth", "reusable"]} />
+  Build <MorphWordsText words={["steady", "smooth", "reusable"]} />
 </h1>
 ```
 

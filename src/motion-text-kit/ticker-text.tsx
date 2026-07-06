@@ -95,23 +95,27 @@ export function TickerText({
         if (reducedMotion.matches || fadeWidth <= 0) {
           item.style.setProperty("--mtk-ticker-edge-blur", "0px");
           item.style.setProperty("--mtk-ticker-edge-opacity", "1");
+          item.style.setProperty("--mtk-ticker-edge-scale", "1");
           item.style.setProperty("--mtk-ticker-edge-x", "0px");
           return;
         }
 
         const itemRect = item.getBoundingClientRect();
-        const itemCenter = itemRect.left + itemRect.width / 2;
-        const rootCenter = rootRect.left + rootRect.width / 2;
-        const distanceToEdge = Math.min(
-          itemCenter - rootRect.left,
-          rootRect.right - itemCenter,
+        const leftProgress = (itemRect.right - rootRect.left) / fadeWidth;
+        const rightProgress = (rootRect.right - itemRect.left) / fadeWidth;
+        const progress = Math.max(
+          0,
+          Math.min(1, leftProgress, rightProgress),
         );
-        const progress = Math.max(0, Math.min(1, distanceToEdge / fadeWidth));
-        const easedProgress = 1 - (1 - progress) ** 2;
+        const easedProgress = progress * progress * (3 - 2 * progress);
         const edgeBlur = blur * (1 - easedProgress);
-        const edgeOpacity = easedProgress;
-        const edgeDirection = itemCenter < rootCenter ? 1 : -1;
-        const edgeX = edgeDirection * 12 * (1 - easedProgress);
+        const edgeOpacity =
+          itemRect.right <= rootRect.left || itemRect.left >= rootRect.right
+            ? 0
+            : Math.max(0.08, easedProgress);
+        const edgeScale = 0.92 + easedProgress * 0.08;
+        const edgeDirection = leftProgress < rightProgress ? 1 : -1;
+        const edgeX = edgeDirection * 8 * (1 - easedProgress);
 
         item.style.setProperty(
           "--mtk-ticker-edge-blur",
@@ -120,6 +124,10 @@ export function TickerText({
         item.style.setProperty(
           "--mtk-ticker-edge-opacity",
           edgeOpacity.toFixed(3),
+        );
+        item.style.setProperty(
+          "--mtk-ticker-edge-scale",
+          edgeScale.toFixed(3),
         );
         item.style.setProperty(
           "--mtk-ticker-edge-x",

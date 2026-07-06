@@ -37,7 +37,7 @@ import {
 } from "@/motion-text-kit";
 
 type Locale = "zh" | "en";
-type ActivePage = "motion" | "npm";
+type ActivePage = "motion" | "npm" | "notes";
 
 type MotionCard = {
   id: string;
@@ -94,6 +94,98 @@ const pageCopy = {
     footerPrefix: "Crafted by",
     resetInvisibleLabel: "复原隐形",
     scenarioLabel: "适用场景",
+    notes: {
+      title: "Notes",
+      description:
+        "记录 Motion Text Kit 的版本变化、设计判断，以及那些启发这个组件库的人与作品。",
+      releaseTitle: "版本记录",
+      inspirationTitle: "灵感坐标",
+      inspirationDescription:
+        "向这些启发 Motion Text Kit 的产品、网站与动效语言致敬，并把它们收在一张可拖拽的笔记画布里。",
+      releases: [
+        {
+          version: "v0.2.0",
+          date: "2026.07.05",
+          summary: "扩展文本动效能力并打磨官网交互。",
+          items: [
+            "新增虹彩文字、心跳文本、弹性字母、词语变形和数字涨跌。",
+            "优化卡片全屏、入口加载、npm 预览滚动和手写 logo 动效。",
+            "补齐 npm 页面 Installation、Usage 和组件 API。",
+          ],
+        },
+        {
+          version: "v0.1.0",
+          date: "2026.06.16",
+          summary: "完成第一组核心文本动效。",
+          items: [
+            "提供文本高光、逐字显隐、数字滚动、文本解码和隐形墨水。",
+            "以 CSS 动效和 React 组件封装为主，不绑定 Next.js。",
+          ],
+        },
+      ],
+      inspirations: [
+        {
+          name: "Transitions.dev",
+          type: "Interaction library",
+          description: "启发了紧凑、可浏览、可复制的动效卡片结构。",
+          href: "https://transitions.dev/",
+          domain: "transitions.dev",
+          x: 36,
+          y: 34,
+          rotate: -2,
+        },
+        {
+          name: "Recent Design",
+          type: "Product archive",
+          description: "参考它对近期产品界面、趋势和细节的高密度收集方式。",
+          href: "https://recent.design/",
+          domain: "recent.design",
+          x: 272,
+          y: 72,
+          rotate: 2,
+        },
+        {
+          name: "Detail",
+          type: "Interface details",
+          description: "启发了对微交互、排版层级和局部状态的观察方式。",
+          href: "https://detail.design/",
+          domain: "detail.design",
+          x: 498,
+          y: 42,
+          rotate: -1,
+        },
+        {
+          name: "Arlan",
+          type: "Personal site",
+          description: "参考其个人作品集里自然、轻巧、有节奏的表达方式。",
+          href: "https://www.arlan.me/",
+          domain: "arlan.me",
+          x: 78,
+          y: 268,
+          rotate: 2,
+        },
+        {
+          name: "SwiftUI",
+          type: "Spring feel",
+          description: "启发了数字滚动、弹性字母和轻量状态反馈的手感。",
+          href: "https://developer.apple.com/xcode/swiftui/",
+          domain: "developer.apple.com",
+          x: 324,
+          y: 250,
+          rotate: -3,
+        },
+        {
+          name: "ChatGPT",
+          type: "Thinking motion",
+          description: "启发了高光滑动、等待态和 AI thinking 文本节奏。",
+          href: "https://chatgpt.com/",
+          domain: "chatgpt.com",
+          x: 536,
+          y: 246,
+          rotate: 2,
+        },
+      ],
+    },
     cards: {
       gradient: {
         title: "文本高光",
@@ -177,7 +269,7 @@ const pageCopy = {
         description: "一句 slogan 中的关键词柔和切换",
         scenario: "适合品牌 slogan、价值主张、加载文案和需要轮播关键词的标题。",
         previewBefore: "Build",
-        previewWords: ["fast", "smooth", "reusable"],
+        previewWords: ["steady", "smooth", "reusable"],
       },
       cursor: {
         title: "心跳文本",
@@ -207,6 +299,98 @@ const pageCopy = {
     footerPrefix: "Crafted by",
     resetInvisibleLabel: "Hide again",
     scenarioLabel: "Use cases",
+    notes: {
+      title: "Notes",
+      description:
+        "A small record of Motion Text Kit releases, design decisions, and the people and places that shaped its motion language.",
+      releaseTitle: "Release Notes",
+      inspirationTitle: "Inspiration Map",
+      inspirationDescription:
+        "A small tribute to the products, websites, and motion languages that shaped Motion Text Kit, collected on a draggable notebook canvas.",
+      releases: [
+        {
+          version: "v0.2.0",
+          date: "2026.07.05",
+          summary: "Expanded the text motion set and refined the demo site.",
+          items: [
+            "Added IridescentText, HeartbeatText, ElasticLettersText, MorphWordsText, and NumberDeltaText.",
+            "Improved expanded cards, page entrance motion, npm preview marquee, and the handwritten logo.",
+            "Completed the npm page with Installation, Usage, and component API sections.",
+          ],
+        },
+        {
+          version: "v0.1.0",
+          date: "2026.06.16",
+          summary: "Shipped the first core text motion components.",
+          items: [
+            "Included highlight sweep, character reveal, rolling digits, decrypt text, and invisible ink.",
+            "Focused on CSS-powered motion wrapped as React components, without a Next.js dependency.",
+          ],
+        },
+      ],
+      inspirations: [
+        {
+          name: "Transitions.dev",
+          type: "Interaction library",
+          description: "Inspired the compact, browsable, copy-friendly motion card structure.",
+          href: "https://transitions.dev/",
+          domain: "transitions.dev",
+          x: 36,
+          y: 34,
+          rotate: -2,
+        },
+        {
+          name: "Recent Design",
+          type: "Product archive",
+          description: "A reference for dense, current product UI and trend curation.",
+          href: "https://recent.design/",
+          domain: "recent.design",
+          x: 272,
+          y: 72,
+          rotate: 2,
+        },
+        {
+          name: "Detail",
+          type: "Interface details",
+          description: "Shaped the way small interactions, hierarchy, and local states are observed.",
+          href: "https://detail.design/",
+          domain: "detail.design",
+          x: 498,
+          y: 42,
+          rotate: -1,
+        },
+        {
+          name: "Arlan",
+          type: "Personal site",
+          description: "A reference for natural, light, and well-paced portfolio expression.",
+          href: "https://www.arlan.me/",
+          domain: "arlan.me",
+          x: 78,
+          y: 268,
+          rotate: 2,
+        },
+        {
+          name: "SwiftUI",
+          type: "Spring feel",
+          description: "Shaped the feel of rolling numbers, elastic letters, and light state feedback.",
+          href: "https://developer.apple.com/xcode/swiftui/",
+          domain: "developer.apple.com",
+          x: 324,
+          y: 250,
+          rotate: -3,
+        },
+        {
+          name: "ChatGPT",
+          type: "Thinking motion",
+          description: "Inspired the highlight sweep, waiting states, and AI thinking text rhythm.",
+          href: "https://chatgpt.com/",
+          domain: "chatgpt.com",
+          x: 536,
+          y: 246,
+          rotate: 2,
+        },
+      ],
+    },
     cards: {
       gradient: {
         title: "Gradient Text Sweep",
@@ -290,7 +474,7 @@ const pageCopy = {
         description: "One keyword inside a slogan morphs softly",
         scenario: "Best for brand slogans, value props, loading copy, and rotating headline keywords.",
         previewBefore: "Build",
-        previewWords: ["fast", "smooth", "reusable"],
+        previewWords: ["steady", "smooth", "reusable"],
       },
       cursor: {
         title: "Heartbeat Text",
@@ -545,16 +729,21 @@ function BrandMark({ label }: { label: string }) {
 }
 
 function TabUnderline({ type }: { type: ActivePage }) {
-  const underline =
-    type === "motion"
-      ? {
-          viewBox: "0 0 546 83",
-          path: "M27.6121 55.3016C-13.0489 50.4336 56.6541 57.3815 60.7091 57.0435C77.4091 55.6505 94.0451 53.1445 110.439 49.6745C132.068 45.0965 153.257 38.6455 174.614 32.9325C191.488 28.4195 208.228 23.4065 225.13 18.9965C229.628 17.8235 235.916 12.5375 238.788 16.1915C241.437 19.5595 230.995 19.7566 227.057 21.4476C216.169 26.1236 205.197 30.6015 194.315 35.2915C172.782 44.5715 144.727 46.5985 130.757 65.4285C128.13 68.9695 139.526 67.6225 143.891 67.0015C162.296 64.3795 180.464 60.1905 198.523 55.7785C230.209 48.0365 261.218 37.7376 292.727 29.3096C298.793 27.6866 307.145 19.9025 311.025 24.8385C314.144 28.8055 290.888 34.7216 279.948 43.3226C277.364 45.3536 271.476 50.3185 274.522 51.5535C308.488 65.3335 357.304 39.2125 390.091 32.0835C396.712 30.6445 404.45 26.6736 410.317 30.0636C415.548 33.0876 383.852 54.2625 403.056 53.6185C431.094 52.6795 461.141 38.1046 489.645 35.1196C527.905 31.1136 488.373 53.6826 530.974 42.2876",
-        }
-      : {
-          viewBox: "0 0 359 75",
-          path: "M31.7679 40.4521C20.3489 39.0851 7.12593 58.531 20.6539 59.104C43.6779 60.081 59.0299 52.5241 82.1149 46.4791C94.2629 43.2981 106.484 40.3961 118.712 37.5381C123.237 36.4801 136.024 31.8591 132.37 34.7321C119.921 44.5191 95.4149 45.7391 101.292 53.2151C108.474 62.3501 124.384 49.7821 135.438 46.2011C146.38 42.6561 157.091 38.431 167.918 34.547C175.651 31.772 183.302 28.7541 191.118 26.2221C193.329 25.5061 198.775 22.6481 197.947 24.8191C195.33 31.6861 180.235 33.8421 182.717 40.7591C186.337 50.8481 259.007 19.0891 270.708 29.0891C272.074 30.2571 256.007 45.7021 257.405 47.4801C263.529 55.2701 326.626 24.069 336.286 19.177C338.649 17.979 344.507 13.1881 343.377 15.5851C340.241 22.2311 332.921 25.9381 328.146 31.5241",
-        };
+  const underlines = {
+    motion: {
+      viewBox: "0 0 546 83",
+      path: "M27.6121 55.3016C-13.0489 50.4336 56.6541 57.3815 60.7091 57.0435C77.4091 55.6505 94.0451 53.1445 110.439 49.6745C132.068 45.0965 153.257 38.6455 174.614 32.9325C191.488 28.4195 208.228 23.4065 225.13 18.9965C229.628 17.8235 235.916 12.5375 238.788 16.1915C241.437 19.5595 230.995 19.7566 227.057 21.4476C216.169 26.1236 205.197 30.6015 194.315 35.2915C172.782 44.5715 144.727 46.5985 130.757 65.4285C128.13 68.9695 139.526 67.6225 143.891 67.0015C162.296 64.3795 180.464 60.1905 198.523 55.7785C230.209 48.0365 261.218 37.7376 292.727 29.3096C298.793 27.6866 307.145 19.9025 311.025 24.8385C314.144 28.8055 290.888 34.7216 279.948 43.3226C277.364 45.3536 271.476 50.3185 274.522 51.5535C308.488 65.3335 357.304 39.2125 390.091 32.0835C396.712 30.6445 404.45 26.6736 410.317 30.0636C415.548 33.0876 383.852 54.2625 403.056 53.6185C431.094 52.6795 461.141 38.1046 489.645 35.1196C527.905 31.1136 488.373 53.6826 530.974 42.2876",
+    },
+    npm: {
+      viewBox: "0 0 359 75",
+      path: "M31.7679 40.4521C20.3489 39.0851 7.12593 58.531 20.6539 59.104C43.6779 60.081 59.0299 52.5241 82.1149 46.4791C94.2629 43.2981 106.484 40.3961 118.712 37.5381C123.237 36.4801 136.024 31.8591 132.37 34.7321C119.921 44.5191 95.4149 45.7391 101.292 53.2151C108.474 62.3501 124.384 49.7821 135.438 46.2011C146.38 42.6561 157.091 38.431 167.918 34.547C175.651 31.772 183.302 28.7541 191.118 26.2221C193.329 25.5061 198.775 22.6481 197.947 24.8191C195.33 31.6861 180.235 33.8421 182.717 40.7591C186.337 50.8481 259.007 19.0891 270.708 29.0891C272.074 30.2571 256.007 45.7021 257.405 47.4801C263.529 55.2701 326.626 24.069 336.286 19.177C338.649 17.979 344.507 13.1881 343.377 15.5851C340.241 22.2311 332.921 25.9381 328.146 31.5241",
+    },
+    notes: {
+      viewBox: "0 0 428 74",
+      path: "M28.4 44.8C16.6 43.4 8.6 55.2 20.8 57.1C45.7 61 77.4 49.8 101.5 44.7C119.4 40.9 137.1 36.3 154.8 31.8C161.2 30.2 174.6 23.2 173.1 29.6C171.4 36.7 150.9 42.1 154.6 48.4C160.7 58.7 188.7 45.6 200.1 42.2C218.9 36.7 237.3 29.4 256.5 25.5C262.3 24.3 273.2 19.7 272.9 25.6C272.5 33.9 249.8 43.3 256.6 48.1C270.5 58 313.5 36.5 329.8 32.4C341.7 29.4 357.3 20.9 366.5 29.1C372.2 34.2 350.4 47.6 357.7 50.2C376.4 56.8 396.5 39.7 414.3 31.2",
+    },
+  };
+  const underline = underlines[type];
 
   return (
     <svg
@@ -922,7 +1111,7 @@ function createMotionCards(copy: (typeof pageCopy)[Locale]): MotionCard[] {
           </p>
         </div>
       ),
-      code: `Build <MorphWordsText words={["fast", "smooth", "reusable"]} />`,
+      code: `Build <MorphWordsText words={["steady", "smooth", "reusable"]} />`,
     },
     {
       id: "cursor",
@@ -1351,7 +1540,7 @@ const docsApiItems: DocsApiItem[] = [
   {
     name: "MorphWordsText",
     description: "几个短词之间以模糊和缩放柔和切换。",
-    usage: 'Build <MorphWordsText words={["fast", "smooth", "reusable"]} />',
+    usage: 'Build <MorphWordsText words={["steady", "smooth", "reusable"]} />',
     props: [
       "words",
       "duration",
@@ -1475,9 +1664,20 @@ function LandingHero({
 }
 
 function scrollToInstallation() {
-  document
-    .getElementById("installation")
-    ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const installation = document.getElementById("installation");
+
+  if (!installation) {
+    return;
+  }
+
+  const previewOffset = Math.min(340, Math.max(260, window.innerHeight * 0.32));
+  const targetTop =
+    installation.getBoundingClientRect().top + window.scrollY - previewOffset;
+
+  window.scrollTo({
+    behavior: "smooth",
+    top: Math.max(0, targetTop),
+  });
 }
 
 function EffectPreviewMarquee({ items }: { items: MotionCard[] }) {
@@ -1587,12 +1787,15 @@ function NpmPage({
             </h1>
             <div className="mt-4">
               <DocsCodeBlock
-                code={`npm install motion-text-kit
-
-# or
-pnpm add motion-text-kit
-yarn add motion-text-kit`}
+                code="npm install motion-text-kit"
                 label={`${copyLabel} npm install`}
+              />
+            </div>
+            <div className="mt-3">
+              <DocsCodeBlock
+                code={`pnpm add motion-text-kit
+yarn add motion-text-kit`}
+                label={`${copyLabel} alternative install`}
               />
             </div>
             <p className="mt-3 text-[13px] leading-6 text-neutral-500 dark:text-neutral-400">
@@ -1655,6 +1858,220 @@ export function Example() {
               ))}
             </div>
           </div>
+        </div>
+      </section>
+      <FooterCredit prefix={footerPrefix} />
+    </>
+  );
+}
+
+function InspirationBoard({
+  items,
+}: {
+  items: (typeof pageCopy)[Locale]["notes"]["inspirations"];
+}) {
+  const [positions, setPositions] = useState(() =>
+    Object.fromEntries(
+      items.map((item) => [item.name, { x: item.x, y: item.y }]),
+    ) as Record<string, { x: number; y: number }>,
+  );
+  const [activeNote, setActiveNote] = useState<string>(items[0]?.name ?? "");
+  const dragRef = useRef<{
+    id: string;
+    pointerId: number;
+    startX: number;
+    startY: number;
+    originX: number;
+    originY: number;
+    moved: boolean;
+  } | null>(null);
+
+  function openInspiration(href: string) {
+    window.open(href, "_blank", "noopener,noreferrer");
+  }
+
+  function handlePointerDown(
+    event: React.PointerEvent<HTMLElement>,
+    item: (typeof items)[number],
+  ) {
+    const position = positions[item.name] ?? { x: item.x, y: item.y };
+    setActiveNote(item.name);
+    dragRef.current = {
+      id: item.name,
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      originX: position.x,
+      originY: position.y,
+      moved: false,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+
+  function handlePointerMove(event: React.PointerEvent<HTMLElement>) {
+    const drag = dragRef.current;
+
+    if (!drag || drag.pointerId !== event.pointerId) {
+      return;
+    }
+
+    const deltaX = event.clientX - drag.startX;
+    const deltaY = event.clientY - drag.startY;
+
+    if (Math.hypot(deltaX, deltaY) > 4) {
+      drag.moved = true;
+    }
+
+    setPositions((current) => ({
+      ...current,
+      [drag.id]: {
+        x: Math.max(8, Math.min(554, drag.originX + deltaX)),
+        y: Math.max(8, Math.min(354, drag.originY + deltaY)),
+      },
+    }));
+  }
+
+  function handlePointerUp(
+    event: React.PointerEvent<HTMLElement>,
+    href: string,
+  ) {
+    const drag = dragRef.current;
+
+    if (!drag || drag.pointerId !== event.pointerId) {
+      return;
+    }
+
+    event.currentTarget.releasePointerCapture(event.pointerId);
+    dragRef.current = null;
+
+    if (!drag.moved) {
+      openInspiration(href);
+    }
+  }
+
+  return (
+    <div className="inspiration-board mt-5 overflow-x-auto rounded-[1.7rem] border border-neutral-200/70 bg-white/70 p-3 dark:border-white/8 dark:bg-neutral-950/35">
+      <div className="inspiration-board__surface">
+        {items.map((item) => {
+          const position = positions[item.name] ?? { x: item.x, y: item.y };
+          const favicon = `https://www.google.com/s2/favicons?domain=${item.domain}&sz=64`;
+
+          return (
+            <article
+              aria-label={`${item.name}: ${item.description}`}
+              className="inspiration-note"
+              key={item.name}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  openInspiration(item.href);
+                }
+              }}
+              onPointerDown={(event) => handlePointerDown(event, item)}
+              onFocus={() => setActiveNote(item.name)}
+              onPointerMove={handlePointerMove}
+              onPointerUp={(event) => handlePointerUp(event, item.href)}
+              role="link"
+              style={
+                {
+                  "--note-rotate": `${item.rotate}deg`,
+                  "--note-x": `${position.x}px`,
+                  "--note-y": `${position.y}px`,
+                  "--note-z": activeNote === item.name ? 10 : 1,
+                } as CSSProperties
+              }
+              tabIndex={0}
+            >
+              <div className="flex items-center gap-2">
+                <span
+                  aria-hidden="true"
+                  className="block size-6 shrink-0 -translate-y-px bg-center bg-no-repeat"
+                  style={
+                    {
+                      backgroundImage: `url(${favicon})`,
+                      backgroundSize: "24px 24px",
+                    } as CSSProperties
+                  }
+                />
+                <div>
+                  <h3 className="text-[14px] font-normal leading-[18px] text-neutral-900 dark:text-neutral-950">
+                    {item.name}
+                  </h3>
+                  <p className="text-[11px] leading-[14px] text-neutral-500 dark:text-neutral-700">
+                    {item.type}
+                  </p>
+                </div>
+              </div>
+              <p className="mt-3 text-[12px] leading-5 text-neutral-600 dark:text-neutral-800">
+                {item.description}
+              </p>
+            </article>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function NotesPage({
+  footerPrefix,
+  notes,
+}: {
+  footerPrefix: string;
+  notes: (typeof pageCopy)[Locale]["notes"];
+}) {
+  return (
+    <>
+      <section className="mx-auto mt-16 w-full max-w-[760px]">
+        <div className="space-y-12">
+          <section>
+            <h2 className="text-[18px] font-medium leading-7 tracking-normal text-neutral-900 dark:text-neutral-100">
+              {notes.releaseTitle}
+            </h2>
+            <div className="mt-5 divide-y divide-neutral-200/70 border-y border-neutral-200/70 dark:divide-white/10 dark:border-white/10">
+              {notes.releases.map((release) => (
+                <article
+                  className="grid gap-3 py-5 md:grid-cols-[8rem_1fr]"
+                  key={release.version}
+                >
+                  <div>
+                    <p className="text-[13px] font-semibold leading-5 text-neutral-950 dark:text-neutral-50">
+                      {release.version}
+                    </p>
+                    <p className="mt-1 font-mono text-[11px] leading-5 text-neutral-400 dark:text-neutral-500">
+                      {release.date}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[13px] font-medium leading-6 text-neutral-800 dark:text-neutral-200">
+                      {release.summary}
+                    </p>
+                    <ul className="mt-2 space-y-1.5 text-[13px] leading-6 text-neutral-500 dark:text-neutral-400">
+                      {release.items.map((item) => (
+                        <li className="flex gap-2" key={item}>
+                          <span className="mt-[0.7rem] size-1 rounded-full bg-neutral-300 dark:bg-neutral-700" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section>
+            <h2 className="text-[18px] font-medium leading-7 tracking-normal text-neutral-900 dark:text-neutral-100">
+              {notes.inspirationTitle}
+            </h2>
+            <p className="mt-2 text-[13px] leading-6 text-neutral-500 dark:text-neutral-400">
+              {notes.inspirationDescription}
+            </p>
+            <InspirationBoard
+              items={notes.inspirations}
+              key={notes.inspirationTitle}
+            />
+          </section>
         </div>
       </section>
       <FooterCredit prefix={footerPrefix} />
@@ -1765,6 +2182,20 @@ export default function Home() {
     });
   }
 
+  function openMotionHome() {
+    setActivePage("motion");
+    window.requestAnimationFrame(() => {
+      window.scrollTo({ behavior: "smooth", top: 0 });
+    });
+  }
+
+  function openNotesPage() {
+    setActivePage("notes");
+    window.requestAnimationFrame(() => {
+      window.scrollTo({ behavior: "smooth", top: 0 });
+    });
+  }
+
   return (
     <main className="min-h-svh bg-background text-neutral-900 transition-colors dark:text-neutral-100">
       <div
@@ -1773,33 +2204,56 @@ export default function Home() {
       >
         <header className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-7">
-            <BrandMark label={copy.logoLabel} />
+            <button
+              aria-label={copy.logoLabel}
+              className="rounded-xl outline-none transition-opacity duration-200 hover:opacity-80 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              onClick={openMotionHome}
+              type="button"
+            >
+              <BrandMark label={copy.logoLabel} />
+            </button>
             <nav aria-label="Page switcher" className="flex items-center gap-5">
               <button
                 className={[
-                  "relative inline-flex h-5 items-center text-[14px] font-medium leading-none transition-colors duration-200",
+                  "page-switcher-button relative inline-flex h-5 items-center text-[14px] font-medium leading-none transition-colors duration-200",
                   activePage === "motion"
                     ? "text-neutral-950 dark:text-neutral-50"
                     : "text-neutral-400 hover:text-neutral-700 dark:text-neutral-500 dark:hover:text-neutral-300",
                 ].join(" ")}
-                onClick={() => setActivePage("motion")}
+                data-state={activePage === "motion" ? "active" : "inactive"}
+                onClick={openMotionHome}
                 type="button"
               >
-                Motion
+                <span className="page-switcher-label">Motion</span>
                 {activePage === "motion" ? <TabUnderline type="motion" /> : null}
               </button>
               <button
                 className={[
-                  "relative inline-flex h-5 items-center text-[14px] font-medium leading-none transition-colors duration-200",
+                  "page-switcher-button relative inline-flex h-5 items-center text-[14px] font-medium leading-none transition-colors duration-200",
                   activePage === "npm"
                     ? "text-neutral-950 dark:text-neutral-50"
                     : "text-neutral-400 hover:text-neutral-700 dark:text-neutral-500 dark:hover:text-neutral-300",
                 ].join(" ")}
+                data-state={activePage === "npm" ? "active" : "inactive"}
                 onClick={() => setActivePage("npm")}
                 type="button"
               >
-                npm
+                <span className="page-switcher-label">Package</span>
                 {activePage === "npm" ? <TabUnderline type="npm" /> : null}
+              </button>
+              <button
+                className={[
+                  "page-switcher-button relative inline-flex h-5 items-center text-[14px] font-medium leading-none transition-colors duration-200",
+                  activePage === "notes"
+                    ? "text-neutral-950 dark:text-neutral-50"
+                    : "text-neutral-400 hover:text-neutral-700 dark:text-neutral-500 dark:hover:text-neutral-300",
+                ].join(" ")}
+                data-state={activePage === "notes" ? "active" : "inactive"}
+                onClick={openNotesPage}
+                type="button"
+              >
+                <span className="page-switcher-label">Notes</span>
+                {activePage === "notes" ? <TabUnderline type="notes" /> : null}
               </button>
             </nav>
           </div>
@@ -1905,7 +2359,7 @@ export default function Home() {
 
             <FooterCredit prefix={copy.footerPrefix} />
           </>
-        ) : (
+        ) : activePage === "npm" ? (
           <NpmPage
             copyLabel={copy.copyLabel}
             footerPrefix={copy.footerPrefix}
@@ -1916,6 +2370,8 @@ export default function Home() {
             motionCards={motionCards}
             startLabel={copy.startLabel}
           />
+        ) : (
+          <NotesPage footerPrefix={copy.footerPrefix} notes={copy.notes} />
         )}
       </div>
       {expandedCard ? (
