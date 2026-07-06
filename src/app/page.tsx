@@ -101,7 +101,7 @@ const pageCopy = {
       releaseTitle: "版本记录",
       inspirationTitle: "灵感坐标",
       inspirationDescription:
-        "向这些启发 Motion Text Kit 的产品、网站与动效语言致敬，并把它们收在一张可拖拽的笔记画布里。",
+        "向这些启发 Motion Text Kit 的产品、网站与动效语言致敬。",
       releases: [
         {
           version: "v0.2.0",
@@ -306,7 +306,7 @@ const pageCopy = {
       releaseTitle: "Release Notes",
       inspirationTitle: "Inspiration Map",
       inspirationDescription:
-        "A small tribute to the products, websites, and motion languages that shaped Motion Text Kit, collected on a draggable notebook canvas.",
+        "A small tribute to the products, websites, and motion languages that shaped Motion Text Kit through quiet, lasting interface details.",
       releases: [
         {
           version: "v0.2.0",
@@ -1890,12 +1890,36 @@ function InspirationBoard({
     window.open(href, "_blank", "noopener,noreferrer");
   }
 
+  function applyNoteTilt(element: HTMLElement, clientX: number, clientY: number) {
+    const rect = element.getBoundingClientRect();
+    const px = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    const py = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
+    const tiltX = (0.5 - py) * 18;
+    const tiltY = (px - 0.5) * 18;
+
+    element.classList.add("is-hover", "is-tilting");
+    element.style.setProperty("--note-rx", `${tiltX.toFixed(2)}deg`);
+    element.style.setProperty("--note-ry", `${tiltY.toFixed(2)}deg`);
+    element.style.setProperty("--note-gx", `${(px * 100).toFixed(1)}%`);
+    element.style.setProperty("--note-gy", `${(py * 100).toFixed(1)}%`);
+  }
+
+  function resetNoteTilt(element: HTMLElement) {
+    element.classList.remove("is-hover", "is-tilting", "is-dragging");
+    element.style.setProperty("--note-rx", "0deg");
+    element.style.setProperty("--note-ry", "0deg");
+    element.style.setProperty("--note-gx", "50%");
+    element.style.setProperty("--note-gy", "50%");
+  }
+
   function handlePointerDown(
     event: React.PointerEvent<HTMLElement>,
     item: (typeof items)[number],
   ) {
     const position = positions[item.name] ?? { x: item.x, y: item.y };
     setActiveNote(item.name);
+    applyNoteTilt(event.currentTarget, event.clientX, event.clientY);
+    event.currentTarget.classList.add("is-dragging");
     dragRef.current = {
       id: item.name,
       pointerId: event.pointerId,
@@ -1909,6 +1933,8 @@ function InspirationBoard({
   }
 
   function handlePointerMove(event: React.PointerEvent<HTMLElement>) {
+    applyNoteTilt(event.currentTarget, event.clientX, event.clientY);
+
     const drag = dragRef.current;
 
     if (!drag || drag.pointerId !== event.pointerId) {
@@ -1942,6 +1968,10 @@ function InspirationBoard({
     }
 
     event.currentTarget.releasePointerCapture(event.pointerId);
+    event.currentTarget.classList.remove("is-dragging", "is-tilting");
+    if (!event.currentTarget.matches(":hover")) {
+      resetNoteTilt(event.currentTarget);
+    }
     dragRef.current = null;
 
     if (!drag.moved) {
@@ -1970,6 +2000,14 @@ function InspirationBoard({
               onPointerDown={(event) => handlePointerDown(event, item)}
               onFocus={() => setActiveNote(item.name)}
               onPointerMove={handlePointerMove}
+              onPointerEnter={(event) =>
+                applyNoteTilt(event.currentTarget, event.clientX, event.clientY)
+              }
+              onPointerLeave={(event) => {
+                if (dragRef.current?.id !== item.name) {
+                  resetNoteTilt(event.currentTarget);
+                }
+              }}
               onPointerUp={(event) => handlePointerUp(event, item.href)}
               role="link"
               style={
@@ -1994,15 +2032,15 @@ function InspirationBoard({
                   }
                 />
                 <div>
-                  <h3 className="text-[14px] font-normal leading-[18px] text-neutral-900 dark:text-neutral-950">
+                  <h3 className="text-[15px] font-normal leading-[18px] text-neutral-950 dark:text-neutral-950">
                     {item.name}
                   </h3>
-                  <p className="text-[11px] leading-[14px] text-neutral-500 dark:text-neutral-700">
+                  <p className="text-[11px] leading-[14px] text-neutral-700/80 dark:text-neutral-800">
                     {item.type}
                   </p>
                 </div>
               </div>
-              <p className="mt-3 text-[12px] leading-5 text-neutral-600 dark:text-neutral-800">
+              <p className="mt-3 text-[12px] leading-5 text-neutral-800/85 dark:text-neutral-900">
                 {item.description}
               </p>
             </article>
