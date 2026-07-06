@@ -317,6 +317,31 @@
   animation: page-switcher-underline-write 520ms cubic-bezier(.5, 0, .12, 1) 70ms both;
 }
 
+.page-content-panel {
+  animation: page-content-enter 620ms cubic-bezier(.16, 1, .3, 1) both;
+  transform-origin: 50% 24px;
+  will-change: opacity, filter, transform;
+}
+
+@keyframes page-content-enter {
+  0% {
+    filter: blur(8px);
+    opacity: 0;
+    transform: translate3d(0, 12px, 0) scale(.992);
+  }
+
+  58% {
+    filter: blur(1px);
+    opacity: 1;
+  }
+
+  100% {
+    filter: blur(0);
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
 @keyframes page-switcher-underline-write {
   0% {
     opacity: .18;
@@ -537,14 +562,13 @@
   height: 13px;
   image-rendering: auto;
   overflow: visible;
-  shape-rendering: geometricPrecision;
-  text-rendering: geometricPrecision;
+  shape-rendering: optimizeQuality;
+  text-rendering: optimizeLegibility;
   width: 41px;
 }
 
 .motion-logo__strokes {
-  filter: blur(.08px);
-  transform: translate3d(0, 0, 0);
+  transform: none;
 }
 
 .motion-logo__stroke {
@@ -558,7 +582,7 @@
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-miterlimit: 10;
-  stroke-width: 34.5;
+  stroke-width: 33.5;
   transform-box: fill-box;
   transform-origin: center;
   transition:
@@ -570,7 +594,7 @@
 .t-tilt.is-hover .motion-logo__stroke {
   animation: motion-logo-handwrite-hover 720ms cubic-bezier(.5, 0, .12, 1) both;
   animation-delay: calc(var(--motion-logo-stroke-index) * 82ms);
-  stroke-width: 36;
+  stroke-width: 34.5;
 }
 
 .t-tilt.is-hover .motion-logo__stroke:nth-child(3),
@@ -610,17 +634,56 @@
   }
 }
 
-.motion-catalog-card {
-  animation: motion-catalog-card-enter 720ms cubic-bezier(.16, 1, .3, 1) both;
+.motion-catalog-card-shell {
+  animation: motion-catalog-card-enter 720ms cubic-bezier(.16, 1, .3, 1) backwards;
   animation-delay: calc(180ms + var(--motion-card-index) * 54ms);
+  perspective: 980px;
   will-change: opacity, filter, transform;
+}
+
+.motion-catalog-card {
+  --catalog-rx: 0deg;
+  --catalog-ry: 0deg;
+  --catalog-scale: 1;
+  transform:
+    perspective(980px)
+    rotateX(var(--catalog-rx))
+    rotateY(var(--catalog-ry))
+    scale(var(--catalog-scale));
+  transform-style: preserve-3d;
+  transition:
+    border-color 300ms ease,
+    box-shadow 520ms cubic-bezier(.16, 1, .3, 1),
+    transform 620ms cubic-bezier(.16, 1, .3, 1);
+  will-change: box-shadow, transform;
+}
+
+.motion-catalog-card.is-hover {
+  --catalog-scale: 1.024;
+  box-shadow: 0 18px 42px rgb(15 23 42 / 8%);
+}
+
+.motion-catalog-card.is-tilting {
+  transition:
+    border-color 300ms ease,
+    box-shadow 420ms cubic-bezier(.16, 1, .3, 1),
+    transform 320ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.dark .motion-catalog-card.is-hover {
+  box-shadow: 0 18px 42px rgb(0 0 0 / 22%);
 }
 
 @keyframes motion-catalog-card-enter {
   0% {
     filter: blur(8px);
     opacity: 0;
-    transform: translate3d(0, 14px, 0) scale(.985);
+    transform:
+      perspective(920px)
+      translate3d(0, 14px, 0)
+      rotateX(0deg)
+      rotateY(0deg)
+      scale(.985);
   }
 
   62% {
@@ -631,7 +694,12 @@
   100% {
     filter: blur(0);
     opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
+    transform:
+      perspective(920px)
+      translate3d(0, 0, 0)
+      rotateX(0deg)
+      rotateY(0deg)
+      scale(1);
   }
 }
 
@@ -976,6 +1044,8 @@
   .footer-arrow,
   .footer-arrow__stroke,
   .motion-catalog-card,
+  .motion-catalog-card-shell,
+  .page-content-panel,
   .effect-marquee,
   .effect-marquee__card,
   .effect-marquee__track,
@@ -985,6 +1055,8 @@
   }
 
   .motion-catalog-card,
+  .motion-catalog-card-shell,
+  .page-content-panel,
   .effect-marquee__card {
     filter: none !important;
     opacity: 1 !important;

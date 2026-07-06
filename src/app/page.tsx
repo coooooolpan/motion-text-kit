@@ -1153,29 +1153,62 @@ function MotionCatalogCard({
     onOpen(item, event.currentTarget.getBoundingClientRect());
   }
 
+  function applyTilt(element: HTMLElement, clientX: number, clientY: number) {
+    const rect = element.getBoundingClientRect();
+    const x = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    const y = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
+    const rotateX = (0.5 - y) * 6;
+    const rotateY = (x - 0.5) * 6;
+
+    element.classList.add("is-hover", "is-tilting");
+    element.style.setProperty("--catalog-rx", `${rotateX.toFixed(2)}deg`);
+    element.style.setProperty("--catalog-ry", `${rotateY.toFixed(2)}deg`);
+  }
+
+  function resetTilt(element: HTMLElement) {
+    element.classList.remove("is-hover", "is-tilting");
+    element.style.setProperty("--catalog-rx", "0deg");
+    element.style.setProperty("--catalog-ry", "0deg");
+  }
+
   return (
-    <Card
-      className="motion-catalog-card group cursor-pointer overflow-hidden rounded-[1.5rem] border-neutral-200/45 bg-white shadow-[0_1px_1px_rgba(15,23,42,.02)] outline-none transition-[border-color,box-shadow] duration-300 hover:border-neutral-300/70 hover:shadow-[0_14px_36px_rgba(15,23,42,.06)] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 before:hidden dark:border-neutral-800/55 dark:bg-neutral-900 dark:hover:border-neutral-700/45"
-      onClick={openCard}
-      onKeyDown={handleKeyDown}
-      role="button"
+    <div
+      className="motion-catalog-card-shell"
       style={{ "--motion-card-index": index } as CSSProperties}
-      tabIndex={0}
     >
-      <div className="m-3 flex h-[218px] items-center justify-center rounded-[0.75rem] border border-neutral-200/45 bg-neutral-50 p-5 dark:border-neutral-700/28 dark:bg-neutral-950/28">
-        {item.preview}
-      </div>
-      <div className="px-5 pb-5 pt-1">
-        <div className="min-w-0">
-          <h2 className="font-semibold text-[13px] leading-5 text-neutral-900 dark:text-neutral-100">
-            {item.title}
-          </h2>
-          <p className="mt-0.5 text-[12px] leading-5 text-neutral-500 dark:text-neutral-400">
-            {item.description}
-          </p>
+      <Card
+        className="motion-catalog-card group cursor-pointer overflow-hidden rounded-[1.5rem] border-neutral-200/45 bg-white shadow-[0_1px_1px_rgba(15,23,42,.02)] outline-none hover:border-neutral-300/70 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 before:hidden dark:border-neutral-800/55 dark:bg-neutral-900 dark:hover:border-neutral-700/45"
+        onClick={openCard}
+        onKeyDown={handleKeyDown}
+        onPointerCancel={(event) => resetTilt(event.currentTarget)}
+        onPointerEnter={(event) =>
+          applyTilt(event.currentTarget, event.clientX, event.clientY)
+        }
+        onPointerLeave={(event) => resetTilt(event.currentTarget)}
+        onPointerMove={(event) =>
+          applyTilt(event.currentTarget, event.clientX, event.clientY)
+        }
+        onPointerUp={(event) =>
+          event.currentTarget.classList.remove("is-tilting")
+        }
+        role="button"
+        tabIndex={0}
+      >
+        <div className="m-3 flex h-[218px] items-center justify-center rounded-[0.75rem] border border-neutral-200/45 bg-neutral-50 p-5 dark:border-neutral-700/28 dark:bg-neutral-950/28">
+          {item.preview}
         </div>
-      </div>
-    </Card>
+        <div className="px-5 pb-5 pt-1">
+          <div className="min-w-0">
+            <h2 className="font-semibold text-[13px] leading-5 text-neutral-900 dark:text-neutral-100">
+              {item.title}
+            </h2>
+            <p className="mt-0.5 text-[12px] leading-5 text-neutral-500 dark:text-neutral-400">
+              {item.description}
+            </p>
+          </div>
+        </div>
+      </Card>
+    </div>
   );
 }
 
@@ -2373,44 +2406,46 @@ export default function Home() {
           </div>
         </header>
 
-        {activePage === "motion" ? (
-          <>
-            <LandingHero
-              description={copy.heroDescription}
+        <div className="page-content-panel" key={activePage}>
+          {activePage === "motion" ? (
+            <>
+              <LandingHero
+                description={copy.heroDescription}
+                isDark={isDark}
+                logoLabel={copy.logoLabel}
+                onStart={openNpmAndScrollToInstallation}
+                startLabel={copy.startLabel}
+                title={copy.heroSlogan}
+              />
+
+              <section className="mt-11 grid gap-5 lg:grid-cols-3" id="effects">
+                {motionCards.map((item, index) => (
+                  <MotionCatalogCard
+                    index={index}
+                    item={item}
+                    key={item.id}
+                    onOpen={openExpandedCard}
+                  />
+                ))}
+              </section>
+
+              <FooterCredit prefix={copy.footerPrefix} />
+            </>
+          ) : activePage === "npm" ? (
+            <NpmPage
+              copyLabel={copy.copyLabel}
+              footerPrefix={copy.footerPrefix}
+              heroDescription={copy.heroDescription}
+              heroSlogan={copy.heroSlogan}
               isDark={isDark}
               logoLabel={copy.logoLabel}
-              onStart={openNpmAndScrollToInstallation}
+              motionCards={motionCards}
               startLabel={copy.startLabel}
-              title={copy.heroSlogan}
             />
-
-            <section className="mt-11 grid gap-5 lg:grid-cols-3" id="effects">
-              {motionCards.map((item, index) => (
-                <MotionCatalogCard
-                  index={index}
-                  item={item}
-                  key={item.id}
-                  onOpen={openExpandedCard}
-                />
-              ))}
-            </section>
-
-            <FooterCredit prefix={copy.footerPrefix} />
-          </>
-        ) : activePage === "npm" ? (
-          <NpmPage
-            copyLabel={copy.copyLabel}
-            footerPrefix={copy.footerPrefix}
-            heroDescription={copy.heroDescription}
-            heroSlogan={copy.heroSlogan}
-            isDark={isDark}
-            logoLabel={copy.logoLabel}
-            motionCards={motionCards}
-            startLabel={copy.startLabel}
-          />
-        ) : (
-          <NotesPage footerPrefix={copy.footerPrefix} notes={copy.notes} />
-        )}
+          ) : (
+            <NotesPage footerPrefix={copy.footerPrefix} notes={copy.notes} />
+          )}
+        </div>
       </div>
       {expandedCard ? (
         <ExpandedMotionCardOverlay
