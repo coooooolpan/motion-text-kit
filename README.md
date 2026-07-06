@@ -59,11 +59,11 @@ export function Example() {
 | `DecryptText` | 随机字符解析为最终文本 | 权限状态、终端反馈、技术感结果 |
 | `WeightSweepText` | 字重从细到粗扫过 | 导航激活态、强调词、品牌标题 |
 | `FocusBlurText` | 从模糊聚焦到清晰，再模糊消失 | 加载态、AI 生成完成、内容进入 |
-| `TickerText` | 横向滚动公告，两端字符渐隐变小变模糊 | 公告栏、状态播报、长文本摘要 |
+| `TickerText` | 横向滚动公告，两端字符级渐隐、变小、模糊 | 公告栏、状态播报、长文本摘要 |
 | `TypewriterText` | 逐字输入、删除和光标 | 搜索建议、命令输入、AI 回复预览 |
 | `BreathingText` | 整体文字轻微 opacity / blur / scale 呼吸 | 等待态、AI thinking、空状态 |
 | `ElasticLettersText` | 字符水平轻微拉伸后回弹出现 | 按钮反馈、短标题、品牌字动效 |
-| `IridescentText` | 文字短暂浮现虹彩后回到本色 | Hero slogan、品牌关键词、发布页标题 |
+| `IridescentText` | 从左向右流动的虹彩渐变，平滑回到本色 | Hero slogan、品牌关键词、发布页标题 |
 | `MorphWordsText` | 短词之间柔和变形切换 | Slogan、价值主张、轮播关键词 |
 | `HeartbeatText` | 文字以真实双峰心跳节奏轻微起伏 | 生命体征、等待状态、情绪反馈 |
 | `LiquidText` | 字符液体式融合/分离 | 实验性品牌动效、情绪化标题 |
@@ -211,6 +211,8 @@ export function CounterDemo() {
 <IridescentText text="Matter of care" />
 ```
 
+`IridescentText` 会保留正常文本作为底层，虹彩渐变作为覆盖层从左向右流动，并通过透明度渐入、渐出回到普通状态。
+
 #### `MorphWordsText`
 
 ```tsx
@@ -235,6 +237,8 @@ export function CounterDemo() {
 ### 本地开发
 
 仓库内包含一个 Next.js demo 站点，页面组件使用 coss UI。可复用 npm 包源码位于 `src/motion-text-kit`。
+
+Demo 站点包含 `Motion`、`Package`、`Notes` 三个页面。`Notes` 中的「灵感坐标」使用可拖拽便签画布，整理并致敬启发 Motion Text Kit 的产品、网站和动效语言。
 
 ```bash
 npm run dev
@@ -313,11 +317,11 @@ export function Example() {
 | `DecryptText` | Random glyphs resolve into final text | Permission states, terminal feedback, technical reveals |
 | `WeightSweepText` | Font weight sweeps from thin to bold | Active navigation, emphasized words, brand headings |
 | `FocusBlurText` | Text resolves from blur into focus, then blurs out | Loading states, AI completion, content entrances |
-| `TickerText` | Horizontal ticker with soft edge blur, opacity, and scale | Announcements, status broadcasts, long text snippets |
+| `TickerText` | Horizontal ticker with character-level edge blur, opacity, and scale | Announcements, status broadcasts, long text snippets |
 | `TypewriterText` | Typing, deleting, and caret motion | Search suggestions, command input, AI response previews |
 | `BreathingText` | Whole text breathes with opacity, blur, and scale | Waiting states, AI thinking, empty states |
 | `ElasticLettersText` | Letters stretch horizontally and settle softly | Button feedback, short titles, brand text |
-| `IridescentText` | A brief iridescent sheen appears, then returns to plain text | Hero slogans, brand keywords, launch headlines |
+| `IridescentText` | Left-to-right iridescent gradient flow that smoothly returns to plain text | Hero slogans, brand keywords, launch headlines |
 | `MorphWordsText` | Short words morph through soft transitions | Slogans, value props, rotating keywords |
 | `HeartbeatText` | Text pulses with a restrained double-beat rhythm | Vitals, waiting states, emotional feedback |
 | `LiquidText` | Liquid-like character merge and separation | Experimental brand motion, expressive headings |
@@ -465,6 +469,8 @@ export function CounterDemo() {
 <IridescentText text="Matter of care" />
 ```
 
+`IridescentText` keeps the normal text as the base layer, then fades in an iridescent overlay that flows from left to right before fading back to the plain state.
+
 #### `MorphWordsText`
 
 ```tsx
@@ -489,6 +495,8 @@ export function CounterDemo() {
 ### Development
 
 This repository includes a Next.js demo site that uses coss UI for the page surface. The reusable package source lives in `src/motion-text-kit`.
+
+The demo site includes `Motion`, `Package`, and `Notes` pages. The `Notes` page includes a draggable sticky-note inspiration board that collects and credits the products, websites, and motion languages behind Motion Text Kit.
 
 ```bash
 npm run dev

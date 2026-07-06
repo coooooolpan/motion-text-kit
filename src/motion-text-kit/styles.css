@@ -1222,16 +1222,16 @@
   background:
     linear-gradient(
       90deg,
-      #38bdf8 0%,
+      var(--mtk-iridescent-color-a) 0%,
       #3b82f6 15%,
-      #22c55e 31%,
+      var(--mtk-iridescent-color-b) 31%,
       #eab308 48%,
       #f97316 64%,
-      #d946ef 82%,
-      #38bdf8 100%
+      var(--mtk-iridescent-color-c) 82%,
+      var(--mtk-iridescent-color-a) 100%
     );
-  background-position: -140% 50%;
-  background-size: 240% 150%;
+  background-position: -160% 50%;
+  background-size: 260% 150%;
   inset: 0;
   opacity: 0;
   pointer-events: none;
@@ -1251,8 +1251,6 @@
 
 @keyframes mtk-iridescent-text-shift {
   0%,
-  14%,
-  88%,
   100% {
     color: inherit;
     filter: saturate(1) brightness(1);
@@ -1260,47 +1258,47 @@
     transform: translateZ(0);
   }
 
-  24%,
-  78% {
-    color: transparent;
+  30%,
+  72% {
+    color: inherit;
     filter:
-      saturate(calc(1 + var(--mtk-iridescent-intensity) * .06))
-      brightness(calc(1 + var(--mtk-iridescent-intensity) * .01));
+      saturate(calc(1 + var(--mtk-iridescent-intensity) * .035))
+      brightness(calc(1 + var(--mtk-iridescent-intensity) * .012));
     text-shadow: none;
+    transform: translateZ(0);
   }
 }
 
 @keyframes mtk-iridescent-text-sheen {
   0%,
-  14%,
-  88%,
-  100% {
-    background-position: -140% 50%;
+  12% {
+    background-position: -160% 50%;
     opacity: 0;
     transform: translateZ(0);
   }
 
   24% {
-    background-position: -88% 50%;
-    opacity: calc(.74 + var(--mtk-iridescent-intensity) * .1);
+    background-position: -96% 50%;
+    opacity: calc(.66 + var(--mtk-iridescent-intensity) * .1);
     transform: translateZ(0);
   }
 
-  42% {
-    background-position: -34% 50%;
-    opacity: calc(.88 + var(--mtk-iridescent-intensity) * .08);
+  48% {
+    background-position: 10% 50%;
+    opacity: calc(.82 + var(--mtk-iridescent-intensity) * .08);
     transform: translateZ(0);
   }
 
-  60% {
-    background-position: 38% 50%;
-    opacity: calc(.86 + var(--mtk-iridescent-intensity) * .08);
+  72% {
+    background-position: 116% 50%;
+    opacity: calc(.74 + var(--mtk-iridescent-intensity) * .08);
     transform: translateZ(0);
   }
 
-  78% {
-    background-position: 140% 50%;
-    opacity: calc(.58 + var(--mtk-iridescent-intensity) * .08);
+  88%,
+  100% {
+    background-position: 180% 50%;
+    opacity: 0;
     transform: translateZ(0);
   }
 }
