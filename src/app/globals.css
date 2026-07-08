@@ -1,16 +1,5 @@
 @import "tailwindcss";
 
-@font-face {
-  font-family: "MotionNoteHand";
-  font-display: swap;
-  font-style: normal;
-  font-weight: 400;
-  src:
-    local("FZZJ-HLYBTJ--GB1-0"),
-    local("FZZJ-HLYBTJ"),
-    local("方正字迹-欢乐圆笔体 简");
-}
-
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -391,8 +380,7 @@
   border-radius: .28rem;
   box-shadow: 0 10px 24px rgba(15, 23, 42, .08);
   cursor: grab;
-  font-family: "MotionNoteHand", "FZZJ-HLYBTJ", "方正字迹-欢乐圆笔体 简",
-    "Bradley Hand", "Marker Felt", cursive;
+  font-family: inherit;
   -webkit-font-smoothing: antialiased;
   font-synthesis: none;
   height: 158px;
@@ -1021,6 +1009,32 @@
   gap: .75rem;
   grid-template-columns: minmax(0, 1fr) auto;
   padding: .25rem 1.25rem 1.25rem;
+}
+
+@media (max-width: 640px) {
+  .motion-card-expanded {
+    border-radius: 1.25rem;
+  }
+
+  .motion-card-overlay[data-state="open"] .motion-card-expanded {
+    border-radius: 1.35rem;
+  }
+
+  .motion-card-expanded__preview {
+    border-radius: .875rem;
+    margin: .5rem;
+    padding: .875rem;
+  }
+
+  .motion-card-overlay[data-state="open"] .motion-card-expanded__preview > * {
+    transform: scale(1.06);
+  }
+
+  .motion-card-expanded__body {
+    align-items: end;
+    gap: .75rem;
+    padding: .25rem .875rem .875rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

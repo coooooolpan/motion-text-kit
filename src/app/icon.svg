@@ -1,7 +1,24 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
-  <rect width="128" height="128" rx="30" fill="#fafafa"/>
-  <rect x="10" y="10" width="108" height="108" rx="26" fill="#fff" stroke="rgba(0,0,0,.12)" stroke-width="2"/>
-  <g transform="translate(18 49) scale(.1326)" fill="none" stroke="#202020" stroke-width="36" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round">
+  <style>
+    :root {
+      --icon-bg: #fafafa;
+      --icon-card: #ffffff;
+      --icon-border: rgba(0, 0, 0, .12);
+      --icon-ink: #202020;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --icon-bg: #0a0a0a;
+        --icon-card: #171717;
+        --icon-border: rgba(255, 255, 255, .16);
+        --icon-ink: #f5f5f5;
+      }
+    }
+  </style>
+  <rect width="128" height="128" rx="30" fill="var(--icon-bg)"/>
+  <rect x="10" y="10" width="108" height="108" rx="26" fill="var(--icon-card)" stroke="var(--icon-border)" stroke-width="2"/>
+  <g transform="translate(18 49) scale(.1326)" fill="none" stroke="var(--icon-ink)" stroke-width="36" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round">
     <path d="M18.0007 41.3292C43.5447 39.6822 150.408 28.3462 143.604 32.4412"/>
     <path d="M80.3577 40.2061C82.5117 59.3671 74.3868 204.896 84.2688 203.009"/>
     <path d="M202.191 140.352C280.45 129.862 286.9 57.495 218.601 88.455C177.2 107.221 197.964 239.085 275.607 167.755"/>

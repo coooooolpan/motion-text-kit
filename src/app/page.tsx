@@ -3,6 +3,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { BorderBeam } from "border-beam";
+import localFont from "next/font/local";
 import {
   CheckIcon,
   CopyIcon,
@@ -38,6 +39,12 @@ import {
 
 type Locale = "zh" | "en";
 type ActivePage = "motion" | "npm" | "notes";
+
+const noteHandFont = localFont({
+  src: "./fonts/QingSongShouXieTi1-2.ttf",
+  display: "swap",
+  preload: false,
+});
 
 type MotionCard = {
   id: string;
@@ -829,7 +836,7 @@ function NumberDeltaPreview() {
   useEffect(() => {
     const timer = window.setInterval(() => {
       setIndex((current) => current + 1);
-    }, 2600);
+    }, 3600);
 
     return () => window.clearInterval(timer);
   }, []);
@@ -838,18 +845,18 @@ function NumberDeltaPreview() {
     <div className="inline-flex items-center justify-center gap-4 text-center">
       <NumberDeltaText
         className="font-mono text-[15px] font-semibold leading-[24px] tracking-normal text-neutral-800 dark:text-neutral-100"
-        duration={1080}
-        stagger={64}
+        duration={1480}
+        stagger={84}
         value={gain}
       />
       <span
         aria-hidden="true"
-        className="h-5 w-px bg-neutral-200 dark:bg-neutral-700/60"
+        className="h-3.5 w-px bg-neutral-200 dark:bg-neutral-700/60"
       />
       <NumberDeltaText
         className="font-mono text-[15px] font-semibold leading-[24px] tracking-normal text-neutral-500 dark:text-neutral-400"
-        duration={1080}
-        stagger={64}
+        duration={1480}
+        stagger={84}
         value={loss}
       />
     </div>
@@ -890,7 +897,10 @@ function SpoilerPreview({
   );
 }
 
-function createMotionCards(copy: (typeof pageCopy)[Locale]): MotionCard[] {
+function createMotionCards(
+  copy: (typeof pageCopy)[Locale],
+  isDark: boolean,
+): MotionCard[] {
   return [
     {
       id: "reveal",
@@ -974,7 +984,9 @@ function createMotionCards(copy: (typeof pageCopy)[Locale]): MotionCard[] {
       preview: (
         <div className="grid place-items-center text-center">
           <GradientSweepText
-            accentColor="rgba(255,255,255,.72)"
+            accentColor={isDark ? "rgba(255,255,255,.72)" : "rgba(229,231,235,.92)"}
+            angle={90}
+            baseColor={isDark ? "rgba(245,245,245,.34)" : "rgba(163,163,163,.52)"}
             className="font-heading text-[14px] font-semibold leading-[22px] tracking-normal text-neutral-800 dark:text-neutral-100"
             duration={2200}
             highlightColor="#ffffff"
@@ -1177,7 +1189,7 @@ function MotionCatalogCard({
       style={{ "--motion-card-index": index } as CSSProperties}
     >
       <Card
-        className="motion-catalog-card group cursor-pointer overflow-hidden rounded-[1.5rem] border-neutral-200/45 bg-white shadow-[0_1px_1px_rgba(15,23,42,.02)] outline-none hover:border-neutral-300/70 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 before:hidden dark:border-neutral-800/55 dark:bg-neutral-900 dark:hover:border-neutral-700/45"
+        className="motion-catalog-card group cursor-pointer overflow-hidden rounded-[1.25rem] border-neutral-200/45 bg-white shadow-[0_1px_1px_rgba(15,23,42,.02)] outline-none hover:border-neutral-300/70 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 before:hidden dark:border-neutral-800/55 dark:bg-neutral-900 dark:hover:border-neutral-700/45 sm:rounded-[1.5rem]"
         onClick={openCard}
         onKeyDown={handleKeyDown}
         onPointerCancel={(event) => resetTilt(event.currentTarget)}
@@ -1194,15 +1206,15 @@ function MotionCatalogCard({
         role="button"
         tabIndex={0}
       >
-        <div className="m-3 flex h-[218px] items-center justify-center rounded-[0.75rem] border border-neutral-200/45 bg-neutral-50 p-5 dark:border-neutral-700/28 dark:bg-neutral-950/28">
+        <div className="m-2 flex h-[132px] items-center justify-center rounded-[0.75rem] border border-neutral-200/45 bg-neutral-50 p-3 dark:border-neutral-700/28 dark:bg-neutral-950/28 sm:m-3 sm:h-[218px] sm:p-5">
           {item.preview}
         </div>
-        <div className="px-5 pb-5 pt-1">
+        <div className="px-3 pb-3 pt-1 sm:px-5 sm:pb-5">
           <div className="min-w-0">
             <h2 className="font-semibold text-[13px] leading-5 text-neutral-900 dark:text-neutral-100">
               {item.title}
             </h2>
-            <p className="mt-0.5 text-[12px] leading-5 text-neutral-500 dark:text-neutral-400">
+            <p className="mt-0.5 text-[11px] leading-4 text-neutral-500 dark:text-neutral-400 sm:text-[12px] sm:leading-5">
               {item.description}
             </p>
           </div>
@@ -1281,8 +1293,8 @@ function ExpandedMotionCardOverlay({
     "--motion-card-origin-y": `${expanded.origin.top}px`,
     "--motion-card-origin-w": `${expanded.origin.width}px`,
     "--motion-card-origin-h": `${expanded.origin.height}px`,
-    "--motion-card-target-w": `${Math.min(window.innerWidth * 0.92, 760)}px`,
-    "--motion-card-target-h": `${Math.min(window.innerHeight * 0.72, 620)}px`,
+    "--motion-card-target-w": `${Math.min(window.innerWidth - 24, 760)}px`,
+    "--motion-card-target-h": `${Math.min(window.innerHeight - 28, 620)}px`,
     "--motion-card-start-x": `${
       expanded.origin.left + expanded.origin.width / 2 - window.innerWidth / 2
     }px`,
@@ -1290,10 +1302,10 @@ function ExpandedMotionCardOverlay({
       expanded.origin.top + expanded.origin.height / 2 - window.innerHeight / 2
     }px`,
     "--motion-card-start-scale-x": `${(
-      expanded.origin.width / Math.min(window.innerWidth * 0.92, 760)
+      expanded.origin.width / Math.min(window.innerWidth - 24, 760)
     ).toFixed(4)}`,
     "--motion-card-start-scale-y": `${(
-      expanded.origin.height / Math.min(window.innerHeight * 0.72, 620)
+      expanded.origin.height / Math.min(window.innerHeight - 28, 620)
     ).toFixed(4)}`,
   } as React.CSSProperties & Record<`--${string}`, string>;
   const glassFilter =
@@ -1374,8 +1386,8 @@ function DocsCodeBlock({
   label: string;
 }) {
   return (
-    <div className="relative rounded-2xl border border-neutral-200/70 bg-neutral-100 p-4 text-neutral-800 shadow-[0_1px_1px_rgba(15,23,42,.04)] dark:border-white/8 dark:bg-neutral-950 dark:text-neutral-100">
-      <pre className="overflow-x-auto pr-10 font-mono text-[12px] leading-6 tracking-normal">
+    <div className="relative rounded-2xl border border-neutral-200/70 bg-neutral-100 p-3 text-neutral-800 shadow-[0_1px_1px_rgba(15,23,42,.04)] dark:border-white/8 dark:bg-neutral-950 dark:text-neutral-100 sm:p-4">
+      <pre className="overflow-x-auto pr-9 font-mono text-[11px] leading-6 tracking-normal sm:pr-10 sm:text-[12px]">
         <code>{code}</code>
       </pre>
       <CopyCodeButton
@@ -1663,26 +1675,26 @@ function LandingHero({
   title: string;
 }) {
   return (
-    <section className="mx-auto mt-4 flex max-w-[460px] flex-col items-center text-center">
-      <div className="mb-7">
+    <section className="mx-auto mt-8 flex max-w-[460px] flex-col items-center text-center sm:mt-12">
+      <div className="mb-6 sm:mb-7">
         <MotionLogoCard isDark={isDark} label={logoLabel} />
       </div>
-      <h1 className="text-balance font-heading text-[28px] font-semibold leading-tight tracking-normal">
+      <h1 className="text-balance font-heading text-[24px] font-semibold leading-tight tracking-normal sm:text-[28px]">
         {title}
       </h1>
-      <p className="mt-3 text-balance text-[16px] leading-7 text-neutral-500 dark:text-neutral-400">
+      <p className="mt-3 text-balance px-1 text-[14px] leading-6 text-neutral-500 dark:text-neutral-400 sm:px-0 sm:text-[16px] sm:leading-7">
         {description}
       </p>
-      <div className="mt-7 flex items-center justify-center gap-3">
+      <div className="mt-6 flex w-full flex-col items-stretch justify-center gap-2.5 sm:mt-7 sm:w-auto sm:flex-row sm:items-center sm:gap-3">
         <Button
-          className="!h-[40px] rounded-full border-transparent bg-neutral-950 px-5 text-[13px] font-semibold text-white shadow-none transition-[background-color,color] duration-200 hover:bg-neutral-800 active:shadow-none data-pressed:shadow-none dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200"
+          className="!h-[40px] w-full rounded-full border-transparent bg-neutral-950 px-5 text-[13px] font-semibold text-white shadow-none transition-[background-color,color] duration-200 hover:bg-neutral-800 active:shadow-none data-pressed:shadow-none dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200 sm:w-auto"
           onClick={onStart}
           variant="secondary"
         >
           {startLabel}
         </Button>
         <Button
-          className="!h-[40px] rounded-full px-5 text-[13px] font-semibold shadow-none transition-[background-color,color] duration-200 hover:bg-neutral-200 hover:text-neutral-950 active:shadow-none data-pressed:shadow-none dark:bg-white/[0.08] dark:text-neutral-100 dark:hover:bg-white/[0.13] dark:hover:text-neutral-50 [&_svg]:size-5"
+          className="!h-[40px] w-full rounded-full px-5 text-[13px] font-semibold shadow-none transition-[background-color,color] duration-200 hover:bg-neutral-200 hover:text-neutral-950 active:shadow-none data-pressed:shadow-none dark:bg-white/[0.08] dark:text-neutral-100 dark:hover:bg-white/[0.13] dark:hover:text-neutral-50 sm:w-auto [&_svg]:size-5"
           render={
             <a href={githubRepositoryUrl} rel="noreferrer" target="_blank" />
           }
@@ -1812,8 +1824,8 @@ function NpmPage({
         title={heroSlogan}
       />
       <EffectPreviewMarquee items={motionCards} />
-      <section className="mx-auto mt-14 w-full max-w-[760px]">
-        <div className="space-y-12">
+      <section className="mx-auto mt-10 w-full max-w-[760px] sm:mt-14">
+        <div className="space-y-9 sm:space-y-12">
           <div className="scroll-mt-8" id="installation">
             <h1 className="text-[18px] font-medium leading-7 tracking-normal text-neutral-900 dark:text-neutral-100">
               Installation
@@ -2013,7 +2025,9 @@ function InspirationBoard({
   }
 
   return (
-    <div className="inspiration-board mt-5 overflow-x-auto rounded-[1.7rem] border border-neutral-200/70 bg-white/70 p-3 dark:border-white/8 dark:bg-neutral-950/35">
+    <div
+      className={`inspiration-board mt-5 overflow-x-auto rounded-[1.7rem] border border-neutral-200/70 bg-white/70 p-3 dark:border-white/8 dark:bg-neutral-950/35 ${noteHandFont.className}`}
+    >
       <div className="inspiration-board__surface">
         {items.map((item) => {
           const position = positions[item.name] ?? { x: item.x, y: item.y };
@@ -2165,7 +2179,7 @@ export default function Home() {
   );
   const closeTimerRef = useRef<number | null>(null);
   const copy = pageCopy[locale];
-  const motionCards = createMotionCards(copy);
+  const motionCards = createMotionCards(copy, isDark);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
@@ -2270,11 +2284,11 @@ export default function Home() {
   return (
     <main className="min-h-svh bg-background text-neutral-900 transition-colors dark:text-neutral-100">
       <div
-        className="app-shell mx-auto flex w-full max-w-[1040px] flex-col px-4 pb-16 pt-5"
+        className="app-shell mx-auto flex w-full max-w-[1040px] flex-col px-3 pb-12 pt-4 sm:px-4 sm:pb-16 sm:pt-5"
         data-overlay-state={expandedCard?.state ?? "closed"}
       >
-        <header className="flex items-center justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-7">
+        <header className="flex flex-wrap items-center justify-between gap-2 gap-y-3 sm:gap-3">
+          <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-7">
             <button
               aria-label={copy.logoLabel}
               className="rounded-xl outline-none transition-opacity duration-200 hover:opacity-80 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
@@ -2283,7 +2297,7 @@ export default function Home() {
             >
               <BrandMark label={copy.logoLabel} />
             </button>
-            <nav aria-label="Page switcher" className="flex items-center gap-5">
+            <nav aria-label="Page switcher" className="flex items-center gap-3 sm:gap-5">
               <button
                 className={[
                   "page-switcher-button relative inline-flex h-5 items-center text-[14px] font-medium leading-none transition-colors duration-200",
@@ -2328,7 +2342,7 @@ export default function Home() {
               </button>
             </nav>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             <Menu>
               <MenuTrigger
                 render={
@@ -2418,7 +2432,7 @@ export default function Home() {
                 title={copy.heroSlogan}
               />
 
-              <section className="mt-11 grid gap-5 lg:grid-cols-3" id="effects">
+              <section className="mt-9 grid grid-cols-2 gap-2.5 sm:mt-11 sm:gap-5 lg:grid-cols-3" id="effects">
                 {motionCards.map((item, index) => (
                   <MotionCatalogCard
                     index={index}

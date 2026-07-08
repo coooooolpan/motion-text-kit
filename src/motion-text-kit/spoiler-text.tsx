@@ -36,6 +36,14 @@ function supportsSpoilerPaint(): boolean {
     return false;
   }
 
+  const userAgent = window.navigator.userAgent;
+  const isWebKit =
+    /AppleWebKit/i.test(userAgent) && !/Chrome|Chromium|Edg|OPR|Firefox/i.test(userAgent);
+
+  if (isWebKit) {
+    return false;
+  }
+
   const cssWithPaint = CSS as typeof CSS & {
     paintWorklet?: { addModule: (url: string) => Promise<void> };
   };
@@ -79,6 +87,8 @@ export function SpoilerText({
   const frameRef = useRef<number | null>(null);
   const tRef = useRef(2);
   const [canUsePaint, setCanUsePaint] = useState(false);
+  const [isActive, setIsActive] = useState(false);
+  const [isWebKitFallback, setIsWebKitFallback] = useState(false);
   const [useFallback, setUseFallback] = useState(false);
   const [internalSpoiled, setInternalSpoiled] = useState(!defaultRevealed);
   const [isRevealing, setIsRevealing] = useState(false);
@@ -156,6 +166,9 @@ export function SpoilerText({
   useLayoutEffect(() => {
     let cancelled = false;
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const userAgent = window.navigator.userAgent;
+    const isWebKit =
+      /AppleWebKit/i.test(userAgent) && !/Chrome|Chromium|Edg|OPR|Firefox/i.test(userAgent);
     const enabled = !reduceMotion && loadSpoilerPaintWorklet();
 
     queueMicrotask(() => {
@@ -164,6 +177,7 @@ export function SpoilerText({
       }
 
       setCanUsePaint(enabled);
+      setIsWebKitFallback(isWebKit && !reduceMotion);
       setUseFallback(!enabled && !reduceMotion);
 
       if (reduceMotion) {
@@ -259,6 +273,8 @@ export function SpoilerText({
     const y = (event.clientY - rect.top) / rect.height;
     root.style.setProperty("--mx", x.toFixed(3));
     root.style.setProperty("--my", y.toFixed(3));
+    root.style.setProperty("--mtk-spoiler-x", `${(x * 100).toFixed(2)}%`);
+    root.style.setProperty("--mtk-spoiler-y", `${(y * 100).toFixed(2)}%`);
   }
 
   function reveal(event?: React.PointerEvent<HTMLSpanElement> | React.KeyboardEvent<HTMLSpanElement>) {
@@ -284,6 +300,7 @@ export function SpoilerText({
       return;
     }
 
+    setIsActive(true);
     setPointerPosition(event);
     reveal(event);
   }
@@ -293,6 +310,7 @@ export function SpoilerText({
       return;
     }
 
+    setIsActive(true);
     setPointerPosition(event);
   }
 
@@ -300,6 +318,7 @@ export function SpoilerText({
     const root = rootRef.current;
     root?.style.setProperty("--mx", "-1");
     root?.style.setProperty("--my", "-1");
+    setIsActive(false);
   }
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLSpanElement>) {
@@ -314,10 +333,12 @@ export function SpoilerText({
       aria-label={text}
       aria-pressed={!isSpoiled}
       className={["mtk-spoiler-text", className].filter(Boolean).join(" ")}
+      data-active={isActive ? "" : undefined}
       data-fallback={useFallback ? "" : undefined}
       data-houdini={canUsePaint ? "" : undefined}
       data-revealed={!isSpoiled ? "" : undefined}
       data-revealing={!isSpoiled && isRevealing ? "" : undefined}
+      data-webkit-fallback={isWebKitFallback ? "" : undefined}
       onClick={() => {
         if (!canUsePaint) {
           reveal();

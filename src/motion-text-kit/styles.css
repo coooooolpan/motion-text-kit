@@ -92,11 +92,11 @@
   background-image: linear-gradient(
       var(--mtk-sweep-angle),
       transparent 0%,
-      transparent 38%,
-      var(--mtk-sweep-accent) 47%,
+      transparent 30%,
+      var(--mtk-sweep-accent) 42%,
       var(--mtk-sweep-highlight) 50%,
-      var(--mtk-sweep-accent) 53%,
-      transparent 62%,
+      var(--mtk-sweep-accent) 58%,
+      transparent 70%,
       transparent 100%
     ),
     linear-gradient(var(--mtk-sweep-base), var(--mtk-sweep-base));
@@ -111,7 +111,9 @@
   color: inherit;
   display: inline-block;
   transform: translateZ(0);
+  -webkit-text-stroke: 0 transparent;
   -webkit-text-fill-color: transparent;
+  text-shadow: none;
   will-change: background-position;
 }
 
@@ -209,22 +211,10 @@
     transform: scale(.988);
   }
 
-  34% {
+  50% {
     filter: blur(0);
     opacity: 1;
     transform: scale(var(--mtk-breathing-scale));
-  }
-
-  50% {
-    filter: blur(.12px);
-    opacity: .96;
-    transform: scale(calc((var(--mtk-breathing-scale) + 1) / 2));
-  }
-
-  78% {
-    filter: blur(calc(var(--mtk-breathing-blur) * .68));
-    opacity: calc((var(--mtk-breathing-opacity) + 1) / 2);
-    transform: scale(.996);
   }
 
   100% {
@@ -988,14 +978,17 @@
     13px 9px,
     17px 11px,
     100% 100%;
+  -webkit-background-clip: padding-box;
+  background-clip: padding-box;
   border-radius: inherit;
-  color: inherit;
+  color: transparent;
   filter: contrast(1.8) saturate(.7);
   grid-area: 1 / 1;
   display: none;
   opacity: .96;
   pointer-events: none;
   -webkit-text-fill-color: transparent;
+  text-shadow: none;
   transition:
     opacity var(--mtk-spoiler-duration) cubic-bezier(.16, 1, .3, 1),
     filter var(--mtk-spoiler-duration) cubic-bezier(.16, 1, .3, 1);
@@ -1006,6 +999,39 @@
 
 .mtk-spoiler-text[data-fallback] .mtk-spoiler-text__particles {
   display: block;
+}
+
+.mtk-spoiler-text[data-webkit-fallback] .mtk-spoiler-text__particles {
+  -webkit-background-clip: padding-box;
+  background-clip: padding-box;
+  background-color: transparent;
+  background-image:
+    radial-gradient(circle, currentColor 0 .8px, transparent 1.15px),
+    radial-gradient(circle, currentColor 0 .7px, transparent 1.1px),
+    radial-gradient(circle, currentColor 0 .55px, transparent .95px);
+  background-position:
+    0 0,
+    4px 2px,
+    9px 5px;
+  background-size:
+    5px 4px,
+    8px 7px,
+    13px 9px;
+  color: inherit;
+  mix-blend-mode: normal;
+  opacity: .72;
+  -webkit-text-fill-color: transparent;
+}
+
+@supports not ((-webkit-mask-image: radial-gradient(circle, #000, transparent)) or (mask-image: radial-gradient(circle, #000, transparent))) {
+  .mtk-spoiler-text[data-fallback] .mtk-spoiler-text__content {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .mtk-spoiler-text[data-fallback]:is(:hover, [data-active]) .mtk-spoiler-text__content {
+    opacity: .72;
+  }
 }
 
 .mtk-spoiler-text[data-fallback]:is(:hover, [data-active]) .mtk-spoiler-text__particles {
@@ -1027,6 +1053,17 @@
 .mtk-spoiler-text[data-fallback]:is(:hover, [data-active]) .mtk-spoiler-text__content {
   filter: none;
   opacity: 1;
+}
+
+.mtk-spoiler-text[data-webkit-fallback]:is(:hover, [data-active]) .mtk-spoiler-text__particles {
+  opacity: .72;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+.mtk-spoiler-text[data-webkit-fallback]:not([data-revealed]):is(:hover, [data-active]) .mtk-spoiler-text__content {
+  filter: blur(3px);
+  opacity: 0;
 }
 
 .mtk-spoiler-text[data-revealed] {
@@ -1230,7 +1267,7 @@
       var(--mtk-iridescent-color-c) 82%,
       var(--mtk-iridescent-color-a) 100%
     );
-  background-position: -160% 50%;
+  background-position: 180% 50%;
   background-size: 260% 150%;
   inset: 0;
   opacity: 0;
@@ -1272,13 +1309,13 @@
 @keyframes mtk-iridescent-text-sheen {
   0%,
   12% {
-    background-position: -160% 50%;
+    background-position: 180% 50%;
     opacity: 0;
     transform: translateZ(0);
   }
 
   24% {
-    background-position: -96% 50%;
+    background-position: 116% 50%;
     opacity: calc(.66 + var(--mtk-iridescent-intensity) * .1);
     transform: translateZ(0);
   }
@@ -1290,14 +1327,14 @@
   }
 
   72% {
-    background-position: 116% 50%;
+    background-position: -96% 50%;
     opacity: calc(.74 + var(--mtk-iridescent-intensity) * .08);
     transform: translateZ(0);
   }
 
   88%,
   100% {
-    background-position: 180% 50%;
+    background-position: -160% 50%;
     opacity: 0;
     transform: translateZ(0);
   }
