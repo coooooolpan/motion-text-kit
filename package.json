@@ -1,6 +1,6 @@
 {
   "name": "motion-text-kit",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Reusable React text motion components powered by CSS animations.",
   "license": "MIT",
   "main": "./dist/index.cjs",
@@ -12,7 +12,8 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
     },
-    "./styles.css": "./dist/styles.css"
+    "./styles.css": "./dist/styles.css",
+    "./spoiler-worklet.js": "./dist/spoiler-worklet.js"
   },
   "files": [
     "dist"

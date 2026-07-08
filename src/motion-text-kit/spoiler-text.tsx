@@ -7,11 +7,13 @@ import type { BaseMotionProps, MotionStyle } from "./types";
 type SpoilerTextOwnProps = BaseMotionProps<"span"> & {
   text: string;
   defaultRevealed?: boolean;
+  interactive?: boolean;
   revealed?: boolean;
   onRevealedChange?: (revealed: boolean) => void;
   particleColor?: string;
   duration?: number;
   revealDuration?: number;
+  workletUrl?: string;
 };
 
 export type SpoilerTextProps = SpoilerTextOwnProps &
@@ -29,7 +31,7 @@ export type SpoilerTextProps = SpoilerTextOwnProps &
     | "onPointerUp"
   >;
 
-let hasRequestedSpoilerWorklet = false;
+const spoilerWorkletRequests = new Map<string, Promise<boolean>>();
 
 function supportsSpoilerPaint(): boolean {
   if (typeof window === "undefined" || typeof CSS === "undefined") {
@@ -51,33 +53,43 @@ function supportsSpoilerPaint(): boolean {
   return Boolean(cssWithPaint.paintWorklet);
 }
 
-function loadSpoilerPaintWorklet(): boolean {
+function requestSpoilerPaintWorklet(url: string): Promise<boolean> | null {
   if (!supportsSpoilerPaint()) {
-    return false;
+    return null;
   }
 
   const cssWithPaint = CSS as typeof CSS & {
     paintWorklet: { addModule: (url: string) => Promise<void> };
   };
 
-  if (!hasRequestedSpoilerWorklet) {
-    hasRequestedSpoilerWorklet = true;
-    cssWithPaint.paintWorklet.addModule("/spoiler-worklet.js").catch(() => {
-      hasRequestedSpoilerWorklet = false;
-    });
+  const existingRequest = spoilerWorkletRequests.get(url);
+
+  if (existingRequest) {
+    return existingRequest;
   }
 
-  return true;
+  const request = cssWithPaint.paintWorklet
+    .addModule(url)
+    .then(() => true)
+    .catch(() => {
+      spoilerWorkletRequests.delete(url);
+      return false;
+    });
+
+  spoilerWorkletRequests.set(url, request);
+  return request;
 }
 
 export function SpoilerText({
   text,
   defaultRevealed = false,
+  interactive = true,
   revealed,
   onRevealedChange,
   particleColor = "currentColor",
   duration = 320,
   revealDuration = 1100,
+  workletUrl = "/spoiler-worklet.js",
   className,
   style,
   ...props
@@ -169,28 +181,71 @@ export function SpoilerText({
     const userAgent = window.navigator.userAgent;
     const isWebKit =
       /AppleWebKit/i.test(userAgent) && !/Chrome|Chromium|Edg|OPR|Firefox/i.test(userAgent);
-    const enabled = !reduceMotion && loadSpoilerPaintWorklet();
+    updateTextMetrics();
+
+    if (reduceMotion) {
+      queueMicrotask(() => {
+        if (cancelled) {
+          return;
+        }
+
+        setCanUsePaint(false);
+        setUseFallback(false);
+        setIsWebKitFallback(false);
+        setInternalSpoiled(false);
+      });
+
+      return () => {
+        cancelled = true;
+      };
+    }
 
     queueMicrotask(() => {
       if (cancelled) {
         return;
       }
 
-      setCanUsePaint(enabled);
-      setIsWebKitFallback(isWebKit && !reduceMotion);
-      setUseFallback(!enabled && !reduceMotion);
-
-      if (reduceMotion) {
-        setInternalSpoiled(false);
-      }
+      setCanUsePaint(false);
+      setIsWebKitFallback(isWebKit);
     });
 
-    updateTextMetrics();
+    const workletRequest = requestSpoilerPaintWorklet(workletUrl);
+
+    if (!workletRequest) {
+      queueMicrotask(() => {
+        if (cancelled) {
+          return;
+        }
+
+        setUseFallback(true);
+      });
+
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    queueMicrotask(() => {
+      if (cancelled) {
+        return;
+      }
+
+      setUseFallback(true);
+    });
+
+    workletRequest.then((loaded) => {
+      if (cancelled) {
+        return;
+      }
+
+      setCanUsePaint(loaded);
+      setUseFallback(!loaded);
+    });
 
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [workletUrl]);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -331,29 +386,30 @@ export function SpoilerText({
   return (
     <span
       aria-label={text}
-      aria-pressed={!isSpoiled}
+      aria-pressed={interactive ? !isSpoiled : undefined}
       className={["mtk-spoiler-text", className].filter(Boolean).join(" ")}
       data-active={isActive ? "" : undefined}
       data-fallback={useFallback ? "" : undefined}
       data-houdini={canUsePaint ? "" : undefined}
+      data-interactive={interactive ? "" : undefined}
       data-revealed={!isSpoiled ? "" : undefined}
       data-revealing={!isSpoiled && isRevealing ? "" : undefined}
       data-webkit-fallback={isWebKitFallback ? "" : undefined}
-      onClick={() => {
+      onClick={interactive ? () => {
         if (!canUsePaint) {
           reveal();
         }
-      }}
-      onKeyDown={handleKeyDown}
-      onPointerCancel={handlePointerLeave}
-      onPointerDown={handlePointerDown}
-      onPointerLeave={handlePointerLeave}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerLeave}
+      } : undefined}
+      onKeyDown={interactive ? handleKeyDown : undefined}
+      onPointerCancel={interactive ? handlePointerLeave : undefined}
+      onPointerDown={interactive ? handlePointerDown : undefined}
+      onPointerLeave={interactive ? handlePointerLeave : undefined}
+      onPointerMove={interactive ? handlePointerMove : undefined}
+      onPointerUp={interactive ? handlePointerLeave : undefined}
       ref={rootRef}
-      role="button"
+      role={interactive ? "button" : undefined}
       style={motionStyle}
-      tabIndex={0}
+      tabIndex={interactive ? 0 : undefined}
       {...props}
     >
       <span aria-hidden="true" className="mtk-spoiler-text__content" ref={contentRef}>

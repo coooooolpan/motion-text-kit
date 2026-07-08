@@ -701,7 +701,7 @@
 }
 
 .logo-tilt {
-  --logo-hover-hitbox: 80px;
+  --logo-hover-hitbox: 48px;
   display: grid;
   margin: calc(var(--logo-hover-hitbox) * -1);
   overflow: visible;

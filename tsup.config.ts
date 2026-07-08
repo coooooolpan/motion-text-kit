@@ -11,6 +11,7 @@ export default defineConfig({
   onSuccess: async () => {
     mkdirSync("dist", { recursive: true });
     copyFileSync("src/motion-text-kit/styles.css", "dist/styles.css");
+    copyFileSync("public/spoiler-worklet.js", "dist/spoiler-worklet.js");
   },
   outDir: "dist",
   outExtension: ({ format }) => ({

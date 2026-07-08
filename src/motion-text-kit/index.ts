@@ -1,3 +1,7 @@
+export { AiStreamText } from "./ai-stream-text";
+export type { AiStreamTextProps } from "./ai-stream-text";
+export { BreathingWordsText } from "./breathing-words-text";
+export type { BreathingWordsTextProps } from "./breathing-words-text";
 export { GradientSweepText } from "./gradient-sweep-text";
 export type { GradientSweepTextProps } from "./gradient-sweep-text";
 export { HeartbeatText } from "./heartbeat-text";
@@ -12,6 +16,8 @@ export { FocusBlurText } from "./focus-blur-text";
 export type { FocusBlurTextProps } from "./focus-blur-text";
 export { LiquidText } from "./liquid-text";
 export type { LiquidTextProps } from "./liquid-text";
+export { SoftScrambleText } from "./soft-scramble-text";
+export type { SoftScrambleTextProps } from "./soft-scramble-text";
 export { IridescentText } from "./iridescent-text";
 export type { IridescentTextProps } from "./iridescent-text";
 export { MorphWordsText } from "./morph-words-text";

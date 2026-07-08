@@ -20,7 +20,9 @@ import {
   MenuTrigger,
 } from "@/components/ui/menu";
 import {
+  AiStreamText,
   BreathingText,
+  BreathingWordsText,
   DecryptText,
   ElasticLettersText,
   FocusBlurText,
@@ -29,6 +31,7 @@ import {
   IridescentText,
   MorphWordsText,
   NumberDeltaText,
+  SoftScrambleText,
   RollingNumber,
   SpoilerText,
   TextReveal,
@@ -235,6 +238,12 @@ const pageCopy = {
         scenario: "适合加载态、内容进入视野、AI 生成完成和从不确定到确定的状态表达。",
         previewText: "Focus sharpens softly.",
       },
+      aiStream: {
+        title: "AI 流式显现",
+        description: "字符依次上浮，彩色闪过后落成正文",
+        scenario: "适合大模型输出、智能助手回复、生成态标题和 AI 产品的反馈文本。",
+        previewText: "Generating thoughtful motion",
+      },
       ticker: {
         title: "流动字幕",
         description: "文本在两端带光感模糊并持续循环",
@@ -253,6 +262,18 @@ const pageCopy = {
         description: "整体文本以轻微透明度、模糊和缩放呼吸",
         scenario: "适合等待态、AI thinking、空状态和需要安静持续反馈的提示文案。",
         previewText: "Almost there...",
+      },
+      breathingWords: {
+        title: "词语呼吸",
+        description: "每个词以不同节奏轻微明暗变化",
+        scenario: "适合等待态、thinking、ambient UI 和需要安静生命感的提示文案。",
+        previewText: "Quiet signals keep moving",
+      },
+      softScramble: {
+        title: "柔和扰动",
+        description: "少量字符轻微随机替换后归位",
+        scenario: "适合加载完成、内容更新、状态刷新和不想太强技术感的结果反馈。",
+        previewText: "Status updated softly",
       },
       delta: {
         title: "数字涨跌",
@@ -276,7 +297,7 @@ const pageCopy = {
         description: "一句 slogan 中的关键词柔和切换",
         scenario: "适合品牌 slogan、价值主张、加载文案和需要轮播关键词的标题。",
         previewBefore: "Build",
-        previewWords: ["steady", "smooth", "reusable"],
+        previewWords: ["better", "faster", "softer"],
       },
       cursor: {
         title: "心跳文本",
@@ -440,6 +461,12 @@ const pageCopy = {
         scenario: "Best for loading states, content entrances, AI completion, and uncertainty resolving into clarity.",
         previewText: "Focus sharpens softly.",
       },
+      aiStream: {
+        title: "AI Stream Text",
+        description: "Characters rise in, flash through color, then settle to plain text",
+        scenario: "Best for model output, assistant replies, generated headings, and AI product feedback text.",
+        previewText: "Generating thoughtful motion",
+      },
       ticker: {
         title: "Flowing Ticker",
         description: "Horizontal notice text loops through soft glowing edges",
@@ -458,6 +485,18 @@ const pageCopy = {
         description: "Whole text breathes with subtle opacity, blur, and scale",
         scenario: "Best for waiting states, AI thinking, empty states, and quiet continuous feedback.",
         previewText: "Almost there...",
+      },
+      breathingWords: {
+        title: "Breathing Words",
+        description: "Each word shifts brightness with a different slow rhythm",
+        scenario: "Best for waiting states, thinking, ambient UI, and quiet living feedback text.",
+        previewText: "Quiet signals keep moving",
+      },
+      softScramble: {
+        title: "Soft Scramble",
+        description: "A few characters softly swap, then settle back into place",
+        scenario: "Best for loading completion, content updates, state refreshes, and quiet result feedback.",
+        previewText: "Status updated softly",
       },
       delta: {
         title: "Number Delta",
@@ -481,7 +520,7 @@ const pageCopy = {
         description: "One keyword inside a slogan morphs softly",
         scenario: "Best for brand slogans, value props, loading copy, and rotating headline keywords.",
         previewBefore: "Build",
-        previewWords: ["steady", "smooth", "reusable"],
+        previewWords: ["better", "faster", "softer"],
       },
       cursor: {
         title: "Heartbeat Text",
@@ -1015,6 +1054,40 @@ function createMotionCards(
       code: `<FocusBlurText text="Focus sharpens softly." />`,
     },
     {
+      id: "ai-stream",
+      title: copy.cards.aiStream.title,
+      description: copy.cards.aiStream.description,
+      scenario: copy.cards.aiStream.scenario,
+      preview: (
+        <div className="grid place-items-center text-center">
+          <AiStreamText
+            className="max-w-56 justify-center text-balance font-heading text-[14px] font-semibold leading-[22px] tracking-normal text-neutral-950 dark:text-neutral-50"
+            colorA="#38bdf8"
+            colorB="#a78bfa"
+            colorC="#22c55e"
+            text={copy.cards.aiStream.previewText}
+          />
+        </div>
+      ),
+      code: `<AiStreamText text="Generating thoughtful motion" />`,
+    },
+    {
+      id: "soft-scramble",
+      title: copy.cards.softScramble.title,
+      description: copy.cards.softScramble.description,
+      scenario: copy.cards.softScramble.scenario,
+      preview: (
+        <div className="grid place-items-center text-center">
+          <SoftScrambleText
+            className="max-w-56 justify-center text-balance font-heading text-[14px] font-semibold leading-[22px] tracking-normal"
+            intensity={0.16}
+            text={copy.cards.softScramble.previewText}
+          />
+        </div>
+      ),
+      code: `<SoftScrambleText text="Status updated softly" />`,
+    },
+    {
       id: "ticker",
       title: copy.cards.ticker.title,
       description: copy.cards.ticker.description,
@@ -1066,6 +1139,24 @@ function createMotionCards(
         </div>
       ),
       code: `<BreathingText text="Almost there..." />`,
+    },
+    {
+      id: "breathing-words",
+      title: copy.cards.breathingWords.title,
+      description: copy.cards.breathingWords.description,
+      scenario: copy.cards.breathingWords.scenario,
+      preview: (
+        <div className="grid place-items-center text-center">
+          <BreathingWordsText
+            blur={0.7}
+            className="max-w-56 justify-center text-balance font-heading text-[14px] font-semibold leading-[22px] tracking-normal"
+            duration={4300}
+            stagger={150}
+            text={copy.cards.breathingWords.previewText}
+          />
+        </div>
+      ),
+      code: `<BreathingWordsText text="Quiet signals keep moving" />`,
     },
     {
       id: "delta",
@@ -1123,7 +1214,7 @@ function createMotionCards(
           </p>
         </div>
       ),
-      code: `Build <MorphWordsText words={["steady", "smooth", "reusable"]} />`,
+      code: `Build <MorphWordsText words={["better", "faster", "softer"]} />`,
     },
     {
       id: "cursor",
@@ -1482,6 +1573,10 @@ const docsApiItems: DocsApiItem[] = [
       "defaultRevealed",
       "onRevealedChange",
       "particleColor",
+      "duration",
+      "revealDuration",
+      "interactive",
+      "workletUrl",
     ],
   },
   {
@@ -1508,6 +1603,42 @@ const docsApiItems: DocsApiItem[] = [
       "scale",
       "repeat",
       "iterationCount",
+    ],
+  },
+  {
+    name: "AiStreamText",
+    description: "字符上浮显现，经过彩色渐变闪过后落成正文色。",
+    usage: '<AiStreamText text="Generating thoughtful motion" />',
+    props: [
+      "text",
+      "duration",
+      "delay",
+      "hold",
+      "stagger",
+      "distance",
+      "blur",
+      "mutedColor",
+      "colorA",
+      "colorB",
+      "colorC",
+      "repeat",
+      "itemClassName",
+    ],
+  },
+  {
+    name: "SoftScrambleText",
+    description: "少量字符轻微随机替换后归位，形成柔和内容刷新感。",
+    usage: '<SoftScrambleText text="Status updated softly" />',
+    props: [
+      "text",
+      "alphabet",
+      "duration",
+      "delay",
+      "tick",
+      "intensity",
+      "loop",
+      "loopDelay",
+      "itemClassName",
     ],
   },
   {
@@ -1553,6 +1684,23 @@ const docsApiItems: DocsApiItem[] = [
     ],
   },
   {
+    name: "BreathingWordsText",
+    description: "每个词以不同节奏做轻微明暗和模糊呼吸。",
+    usage: '<BreathingWordsText text="Quiet signals keep moving" />',
+    props: [
+      "text",
+      "duration",
+      "delay",
+      "stagger",
+      "variance",
+      "minOpacity",
+      "maxOpacity",
+      "blur",
+      "repeat",
+      "itemClassName",
+    ],
+  },
+  {
     name: "ElasticLettersText",
     description: "字符水平轻微拉伸后回弹，形成 SwiftUI 式弹性。",
     usage: '<ElasticLettersText text="Swift-like motion" />',
@@ -1585,7 +1733,7 @@ const docsApiItems: DocsApiItem[] = [
   {
     name: "MorphWordsText",
     description: "几个短词之间以模糊和缩放柔和切换。",
-    usage: 'Build <MorphWordsText words={["steady", "smooth", "reusable"]} />',
+    usage: 'Build <MorphWordsText words={["better", "faster", "softer"]} />',
     props: [
       "words",
       "duration",
@@ -1863,9 +2011,12 @@ yarn add motion-text-kit`}
             <div className="mt-4">
               <DocsCodeBlock
                 code={`import {
+  AiStreamText,
   BreathingText,
+  BreathingWordsText,
   GradientSweepText,
   NumberDeltaText,
+  SoftScrambleText,
   TextReveal,
 } from "motion-text-kit";
 import "motion-text-kit/styles.css";
@@ -1875,12 +2026,17 @@ export function Example() {
     <section>
       <TextReveal text="Letters enter and leave." mode="in-out" repeat />
 
+      <AiStreamText text="Generating thoughtful motion" />
+
+      <SoftScrambleText text="Status updated softly" />
+
       <GradientSweepText>Stay hungry, stay foolish.</GradientSweepText>
 
       <NumberDeltaText value={24} />
       <NumberDeltaText value={-18} />
 
       <BreathingText text="Almost there..." />
+      <BreathingWordsText text="Quiet signals keep moving" />
     </section>
   );
 }`}

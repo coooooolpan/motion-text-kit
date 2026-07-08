@@ -10,7 +10,7 @@ Small, polished React text motion components for interfaces that need a little m
 
 `motion-text-kit` 是一组轻量、可配置、开箱即用的 React 文本动效组件。
 
-它把产品界面里常见但容易散落在各处的文本动效沉淀为统一组件：逐字出现、数字滚动、隐形墨水、虹彩文字、打字机、呼吸态、心跳态、词语变形等。核心动效由 CSS 驱动，不绑定 Next.js，也不依赖 Framer Motion 这类运行时动画库。
+它把产品界面里常见但容易散落在各处的文本动效沉淀为统一组件：逐字出现、AI 流式显现、词语呼吸、柔和扰动、数字滚动、隐形墨水、虹彩文字、打字机、呼吸态、心跳态、词语变形等。核心动效由 CSS 驱动，不绑定 Next.js，也不依赖 Framer Motion 这类运行时动画库。
 
 适合用于：
 
@@ -28,6 +28,14 @@ Small, polished React text motion components for interfaces that need a little m
 - **可访问性友好**：字符拆分主要服务视觉层，保留可读文本与 `prefers-reduced-motion` 降级。
 - **适合设计系统**：统一命名、统一样式入口、统一动效语义，方便长期维护。
 
+### 最新更新
+
+`v0.2.0` 新增 3 个文本动效：
+
+- `AiStreamText`：字符依次上浮，彩色渐变闪过后落成正文色。
+- `BreathingWordsText`：每个词以不同节奏轻微明暗变化。
+- `SoftScrambleText`：少量字符轻微随机替换后归位。
+
 ### 安装
 
 ```bash
@@ -40,13 +48,32 @@ npm install motion-text-kit
 import "motion-text-kit/styles.css";
 ```
 
+#### `SpoilerText` worklet 文件
+
+`SpoilerText` 会优先尝试加载 `/spoiler-worklet.js` 来启用 CSS Houdini 粒子效果。npm 包已经包含这个文件，但浏览器只能加载你站点 public 路径下的资源，所以需要在项目里复制一次：
+
+```bash
+cp node_modules/motion-text-kit/dist/spoiler-worklet.js public/spoiler-worklet.js
+```
+
+如果你放在其他路径，可以用 `workletUrl` 指定：
+
+```tsx
+<SpoilerText text="Tap to reveal this." workletUrl="/assets/spoiler-worklet.js" />
+```
+
+当 worklet 不存在、加载失败、Safari 不支持 Houdini，或用户开启减少动态效果时，组件会自动降级到 CSS fallback。
+
 ### 快速开始
 
 ```tsx
 import {
+  AiStreamText,
+  BreathingWordsText,
   GradientSweepText,
   MorphWordsText,
   NumberDeltaText,
+  SoftScrambleText,
   TextReveal,
 } from "motion-text-kit";
 import "motion-text-kit/styles.css";
@@ -56,8 +83,14 @@ export function HeroCopy() {
     <section>
       <TextReveal text="Letters enter and leave." mode="in-out" repeat />
 
+      <AiStreamText text="Generating thoughtful motion" />
+
+      <BreathingWordsText text="Quiet signals keep moving" />
+
+      <SoftScrambleText text="Status updated softly" />
+
       <h1>
-        Build <MorphWordsText words={["steady", "smooth", "crafted"]} />
+        Build <MorphWordsText words={["better", "faster", "softer"]} />
       </h1>
 
       <GradientSweepText>Stay hungry, stay foolish.</GradientSweepText>
@@ -81,6 +114,9 @@ export function HeroCopy() {
 | `DecryptText` | 随机字符解析为最终文本 | 权限状态、终端反馈、技术感结果 |
 | `WeightSweepText` | 字重从细到粗扫过 | 导航激活态、强调词、品牌标题 |
 | `FocusBlurText` | 从模糊聚焦到清晰，再模糊消失 | 加载态、AI 生成完成、内容进入 |
+| `AiStreamText` | 字符上浮显现，彩色闪过后落成正文色 | 大模型输出、智能助手回复、生成态标题 |
+| `BreathingWordsText` | 每个词以不同节奏轻微明暗变化 | 等待态、thinking、ambient UI |
+| `SoftScrambleText` | 少量字符轻微随机替换后归位 | 加载完成、内容更新、状态刷新 |
 | `TickerText` | 横向滚动公告，两端字符级渐隐、变小、模糊 | 公告栏、状态播报、长文本摘要 |
 | `TypewriterText` | 逐字输入、删除和光标 | 搜索建议、命令输入、AI 回复预览 |
 | `BreathingText` | 整体文字以 opacity / blur / scale 呼吸 | 等待态、AI thinking、空状态 |
@@ -157,11 +193,42 @@ export function HeroCopy() {
 
 `IridescentText` 会保留正常文本作为底层，虹彩渐变作为覆盖层从左向右持续流动，并通过透明度自然回到普通状态。
 
+#### `SpoilerText`
+
+```tsx
+<SpoilerText text="Tap to reveal this." />
+```
+
+| Prop | 默认值 | 说明 |
+| --- | --- | --- |
+| `text` | 必填 | 要隐藏和揭示的文本 |
+| `defaultRevealed` | `false` | 非受控模式下初始是否已揭示 |
+| `revealed` | - | 受控模式下是否已揭示 |
+| `onRevealedChange` | - | 揭示状态变化回调 |
+| `particleColor` | `"currentColor"` | 粒子颜色 |
+| `duration` | `320` | fallback 过渡时长，单位 ms |
+| `revealDuration` | `1100` | Houdini 揭示扩散时长，单位 ms |
+| `interactive` | `true` | 是否让组件自带 button 语义、键盘和指针交互；嵌套在其他交互控件里可设为 `false` |
+| `workletUrl` | `"/spoiler-worklet.js"` | Houdini paint worklet 的可访问 URL |
+
+#### AI 流式显现
+
+```tsx
+<AiStreamText text="Generating thoughtful motion" />
+```
+
+#### 新增动效
+
+```tsx
+<BreathingWordsText text="Quiet signals keep moving" />
+<SoftScrambleText text="Status updated softly" />
+```
+
 #### `MorphWordsText`
 
 ```tsx
 <h1>
-  Build <MorphWordsText words={["steady", "smooth", "crafted"]} />
+  Build <MorphWordsText words={["better", "faster", "softer"]} />
 </h1>
 ```
 
@@ -182,6 +249,9 @@ export function HeroCopy() {
 <DecryptText text="ACCESS GRANTED" />
 <WeightSweepText text="Weight wave passes." minWeight={280} maxWeight={820} />
 <FocusBlurText text="Focus sharpens softly." blur={9} duration={960} />
+<AiStreamText text="Generating thoughtful motion" />
+<BreathingWordsText text="Quiet signals keep moving" />
+<SoftScrambleText text="Status updated softly" />
 <TypewriterText text="Typing with a cursor" speed={56} deleteSpeed={30} />
 <BreathingText text="Almost there..." duration={3200} blur={1.8} />
 <ElasticLettersText text="Swift-like motion" duration={700} stagger={30} />
@@ -229,7 +299,7 @@ MIT
 
 `motion-text-kit` is a lightweight, configurable set of React text motion components for product interfaces.
 
-It turns common text animations into reusable building blocks: character reveal, number rolling, invisible ink, iridescent text, typewriter motion, breathing states, heartbeat rhythm, morphing words, and more. The core motion is CSS-powered, framework-agnostic, and does not require Framer Motion or another runtime animation library.
+It turns common text animations into reusable building blocks: character reveal, AI stream text, breathing words, soft scramble text, number rolling, invisible ink, iridescent text, typewriter motion, breathing states, heartbeat rhythm, morphing words, and more. The core motion is CSS-powered, framework-agnostic, and does not require Framer Motion or another runtime animation library.
 
 Use it when you want:
 
@@ -247,6 +317,14 @@ If you are shaping a motion system for your interface, this repository is worth 
 - **Accessible by default**: visual character splitting with readable labels and reduced-motion fallbacks.
 - **Design-system friendly**: consistent naming, a single stylesheet entry, and reusable motion semantics.
 
+### Latest Update
+
+`v0.2.0` adds 3 text motion components:
+
+- `AiStreamText`: characters rise in, flash through a colorful gradient, then settle to plain text.
+- `BreathingWordsText`: each word shifts brightness with a different slow rhythm.
+- `SoftScrambleText`: a few characters softly swap, then settle back into place.
+
 ### Install
 
 ```bash
@@ -259,13 +337,32 @@ Import the CSS once near your app root:
 import "motion-text-kit/styles.css";
 ```
 
+#### `SpoilerText` worklet asset
+
+`SpoilerText` first tries to load `/spoiler-worklet.js` for the CSS Houdini particle effect. The npm package includes this file, but browsers can only load assets from your app's public URL space, so copy it into your project:
+
+```bash
+cp node_modules/motion-text-kit/dist/spoiler-worklet.js public/spoiler-worklet.js
+```
+
+If you serve it from another path, pass `workletUrl`:
+
+```tsx
+<SpoilerText text="Tap to reveal this." workletUrl="/assets/spoiler-worklet.js" />
+```
+
+If the worklet is missing, fails to load, Houdini is unsupported in Safari, or reduced motion is enabled, the component automatically falls back to the CSS-only version.
+
 ### Quick Start
 
 ```tsx
 import {
+  AiStreamText,
+  BreathingWordsText,
   GradientSweepText,
   MorphWordsText,
   NumberDeltaText,
+  SoftScrambleText,
   TextReveal,
 } from "motion-text-kit";
 import "motion-text-kit/styles.css";
@@ -275,8 +372,14 @@ export function HeroCopy() {
     <section>
       <TextReveal text="Letters enter and leave." mode="in-out" repeat />
 
+      <AiStreamText text="Generating thoughtful motion" />
+
+      <BreathingWordsText text="Quiet signals keep moving" />
+
+      <SoftScrambleText text="Status updated softly" />
+
       <h1>
-        Build <MorphWordsText words={["steady", "smooth", "crafted"]} />
+        Build <MorphWordsText words={["better", "faster", "softer"]} />
       </h1>
 
       <GradientSweepText>Stay hungry, stay foolish.</GradientSweepText>
@@ -300,6 +403,9 @@ export function HeroCopy() {
 | `DecryptText` | Random glyphs resolve into final text | Permission states, terminal feedback, technical reveals |
 | `WeightSweepText` | Font weight sweeps from thin to bold | Active navigation, emphasized words, brand headings |
 | `FocusBlurText` | Text resolves from blur into focus, then blurs out | Loading states, AI completion, content entrances |
+| `AiStreamText` | Characters rise in, flash through color, then settle to plain text | Model output, assistant replies, generated headings |
+| `BreathingWordsText` | Each word shifts brightness with a different slow rhythm | Waiting states, thinking, ambient UI |
+| `SoftScrambleText` | A few characters softly swap, then settle back into place | Loading completion, content updates, state refreshes |
 | `TickerText` | Horizontal ticker with character-level edge blur, opacity, and scale | Announcements, status broadcasts, long snippets |
 | `TypewriterText` | Typing, deleting, and caret motion | Search suggestions, command input, AI response previews |
 | `BreathingText` | Whole text breathes with opacity, blur, and scale | Waiting states, AI thinking, empty states |
@@ -376,11 +482,42 @@ export function HeroCopy() {
 
 `IridescentText` keeps normal text as the base layer, then fades in an iridescent overlay that flows from left to right before fading back to the plain state.
 
+#### `SpoilerText`
+
+```tsx
+<SpoilerText text="Tap to reveal this." />
+```
+
+| Prop | Default | Description |
+| --- | --- | --- |
+| `text` | required | Text to hide and reveal |
+| `defaultRevealed` | `false` | Initial revealed state in uncontrolled mode |
+| `revealed` | - | Revealed state in controlled mode |
+| `onRevealedChange` | - | Callback fired when reveal state changes |
+| `particleColor` | `"currentColor"` | Particle color |
+| `duration` | `320` | CSS fallback transition duration in ms |
+| `revealDuration` | `1100` | Houdini reveal spread duration in ms |
+| `interactive` | `true` | Adds button semantics plus keyboard and pointer handling; set to `false` when nesting inside another interactive control |
+| `workletUrl` | `"/spoiler-worklet.js"` | Public URL for the Houdini paint worklet |
+
+#### AI Stream motion
+
+```tsx
+<AiStreamText text="Generating thoughtful motion" />
+```
+
+#### New motion
+
+```tsx
+<BreathingWordsText text="Quiet signals keep moving" />
+<SoftScrambleText text="Status updated softly" />
+```
+
 #### `MorphWordsText`
 
 ```tsx
 <h1>
-  Build <MorphWordsText words={["steady", "smooth", "crafted"]} />
+  Build <MorphWordsText words={["better", "faster", "softer"]} />
 </h1>
 ```
 
@@ -401,6 +538,9 @@ export function HeroCopy() {
 <DecryptText text="ACCESS GRANTED" />
 <WeightSweepText text="Weight wave passes." minWeight={280} maxWeight={820} />
 <FocusBlurText text="Focus sharpens softly." blur={9} duration={960} />
+<AiStreamText text="Generating thoughtful motion" />
+<BreathingWordsText text="Quiet signals keep moving" />
+<SoftScrambleText text="Status updated softly" />
 <TypewriterText text="Typing with a cursor" speed={56} deleteSpeed={30} />
 <BreathingText text="Almost there..." duration={3200} blur={1.8} />
 <ElasticLettersText text="Swift-like motion" duration={700} stagger={30} />
