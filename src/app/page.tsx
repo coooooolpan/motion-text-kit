@@ -114,6 +114,16 @@ const pageCopy = {
         "向这些启发 Motion Text Kit 的产品、网站与动效语言致敬。",
       releases: [
         {
+          version: "v0.2.1",
+          date: "2026.07.09",
+          summary: "修复 AI 流式显现的循环闪烁，并稳定近期新增动效。",
+          items: [
+            "修复 AiStreamText 文本消失后短暂跳回完整文本的问题。",
+            "将词语变形示例统一为相同字母长度的单词，减少切换时的宽度跳动。",
+            "补充并稳定 SoftScrambleText、BreathingWordsText 和隐形墨水的交付细节。",
+          ],
+        },
+        {
           version: "v0.2.0",
           date: "2026.07.05",
           summary: "扩展文本动效能力并打磨官网交互。",
@@ -336,6 +346,17 @@ const pageCopy = {
       inspirationDescription:
         "A small tribute to the products, websites, and motion languages that shaped Motion Text Kit through quiet, lasting interface details.",
       releases: [
+        {
+          version: "v0.2.1",
+          date: "2026.07.09",
+          summary:
+            "Fixed the AI stream loop flash and stabilized the latest motion components.",
+          items: [
+            "Fixed AiStreamText briefly flashing the full text after the disappear phase.",
+            "Updated the morph words demo to use same-length words for steadier switching.",
+            "Refined delivery details for SoftScrambleText, BreathingWordsText, and invisible ink.",
+          ],
+        },
         {
           version: "v0.2.0",
           date: "2026.07.05",

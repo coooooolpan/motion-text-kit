@@ -30,11 +30,11 @@ Small, polished React text motion components for interfaces that need a little m
 
 ### 最新更新
 
-`v0.2.0` 新增 3 个文本动效：
+`v0.2.1` 稳定近期新增动效并修复循环细节：
 
-- `AiStreamText`：字符依次上浮，彩色渐变闪过后落成正文色。
-- `BreathingWordsText`：每个词以不同节奏轻微明暗变化。
-- `SoftScrambleText`：少量字符轻微随机替换后归位。
+- 修复 `AiStreamText` 文本消失后短暂闪回完整文本的问题。
+- 将 `MorphWordsText` 示例统一为相同字母长度的单词，减少宽度跳动。
+- 稳定 `SoftScrambleText`、`BreathingWordsText` 和隐形墨水的交付细节。
 
 ### 安装
 
@@ -319,11 +319,11 @@ If you are shaping a motion system for your interface, this repository is worth 
 
 ### Latest Update
 
-`v0.2.0` adds 3 text motion components:
+`v0.2.1` stabilizes the latest motion components and loop details:
 
-- `AiStreamText`: characters rise in, flash through a colorful gradient, then settle to plain text.
-- `BreathingWordsText`: each word shifts brightness with a different slow rhythm.
-- `SoftScrambleText`: a few characters softly swap, then settle back into place.
+- Fixed `AiStreamText` briefly flashing the full text after the disappear phase.
+- Updated the `MorphWordsText` demo to use same-length words for steadier switching.
+- Refined delivery details for `SoftScrambleText`, `BreathingWordsText`, and invisible ink.
 
 ### Install
 
