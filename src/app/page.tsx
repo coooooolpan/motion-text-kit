@@ -19,6 +19,8 @@ import {
   MenuRadioItem,
   MenuTrigger,
 } from "@/components/ui/menu";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsList, TabsTab } from "@/components/ui/tabs";
 import {
   AiStreamText,
   BreathingText,
@@ -57,6 +59,8 @@ type MotionCard = {
   preview: ReactNode;
   code: string;
 };
+
+type CodeMode = "css" | "react" | "framer" | "prompt";
 
 type ExpandedMotionCard = {
   item: MotionCard;
@@ -1389,6 +1393,269 @@ function CopyCodeButton({
   );
 }
 
+const codeModeLabels: Record<CodeMode, string> = {
+  css: "CSS",
+  react: "React",
+  framer: "Framer Motion",
+  prompt: "提示词",
+};
+
+const motionImplementationPrompts: Record<string, string> = {
+  reveal: `实现“逐字显隐”文本动效：
+- 不要安装 motion-text-kit、Framer Motion 或其他动画组件库，只用 React + CSS。
+- 创建一个 TextReveal 组件，props 至少包含 text、splitBy("character"|"word")、mode("in"|"out"|"in-out")、duration、hold、stagger、distance、blur、repeat、className、style。
+- 用 Intl.Segmenter 按 grapheme 拆字符，浏览器不支持时 fallback 到 Array.from；按词拆分时保留空格，让换行和间距不丢失。
+- 根元素使用 aria-label={text} 保存可读文本，每个视觉字符 span 设置 aria-hidden="true"，并用 CSS 变量 --index 控制 stagger。
+- CSS：根元素 inline-flex + flex-wrap + white-space: pre-wrap；字符初始 opacity:0、filter:blur(var(--blur))、transform:translateY(var(--distance))。
+- keyframes：in 从下方模糊进入到清晰；out 从清晰向上淡出；in-out 的 0% 进入、30%-68% 停留、100% 向上淡出。每个字符 delay = baseDelay + index * stagger。
+- repeat=true 时循环播放，否则只播放一次；prefers-reduced-motion 下禁用动画，所有字符直接清晰显示。`,
+  rolling: `实现“数字计时 / 滚动数字”动效：
+- 不要安装 motion-text-kit、Framer Motion 或其他动画组件库，只用 React + CSS。
+- 创建 RollingNumber 组件，props 包含 value、locale、formatOptions、prefix、suffix、duration、stagger、distance、blur、directionX、directionY、className、style。
+- 用 Intl.NumberFormat 格式化数字，把 prefix + formatted value + suffix 拆成字符；根元素 aria-label 使用完整字符串，视觉字符 aria-hidden。
+- 根元素 inline-flex、align-items: baseline、font-variant-numeric: tabular-nums，避免数字宽度跳动。
+- 每个字符 span 设置 --index；CSS keyframes 从 opacity:0、blur、translate(direction * distance) 进入到 opacity:1、blur(0)、translate(0)。
+- 每个字符 animation-delay = index * stagger，easing 使用带回弹的 cubic-bezier(0.34,1.45,0.64,1)。
+- 如果要做 HH:mm:ss 当前时间，用 setInterval 每秒更新 Date，并分别渲染 hour/minute/second；变化时可通过 key 重新挂载对应 RollingNumber 触发动画。
+- prefers-reduced-motion 下禁用动画，数字直接显示。`,
+  spoiler: `实现“隐形墨水”文本揭示动效：
+- 不要安装 motion-text-kit、Framer Motion 或其他动画组件库，只用 React + CSS。
+- 创建 SpoilerText 组件，props 包含 text、defaultRevealed、revealed、onRevealedChange、interactive、particleColor、duration、revealDuration、className、style。
+- 支持受控和非受控 revealed 状态；interactive=true 时根元素用 button 语义或 role="button" + tabIndex=0，支持点击、Enter、Space 揭示。
+- DOM 使用一个根容器，内部两层：content 层放真实文本，particles 层放遮罩颗粒。根元素 aria-label={text}，视觉层 aria-hidden 按需设置。
+- 未揭示时 content opacity:0 + blur(3px)，particles 用多层 radial-gradient 生成细小颗粒，并用 steps 动画轻微漂移和闪烁。
+- 鼠标/触摸移动时记录指针相对位置到 CSS 变量 --x、--y；hover/active 时用 radial-gradient mask 在指针附近开一个小窗口。
+- 揭示时设置 data-revealed：content 清晰可见并取消 mask，particles opacity 降到 0、blur 增加，形成墨水散开的感觉。
+- 可选增强：支持 CSS Houdini paint worklet；如果浏览器不支持、worklet 加载失败或 Safari 环境，自动使用 CSS gradient fallback。
+- prefers-reduced-motion 下直接显示明文，不播放颗粒和揭示动画。`,
+  weight: `实现“字重扫光”文本动效：
+- 不要安装 motion-text-kit、Framer Motion 或其他动画组件库，只用 React + CSS。
+- 创建 WeightSweepText 组件，props 包含 text、minWeight、maxWeight、duration、stagger、delay、className、style。
+- 把 text 拆成 grapheme 字符；根元素 inline-flex + white-space: pre-wrap；根元素 aria-label={text}，字符 span aria-hidden。
+- 每个字符外层 cell 用 inline-grid，并用 ::before 放同一个字符、font-weight=maxWeight、visibility:hidden 作为占位，避免字重变化导致布局抖动。
+- 可见字符绝对定位在 cell 内，设置 font-weight 和 font-variation-settings:"wght" var(--weight)。
+- keyframes：0%/14%/100% 为 minWeight，34%/70% 为中间字重，52% 到 maxWeight。每个字符 delay = index * stagger，形成扫过文字的波。
+- 使用较慢 duration（约 2600ms）和 cubic-bezier(.45,0,.15,1)，让它像排版质感而不是强提示。
+- prefers-reduced-motion 下停止动画，直接显示 maxWeight 或正常字重。`,
+  decrypt: `实现“文本解码”动效：
+- 不要安装 motion-text-kit、Framer Motion 或其他动画组件库，只用 React + CSS。
+- 创建 DecryptText 组件，props 包含 text、alphabet、duration、tick、loop、loopDelay、className、style。
+- 用 useState 保存 displayText；用 useEffect 启动 interval，每 tick 根据 elapsed/duration 计算 progress。
+- revealedCount = floor(progress * text.length)。index < revealedCount 或空格时显示原字符，其他位置从 alphabet 中随机取字符。
+- progress 到 1 后清除 interval，displayText 固定为最终 text；loop=true 时等待 loopDelay 后重新开始。
+- 根元素 aria-label={text}，内部 span aria-hidden 显示 displayText；使用 font-variant-numeric: tabular-nums、white-space: pre 保持稳定宽度。
+- CSS 可加轻微 flicker：steps(12) opacity 在 0.78-1 之间变化，强化终端解码感但不要过度闪烁。
+- 组件卸载时清理 interval/timeout；prefers-reduced-motion 下直接显示最终 text。`,
+  gradient: `实现“文本高光扫过”动效：
+- 不要安装 motion-text-kit、Framer Motion 或其他动画组件库，只用 React + CSS。
+- 创建 GradientSweepText 组件，props 包含 children、duration、delay、angle、baseColor、highlightColor、accentColor、pauseOnHover、className、style。
+- 根元素 inline-block，文字本身通过 background-clip:text 显示；不要额外包每个字符。
+- background-image 使用两层：底层是 baseColor 的线性渐变，顶层是透明 -> accent -> highlight -> accent -> 透明的窄高光带。
+- 顶层 background-size 约 300% 100%，background-position 从 100% 50% 动画到 0% 50%，duration 约 2800ms，linear infinite。
+- 设置 -webkit-background-clip:text、background-clip:text、-webkit-text-fill-color:transparent；保留 color:inherit 作为降级基础。
+- pauseOnHover=true 时 hover 暂停 animation-play-state。
+- prefers-reduced-motion 下禁用动画，并把 -webkit-text-fill-color 恢复为 currentColor，保证文字清晰可读。`,
+  focus: `实现“模糊聚焦”文本动效：
+- 不要安装 motion-text-kit、Framer Motion 或其他动画组件库，只用 React + CSS。
+- 创建 FocusBlurText 组件，props 包含 text、duration、delay、blur、scale、repeat、iterationCount、className、style。
+- 根元素 aria-label={text}，内部视觉 span aria-hidden 显示 text；根元素 inline-block + white-space: pre-wrap。
+- CSS 变量控制 --duration、--cycle、--blur、--scale。cycle 可为 duration + 停留时间，默认约 2400ms。
+- keyframes：0% opacity:0、filter:blur(blur)、scale(scale)；28%-72% 清晰、opacity:1、scale(1)；82% 轻微再失焦；100% opacity:0、blur(blur*.65)、scale(1.045)。
+- repeat=true 时 infinite，否则按 iterationCount 播放。
+- 动效语气要安静：blur 和 scale 都要小，适合“从不确定到确定”的状态。
+- prefers-reduced-motion 下直接显示清晰文本。`,
+  "ai-stream": `实现“AI 流式显现”文本动效：
+- 不要安装 motion-text-kit、Framer Motion 或其他动画组件库，只用 React + CSS。
+- 创建 AiStreamText 组件，props 包含 text、duration、hold、stagger、distance、blur、mutedColor、colorA、colorB、colorC、repeat、className、itemClassName、style。
+- 用 Intl.Segmenter 拆 grapheme；根元素 aria-label={text}，每个字符 span aria-hidden，并设置 data-char 和 --char-delay。
+- 字符本体 keyframes：从 mutedColor、opacity:0、blur、translateY(distance) 上浮进入；中段保持 mutedColor；结束变成 inherit、opacity:1、blur(0)、translateY(0)。
+- 每个字符用 ::after 叠一层同字符彩色渐变，background-clip:text，渐变从右到左扫过；0%-26% 不透明度为 0，约 50% 显示，82%-100% 淡出。
+- repeat=true 时用 React 定时控制 cycle：先把整行 data-cycle-hidden 置为隐藏，等待 resetGuard 后显示字符，接近 cycle 末尾时淡出整行，再进入下一轮。这样避免循环时突然闪回完整文本。
+- cycle = duration + stagger * (字符数 - 1) + hold；整行隐藏用 opacity + blur transition。
+- prefers-reduced-motion 下禁用所有动画，直接显示完整文本。`,
+  "soft-scramble": `实现“柔和扰动”文本动效：
+- 不要安装 motion-text-kit、Framer Motion 或其他动画组件库，只用 React + CSS。
+- 创建 SoftScrambleText 组件，props 包含 text、alphabet、duration、delay、tick、intensity、loop、loopDelay、className、itemClassName、style。
+- 用 Intl.Segmenter 拆 grapheme；只允许非空白字符参与扰动，空格始终保留。
+- 用 useState 保存 displayParts 和 activeIndexes。每 tick 计算 progress=elapsed/duration，wave=Math.sin(progress*Math.PI)，扰动数量 = ceil(可变字符数 * intensity * wave)。
+- 每 tick 从可变字符索引中随机挑一批 activeIndexes，把这些位置替换为 alphabet 随机字符；progress 到 1 时恢复原文本。
+- 每个字符 span aria-hidden；根元素 aria-label={text}，inline-flex + flex-wrap + white-space: pre-wrap。
+- active 字符用 CSS transition 做轻微 color 变淡、blur(.45px)、opacity(.76)、translateY(-.04em)、scale(.98)，tick 约 70ms。
+- loop=true 时等待 loopDelay 后重播；组件卸载清理 interval/timeout；prefers-reduced-motion 下直接显示原文本。`,
+  ticker: `实现“流动字幕”文本动效：
+- 不要安装 motion-text-kit、Framer Motion 或其他动画组件库，只用 React + CSS。
+- 创建 TickerText 组件，props 包含 text、duration、delay、blur、stagger、repeat、className、itemClassName、style。
+- 用 Intl.Segmenter 拆 grapheme，把空格渲染为 non-breaking space。为实现无缝循环，把同一段文本复制 4 份，每份末尾加 gap。
+- 根容器 inline-block、overflow:hidden、white-space:nowrap、固定或最大宽度；track 使用 inline-flex，keyframes 从 translateX(0) 到 translateX(-25%)。
+- 每个字符单独 span，方便做边缘效果。用 requestAnimationFrame 读取容器和字符 rect，计算字符离左右边缘的 progress。
+- 根据 progress 给字符写 CSS 变量：edge opacity、edge blur、edge scale、edge x。越靠边越透明、越模糊、越小，并向外侧轻微偏移。
+- hover 可选择降低速度；repeat=false 时只播放指定次数。
+- prefers-reduced-motion 下停止横向动画，取消边缘 blur/scale/opacity，完整显示文本。`,
+  typewriter: `实现“打字光标”文本动效：
+- 不要安装 motion-text-kit、Framer Motion 或其他动画组件库，只用 React + CSS。
+- 创建 TypewriterText 组件，props 包含 text、speed、startDelay、loop、loopDelay、deleteSpeed、cursor、className、style。
+- 用 useState 保存 visibleCount、exitCount、phase("idle"|"typing"|"deleting")；按 speed 递增 visibleCount，输入完成后等待 loopDelay，再按 deleteSpeed 递减。
+- 删除时不要立刻移除字符：把 exitCount 保持在旧数量约 260ms，让离开的字符有 out 动画，动画后再收缩。
+- DOM：根元素 aria-label={text}；letters 容器 aria-hidden；渲染 characters.slice(0, max(visibleCount, exitCount))。
+- 每个字符根据状态设置 data-state="entering|settled|leaving"，靠近光标的 settled 字符可设置 data-near 产生细微缩放。
+- CSS entering：max-inline-size 从 0 到 1em，opacity 0->1，blur 1.2px->0，translateX(-.12em)->0；leaving 反向收缩并向右淡出。
+- 光标 span 使用 steps(2) 闪烁；typing/deleting 阶段光标常亮。
+- prefers-reduced-motion 下直接显示完整文本和静态光标。`,
+  breathing: `实现“呼吸文本”动效：
+- 不要安装 motion-text-kit、Framer Motion 或其他动画组件库，只用 React + CSS。
+- 创建 BreathingText 组件，props 包含 text、duration、delay、blur、scale、minOpacity、repeat、className、style。
+- 根元素直接显示 text，aria-label 可省略或等于 text；display:inline-block，transform-origin:50% 55%。
+- CSS keyframes：0% 和 100% 使用 opacity=minOpacity、filter:blur(blur)、scale(.988)；50% 使用 opacity:1、blur(0)、scale(scale)。
+- duration 默认约 3200ms，easing 使用 cubic-bezier(.45,0,.15,1)，循环无限。幅度必须很小，像等待态呼吸，不要像弹跳。
+- 支持 repeat=false 或 iterationCount 时只播放有限次数。
+- prefers-reduced-motion 下停止动画，显示 opacity:1、filter:none、transform:none。`,
+  "breathing-words": `实现“词语呼吸”文本动效：
+- 不要安装 motion-text-kit、Framer Motion 或其他动画组件库，只用 React + CSS。
+- 创建 BreathingWordsText 组件，props 包含 text、duration、stagger、variance、minOpacity、maxOpacity、blur、repeat、className、itemClassName、style。
+- 用正则 /\\S+\\s*|\\s+/g 按词拆分并保留空格；根元素 aria-label={text}，每个词 span aria-hidden。
+- 根元素 inline-flex + flex-wrap + white-space: pre-wrap。每个词设置 --index、--word-duration、--word-opacity。
+- 为避免所有词同步，用固定的 variance 序列如 [0.18,-0.12,0.08,-0.2,0.14,-0.06] 调整每个词 duration；最短不要低于 900ms。
+- keyframes：0%/100% opacity=minOpacity + blur；42% opacity=wordOpacity + blur(0)；64% 轻微回落到 wordOpacity*.86 和 blur*.28。
+- 每个词 delay = index * stagger，形成柔和、错落的 ambient breathing。
+- prefers-reduced-motion 下所有词清晰显示。`,
+  delta: `实现“数字涨跌”动效：
+- 不要安装 motion-text-kit、Framer Motion 或其他动画组件库，只用 React + CSS。
+- 创建 NumberDeltaText 组件，props 包含 value、locale、formatOptions、prefix、suffix、showSign、duration、stagger、distance、blur、className、style。
+- 用 Intl.NumberFormat 格式化 Math.abs(value)，再按 showSign 添加 + 或 -；根元素 data-direction 根据 value 正负设置 up/down。
+- 用 useState 保存上一帧 label、当前 label、version。value 或 label 变化时，把当前 label 存为 previousLabel 并 version+1。
+- 为了逐位对齐，把 previousLabel 和 currentLabel padStart 到同样长度，再拆字符。
+- 数字位变化时计算最短轮盘路径：例如 6->3 向下经过 5、4、3；3->8 向上经过 4、5、6、7、8。非数字位用 old/new 两层淡入淡出。
+- CSS：每位 digit-cell 宽 1ch、高约 1.62em、overflow:hidden、上下 mask 渐隐；wheel 用 column flex，translateY 从 from 到 to。
+- 正数新数字从下向上进入，负数相反；每位 delay = index * stagger。
+- prefers-reduced-motion 下直接显示当前 label。`,
+  elastic: `实现“弹性字母”文本动效：
+- 不要安装 motion-text-kit、Framer Motion 或其他动画组件库，只用 React + CSS。
+- 创建 ElasticLettersText 组件，props 包含 text、duration、stagger、stretch、blur、repeat、className、itemClassName、style。
+- 用 Intl.Segmenter 拆 grapheme；根元素 aria-label={text}，字符 span aria-hidden；根元素 inline-flex、align-items:baseline、white-space:pre-wrap。
+- 每个字符初始 opacity:0、filter:blur(blur)、transform:scaleX(.58)，transform-origin:0 50%。
+- keyframes：0% 压缩且模糊；18% 拉伸到 stretch(约 1.22) 并接近可见；32%-72% 回到 scaleX(1) 且清晰；100% 可轻微淡出/压缩用于循环。
+- 字符 delay = index * stagger，easing 使用 cubic-bezier(.18,1.18,.28,1) 形成 SwiftUI 式轻弹。
+- 如果只做入场，把 100% 保持清晰；如果循环，cycle 可大于 duration 留出停留时间。
+- prefers-reduced-motion 下直接显示完整文本。`,
+  laser: `实现“虹彩文字”动效：
+- 不要安装 motion-text-kit、Framer Motion 或其他动画组件库，只用 React + CSS。
+- 创建 IridescentText 组件，props 包含 text、duration、delay、colorA、colorB、colorC、intensity、repeat、className、style。
+- 根元素显示普通 text，同时设置 position:relative、display:inline-block、isolation:isolate、data-text={text}。
+- 用 ::after 叠加同样的文字 content:attr(data-text)，设置多色 linear-gradient 背景，background-size 约 260% 150%，background-clip:text，text-fill-color:transparent。
+- ::after 的 keyframes：起始 background-position 180% 50%、opacity:0；24%-72% 横向流过并提高 opacity；88%-100% 移出并 opacity:0。
+- 根元素本身只做非常轻微的 saturate/brightness 变化，保持普通正文色，不要一直保持彩虹色。
+- intensity 控制 ::after 的 opacity、saturate、brightness；默认材质感克制，适合短句。
+- prefers-reduced-motion 下禁用动画，显示普通文本或静态轻微虹彩。`,
+  morph: `实现“词语变形”动效：
+- 不要安装 motion-text-kit、Framer Motion 或其他动画组件库，只用 React + CSS。
+- 创建 MorphWordsText 组件，props 包含 words、duration、delay、blur、scale、repeat、className、itemClassName、style。
+- 用 useState 保存 activeIndex、previousIndex、cycles；每 duration+delay 切到下一个词，并把旧 activeIndex 记为 previousIndex。
+- 根元素 inline-grid、white-space:pre、inline-size:max-content；aria-label 使用 words.join(", ")。
+- 加一个隐藏 sizer span，内容为最长词，visibility:hidden、opacity:0，用来固定容器宽度，避免关键词切换时布局跳动。
+- 所有词绝对叠在同一 grid-area。active 词 opacity:1、blur(0)、scale(1)、translateX(0)；previous 词 opacity:0、blur(blur*.75)、scale(1.018)、translateX(-.14em)；idle 词隐藏在右侧轻微 blur + scale(scale)。
+- transition duration 约为 duration 的 0.34，previous 稍短；easing 使用 cubic-bezier(.22,1,.36,1)。
+- prefers-reduced-motion 下只显示第一个词，其他词 opacity:0。`,
+  cursor: `实现“心跳文本”动效：
+- 不要安装 motion-text-kit、Framer Motion 或其他动画组件库，只用 React + CSS。
+- 创建 HeartbeatText 组件，props 包含 text、duration、delay、scale、settleScale、blur、repeat、className、style。
+- 根元素直接显示 text，display:inline-block，transform-origin:50% 58%，white-space:pre-wrap。
+- 使用一个循环 keyframes 模拟真实双峰心跳，而不是普通 pulse：0%-16% 静止；22% 轻微收缩 scale(.992)；30% 第一拍放大到 scale；38% 回落；48% 第二拍放大到 settleScale；60% 回到 1；76%-100% 保持静止。
+- 第一拍可以加入很轻的 blur，opacity 保持接近 1，不要改变颜色或加明显 glow，避免廉价闪烁。
+- duration 默认约 1650ms，easing 使用 cubic-bezier(.2,0,.12,1)。
+- prefers-reduced-motion 下停止动画，显示静态文本。`,
+};
+
+function getPromptSnippet(item: MotionCard): string {
+  const implementationPrompt =
+    motionImplementationPrompts[item.id] ??
+    `实现“${item.title}”文本动效：
+- 不要安装 motion-text-kit、Framer Motion 或其他动画组件库，只用 React + CSS。
+- 创建一个可复用 React 组件，支持 className、style、duration、delay、repeat 等基础 props。
+- 优先用 CSS animation / transition 实现动效，React 只负责拆分文本、状态切换和定时。
+- 根元素保留 aria-label，视觉拆分字符或词语时给子元素 aria-hidden="true"。
+- 使用 CSS 变量暴露时长、延迟、模糊、距离、颜色等参数，方便业务侧覆盖。
+- 加入 prefers-reduced-motion 降级，关闭动画后仍完整显示文本。`;
+
+  return `请在现有 React 项目中从零实现一个“${item.title}”文本动效，不安装 npm 组件库，也不要依赖 motion-text-kit。
+
+动效目标：${item.description}
+适用场景：${item.scenario}
+
+${implementationPrompt}
+
+交付要求：
+- 输出完整组件代码和配套 CSS；如果项目使用 Tailwind，也把关键动画写成普通 CSS，避免依赖额外插件。
+- 组件应可复制到任意 React / Next.js / Vite 项目中使用。
+- 默认样式不要侵入业务排版，只控制 display、white-space、animation、transform、filter、opacity 等动效必要属性。
+- 注意清理 setTimeout、setInterval、requestAnimationFrame，避免组件卸载后继续运行。
+- 保持动效克制、流畅、产品级，不要加入无关装饰。`;
+}
+
+function getCodeSnippets(item: MotionCard): Record<CodeMode, string> {
+  const componentNames = Array.from(
+    new Set([...item.code.matchAll(/<([A-Z][A-Za-z0-9]*)/g)].map((match) => match[1])),
+  );
+  const imports = componentNames.length ? componentNames.join(", ") : "TextReveal";
+  const demoName = `${componentNames[0] ?? "TextMotion"}Demo`;
+  const reactBody = item.code.trim().startsWith("<")
+    ? item.code
+    : `<>${item.code}</>`;
+
+  return {
+    css: `/* ${item.title} - CSS sketch */
+.motion-${item.id} {
+  display: inline-block;
+  animation: motion-${item.id} 720ms cubic-bezier(.22, 1, .36, 1) both;
+  will-change: opacity, filter, transform;
+}
+
+@keyframes motion-${item.id} {
+  0% {
+    opacity: 0;
+    filter: blur(8px);
+    transform: translate3d(0, 8px, 0) scale(.98);
+  }
+
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motion-${item.id} {
+    animation: none;
+    filter: none;
+    opacity: 1;
+    transform: none;
+  }
+}`,
+    react: `import { ${imports} } from "motion-text-kit";
+import "motion-text-kit/styles.css";
+
+export function ${demoName}() {
+  return (
+    ${reactBody}
+  );
+}`,
+    framer: `import { motion } from "framer-motion";
+
+export function ${demoName}() {
+  return (
+    <motion.span
+      initial={{ opacity: 0, filter: "blur(8px)", y: 8, scale: 0.98 }}
+      animate={{ opacity: 1, filter: "blur(0px)", y: 0, scale: 1 }}
+      transition={{ duration: 0.72, ease: [0.22, 1, 0.36, 1] }}
+    >
+      ${item.title}
+    </motion.span>
+  );
+}`,
+    prompt: getPromptSnippet(item),
+  };
+}
+
 function ExpandedMotionCardOverlay({
   copyLabel,
   expanded,
@@ -1400,6 +1667,9 @@ function ExpandedMotionCardOverlay({
   onClose: () => void;
   scenarioLabel: string;
 }) {
+  const [codeMode, setCodeMode] = useState<CodeMode>("react");
+  const codeSnippets = getCodeSnippets(expanded.item);
+  const selectedCode = codeSnippets[codeMode];
   const overlayStyle = {
     "--motion-card-origin-x": `${expanded.origin.left}px`,
     "--motion-card-origin-y": `${expanded.origin.top}px`,
@@ -1458,7 +1728,7 @@ function ExpandedMotionCardOverlay({
           {expanded.item.preview}
         </div>
         <div className="motion-card-expanded__body">
-          <div className="min-w-0">
+          <div className="motion-card-expanded__content min-w-0">
             <h2 className="font-semibold text-[16px] leading-6 text-neutral-900 dark:text-neutral-100">
               {expanded.item.title}
             </h2>
@@ -1473,17 +1743,40 @@ function ExpandedMotionCardOverlay({
                 {expanded.item.scenario}
               </p>
             </div>
-            <code className="mt-4 block overflow-x-auto whitespace-nowrap font-mono text-[12px] text-neutral-400 dark:text-neutral-500">
-              {expanded.item.code}
-            </code>
+            <div className="motion-code-panel mt-4">
+              <Tabs
+                className="w-fit gap-0"
+                onValueChange={(value) => setCodeMode(value as CodeMode)}
+                value={codeMode}
+              >
+                <TabsList className="motion-code-tabs rounded-full bg-neutral-100 p-1 dark:bg-white/[0.08] [&_[data-slot=tab-indicator]]:rounded-full">
+                  {(Object.keys(codeModeLabels) as CodeMode[]).map((mode) => (
+                    <TabsTab
+                      className="motion-code-tab h-7 rounded-full px-3 text-[11px] text-neutral-500 hover:text-neutral-800 data-active:text-neutral-950 dark:text-neutral-400 dark:hover:text-neutral-200 dark:data-active:text-neutral-50"
+                      key={mode}
+                      value={mode}
+                    >
+                      {codeModeLabels[mode]}
+                    </TabsTab>
+                  ))}
+                </TabsList>
+              </Tabs>
+              <div className="motion-code-preview relative overflow-hidden rounded-2xl border border-neutral-200/60 bg-neutral-100/70 dark:border-white/[0.08] dark:bg-neutral-950/60">
+                <ScrollArea className="motion-code-scroll" scrollbarGutter scrollFade>
+                  <pre className="m-0 p-3 pr-11 text-left">
+                    <code>{selectedCode}</code>
+                  </pre>
+                </ScrollArea>
+                <CopyCodeButton
+                  className="motion-code-copy absolute right-2.5 top-2.5 !size-7 rounded-full bg-transparent text-neutral-500 shadow-none hover:bg-neutral-200 hover:text-neutral-950 active:shadow-none dark:text-neutral-400 dark:hover:bg-white/[0.08] dark:hover:text-neutral-50"
+                  code={selectedCode}
+                  iconClassName="size-3.5"
+                  label={`${copyLabel} ${codeModeLabels[codeMode]}`}
+                  size="icon"
+                />
+              </div>
+            </div>
           </div>
-          <CopyCodeButton
-            className="self-end rounded-full bg-neutral-100 text-neutral-500 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-700"
-            code={expanded.item.code}
-            iconClassName="size-3.5"
-            label={`${copyLabel} ${expanded.item.title}`}
-            size="icon-xs"
-          />
         </div>
       </div>
     </div>
