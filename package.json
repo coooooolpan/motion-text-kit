@@ -1,8 +1,16 @@
 {
   "name": "motion-text-kit",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Reusable React text motion components powered by CSS animations.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/coooooolpan/motion-text-kit.git"
+  },
+  "homepage": "https://motion-text-kit.vercel.app",
+  "bugs": {
+    "url": "https://github.com/coooooolpan/motion-text-kit/issues"
+  },
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -23,10 +31,15 @@
   ],
   "keywords": [
     "react",
+    "react-animation",
     "text-animation",
+    "text-effects",
     "motion",
+    "ui-motion",
     "css-animation",
-    "number-animation"
+    "number-animation",
+    "design-system",
+    "typescript"
   ],
   "scripts": {
     "dev": "next dev",

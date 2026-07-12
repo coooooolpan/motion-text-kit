@@ -189,6 +189,78 @@
   --sidebar-ring: var(--color-neutral-400);
 }
 
+.playground-stage {
+  background-color: #fafafa;
+  background-image: radial-gradient(circle, rgb(0 0 0 / 0.09) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+.dark .playground-stage {
+  background-color: #111;
+  background-image: radial-gradient(circle, rgb(255 255 255 / 0.1) 1px, transparent 1px);
+}
+
+.playground-parameter-slider {
+  background: var(--background) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+  height: 40px !important;
+  overflow: hidden !important;
+  position: relative !important;
+  transition: border-color 180ms ease;
+}
+
+.playground-parameter-slider:focus-within {
+  border-color: color-mix(in srgb, currentColor 24%, transparent);
+  box-shadow: none !important;
+}
+
+.playground-parameter-slider input[type="range"] {
+  outline: none !important;
+}
+
+.playground-parameter-slider [data-slot="slider-control"] {
+  inset: 0 !important;
+  min-width: 0 !important;
+  position: absolute !important;
+}
+
+.playground-parameter-slider [data-slot="slider-track"] {
+  height: 100% !important;
+  width: 100% !important;
+}
+
+.playground-parameter-slider [data-slot="slider-track"]::before {
+  background: transparent !important;
+  inset: 0 !important;
+}
+
+.playground-parameter-slider [data-slot="slider-indicator"] {
+  background: color-mix(in srgb, currentColor 5%, transparent) !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+}
+
+.playground-parameter-slider [data-slot="slider-thumb"] {
+  background: currentColor !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+  height: 20px !important;
+  opacity: .42;
+  width: 3px !important;
+}
+
+.playground-parameter-slider:focus-within [data-slot="slider-thumb"] {
+  opacity: .68;
+}
+
+.playground-textarea:focus-within,
+.playground-textarea:focus-within::before {
+  box-shadow: none !important;
+}
+
 .dark {
   --destructive-foreground: var(--color-red-400);
   --info: var(--color-blue-500);

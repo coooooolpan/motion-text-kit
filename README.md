@@ -10,7 +10,7 @@ Small, polished React text motion components for interfaces that need a little m
   Reusable, CSS-first text motion for React.
 </p>
 
-[中文](#中文) | [English](#english)
+[中文](#中文) | [English](#english) | [在线预览](https://motion-text-kit.vercel.app) | [Playground](https://motion-text-kit.vercel.app/playground) | [npm](https://www.npmjs.com/package/motion-text-kit)
 
 <details>
   <summary><strong>查看完整组件画廊 / View the full component gallery</strong></summary>
@@ -39,16 +39,28 @@ Small, polished React text motion components for interfaces that need a little m
 - **CSS-first**：核心动效由 CSS animation / transition 驱动，运行时成本低。
 - **React 封装**：组件 API 直接、可组合，支持 `className`、`style` 和常用动效参数。
 - **框架无关**：可用于 Next.js、Vite、Remix、Storybook 或任意 React 项目。
+- **在线 Playground**：选择 18 个官网同款动效，实时修改文本、字号与动效参数，并复制 React 代码。
 - **可访问性友好**：字符拆分主要服务视觉层，保留可读文本与 `prefers-reduced-motion` 降级。
 - **适合设计系统**：统一命名、统一样式入口、统一动效语义，方便长期维护。
 
+### 在线 Playground
+
+[打开 Playground](https://motion-text-kit.vercel.app/playground)，无需安装即可体验 Motion 页面中的全部 18 个文本动效。
+
+- 直接修改预览文本。
+- 实时调整时长、字号、模糊、强度和字符间隔。
+- 一键重播当前动效。
+- 自动生成并复制可直接使用的 React 代码。
+- 支持深色模式、键盘调节和移动端布局。
+
 ### 最新更新
 
-`v0.2.1` 稳定近期新增动效并修复循环细节：
+`v0.3.0` 上线在线 Playground，并完成官网页面结构升级：
 
-- 修复 `AiStreamText` 文本消失后短暂闪回完整文本的问题。
-- 将 `MorphWordsText` 示例统一为相同字母长度的单词，减少宽度跳动。
-- 稳定 `SoftScrambleText`、`BreathingWordsText` 和隐形墨水的交付细节。
+- 新增独立 Playground 页面，支持 18 个文本动效的实时调参与代码复制。
+- 将 Motion、Playground、Package 和 Notes 拆分为可独立访问的页面。
+- 支持调整文本、字号、时长、模糊、强度和字符间隔，参数变化即时反馈。
+- 支持实时预览、重播、深色模式和可直接使用的 React 代码复制。
 
 ### 安装
 
@@ -328,16 +340,28 @@ If you are shaping a motion system for your interface, this repository is worth 
 - **CSS-first**: animation and transition driven, low runtime overhead.
 - **React-ready**: clean component APIs with `className`, `style`, and motion props.
 - **Framework-agnostic**: no Next.js dependency in the package itself.
+- **Live Playground**: tune all 18 effects from the Motion gallery, edit text and parameters, and copy React code.
 - **Accessible by default**: visual character splitting with readable labels and reduced-motion fallbacks.
 - **Design-system friendly**: consistent naming, a single stylesheet entry, and reusable motion semantics.
 
+### Live Playground
+
+[Open the Playground](https://motion-text-kit.vercel.app/playground) to explore all 18 text effects from the Motion gallery without installing anything.
+
+- Edit the preview text directly.
+- Tune duration, text size, blur, intensity, and character stagger in real time.
+- Replay the current motion with one click.
+- Generate and copy production-ready React code.
+- Works with dark mode, keyboard controls, and responsive layouts.
+
 ### Latest Update
 
-`v0.2.1` stabilizes the latest motion components and loop details:
+`v0.3.0` introduces the live Playground and a clearer multi-page site structure:
 
-- Fixed `AiStreamText` briefly flashing the full text after the disappear phase.
-- Updated the `MorphWordsText` demo to use same-length words for steadier switching.
-- Refined delivery details for `SoftScrambleText`, `BreathingWordsText`, and invisible ink.
+- Added a standalone Playground with live controls and copyable code for 18 text effects.
+- Split Motion, Playground, Package, and Notes into independently addressable pages.
+- Added text, size, duration, blur, intensity, and stagger controls with immediate visual feedback.
+- Added live preview, replay, dark mode, and production-ready React code copying.
 
 ### Install
 
