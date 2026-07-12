@@ -2,7 +2,21 @@
 
 Small, polished React text motion components for interfaces that need a little more life.
 
+<p align="center">
+  <img src="./docs/assets/motion-text-kit-preview.gif" alt="Motion Text Kit animated component preview" width="1024" />
+</p>
+
+<p align="center">
+  Reusable, CSS-first text motion for React.
+</p>
+
 [中文](#中文) | [English](#english)
+
+<details>
+  <summary><strong>查看完整组件画廊 / View the full component gallery</strong></summary>
+  <br />
+  <img src="./docs/assets/motion-text-kit-gallery.png" alt="Motion Text Kit full component gallery" width="100%" />
+</details>
 
 ---
 
