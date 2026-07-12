@@ -2126,9 +2126,45 @@ function LandingHero({
         >
           <GithubIcon className="size-5" />
           GitHub
+          <GithubStarCount />
         </Button>
       </div>
     </section>
+  );
+}
+
+function GithubStarCount() {
+  const [stars, setStars] = useState<number | null>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    fetch("https://api.github.com/repos/coooooolpan/motion-text-kit", {
+      headers: { Accept: "application/vnd.github+json" },
+      signal: controller.signal,
+    })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data: { stargazers_count?: unknown } | null) => {
+        if (typeof data?.stargazers_count === "number") {
+          setStars(data.stargazers_count);
+        }
+      })
+      .catch(() => {});
+
+    return () => controller.abort();
+  }, []);
+
+  if (stars === null) {
+    return null;
+  }
+
+  return (
+    <span
+      aria-label={`${stars} GitHub stars`}
+      className="-ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-black/[0.05] px-1.5 font-mono text-[11px] text-neutral-500 tabular-nums dark:bg-white/[0.08] dark:text-neutral-400"
+    >
+      {stars.toLocaleString()}
+    </span>
   );
 }
 
