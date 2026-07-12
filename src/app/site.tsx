@@ -94,6 +94,7 @@ const pageCopy = {
     heroDescription:
       "Motion Text Kit 是一组轻量、开箱即用的 React 文本动效组件，为界面注入恰到好处的动态表达。",
     copyLabel: "复制",
+    promptLabel: "提示词",
     currentTimeLabel: "当前时间",
     footerPrefix: "Crafted by",
     resetInvisibleLabel: "复原隐形",
@@ -337,6 +338,7 @@ const pageCopy = {
     heroDescription:
       "Motion Text Kit is a lightweight, ready-to-use set of React text motion components that brings just-right dynamic expression to interfaces.",
     copyLabel: "Copy",
+    promptLabel: "Prompt",
     currentTimeLabel: "Current time",
     footerPrefix: "Crafted by",
     resetInvisibleLabel: "Hide again",
@@ -1359,7 +1361,7 @@ const codeModeLabels: Record<CodeMode, string> = {
   css: "CSS",
   react: "React",
   framer: "Framer Motion",
-  prompt: "提示词",
+  prompt: "Prompt",
 };
 
 const motionImplementationPrompts: Record<string, string> = {
@@ -1622,11 +1624,13 @@ function ExpandedMotionCardOverlay({
   copyLabel,
   expanded,
   onClose,
+  promptLabel,
   scenarioLabel,
 }: {
   copyLabel: string;
   expanded: ExpandedMotionCard;
   onClose: () => void;
+  promptLabel: string;
   scenarioLabel: string;
 }) {
   const [codeMode, setCodeMode] = useState<CodeMode>("react");
@@ -1718,7 +1722,7 @@ function ExpandedMotionCardOverlay({
                       key={mode}
                       value={mode}
                     >
-                      {codeModeLabels[mode]}
+                      {mode === "prompt" ? promptLabel : codeModeLabels[mode]}
                     </TabsTab>
                   ))}
                 </TabsList>
@@ -1733,7 +1737,9 @@ function ExpandedMotionCardOverlay({
                   className="motion-code-copy absolute right-2.5 top-2.5 !size-7 rounded-full bg-transparent text-neutral-500 shadow-none hover:bg-neutral-200 hover:text-neutral-950 active:shadow-none dark:text-neutral-400 dark:hover:bg-white/[0.08] dark:hover:text-neutral-50"
                   code={selectedCode}
                   iconClassName="size-3.5"
-                  label={`${copyLabel} ${codeModeLabels[codeMode]}`}
+                  label={`${copyLabel} ${
+                    codeMode === "prompt" ? promptLabel : codeModeLabels[codeMode]
+                  }`}
                   size="icon"
                 />
               </div>
@@ -2911,6 +2917,7 @@ export default function Site({ initialPage }: { initialPage: ActivePage }) {
           copyLabel={copy.copyLabel}
           expanded={expandedCard}
           onClose={closeExpandedCard}
+          promptLabel={copy.promptLabel}
           scenarioLabel={copy.scenarioLabel}
         />
       ) : null}
